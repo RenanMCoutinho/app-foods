@@ -3,8 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Controle de Entregas - Relatório</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <title>Controle de Entregas - Cadastro</title>
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+  />
   <style>
     body {
       background: #f8f9fa;
@@ -25,29 +28,42 @@
 
   <main class="container">
     <div class="card p-4 mb-4">
-      <h1 class="mb-4 text-center text-success">Relatório de Entregas</h1>
+      <h1 class="mb-4 text-center text-success">Cadastro de Empresas</h1>
 
-      <div class="row mb-3">
-        <div class="col-md-5 mb-3 mb-md-0">
-          <label for="dataInicio" class="form-label">Data Início</label>
-          <input type="date" id="dataInicio" class="form-control" />
+      <form id="formCadastro">
+        <div class="mb-3">
+          <label for="nomeEmpresa" class="form-label">Nome da Empresa</label>
+          <input type="text" class="form-control" id="nomeEmpresa" required />
         </div>
-        <div class="col-md-5">
-          <label for="dataFim" class="form-label">Data Fim</label>
-          <input type="date" id="dataFim" class="form-control" />
+
+        <div class="mb-3">
+          <label for="enderecoEmpresa" class="form-label">Endereço</label>
+          <input type="text" class="form-control" id="enderecoEmpresa" required />
         </div>
-        <div class="col-md-2 d-flex align-items-end">
-          <button id="btnFiltrar" class="btn btn-primary w-100">Filtrar</button>
+
+        <div class="mb-3">
+          <label for="valorFrete" class="form-label">Valor do Frete (R$)</label>
+          <input
+            type="number"
+            class="form-control"
+            id="valorFrete"
+            min="0"
+            step="0.01"
+            required
+          />
         </div>
-      </div>
 
-      <div id="relatorioDias"></div>
+        <input type="hidden" id="empresaId" />
 
-      <div class="text-end">
-        <strong>Total Geral:</strong> R$ <span id="totalRelatorio">0.00</span>
-      </div>
+        <button type="submit" class="btn btn-success w-100 mb-4" id="btnSalvar">
+          Salvar Empresa
+        </button>
+      </form>
+    </div>
 
-      <button id="btnGerarPdf" class="btn btn-success mt-3 w-100">Gerar PDF</button>
+    <div class="card p-4">
+      <h3 class="mb-3 text-center">Empresas Cadastradas</h3>
+      <ul class="list-group" id="listaEmpresas"></ul>
     </div>
   </main>
 
@@ -56,141 +72,104 @@
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
   <script src="firebase-config.js"></script>
 
-  <!-- jsPDF -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-
   <script>
-    const relatorioDias = document.getElementById("relatorioDias");
-    const totalRelatorio = document.getElementById("totalRelatorio");
-    const btnFiltrar = document.getElementById("btnFiltrar");
-    const btnGerarPdf = document.getElementById("btnGerarPdf");
+    const formCadastro = document.getElementById("formCadastro");
+    const listaEmpresas = document.getElementById("listaEmpresas");
+    const nomeEmpresa = document.getElementById("nomeEmpresa");
+    const enderecoEmpresa = document.getElementById("enderecoEmpresa");
+    const valorFrete = document.getElementById("valorFrete");
+    const empresaId = document.getElementById("empresaId");
+    const btnSalvar = document.getElementById("btnSalvar");
 
-    function formatarData(d) {
-      const dt = d.toDate ? d.toDate() : new Date(d);
-      const day = String(dt.getDate()).padStart(2, "0");
-      const month = String(dt.getMonth() + 1).padStart(2, "0");
-      const year = dt.getFullYear();
-      return `${day}/${month}/${year}`;
-    }
+    // Carrega empresas e mostra na lista
+    function carregarEmpresas() {
+      window.db.collection("empresas").onSnapshot((snapshot) => {
+        listaEmpresas.innerHTML = "";
+        snapshot.docs.forEach((doc) => {
+          const data = doc.data();
+          const li = document.createElement("li");
+          li.className = "list-group-item d-flex justify-content-between align-items-center";
 
-    async function buscarEntregasPorPeriodo(dataInicio, dataFim) {
-      if (!window.db) {
-        alert("Firebase não inicializado!");
-        return [];
-      }
+          li.textContent = `${data.nome} - ${data.endereco} - R$ ${data.valorFrete.toFixed(2)}`;
 
-      const inicio = new Date(dataInicio);
-      const fim = new Date(dataFim);
-      fim.setHours(23, 59, 59, 999);
+          const btnEditar = document.createElement("button");
+          btnEditar.className = "btn btn-sm btn-primary me-2";
+          btnEditar.textContent = "Editar";
+          btnEditar.onclick = () => {
+            empresaId.value = doc.id;
+            nomeEmpresa.value = data.nome;
+            enderecoEmpresa.value = data.endereco;
+            valorFrete.value = data.valorFrete;
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            btnSalvar.textContent = "Atualizar Empresa";
+          };
 
-      const snapshot = await window.db
-        .collection("entregas")
-        .where("timestamp", ">=", firebase.firestore.Timestamp.fromDate(inicio))
-        .where("timestamp", "<=", firebase.firestore.Timestamp.fromDate(fim))
-        .get();
+          const btnExcluir = document.createElement("button");
+          btnExcluir.className = "btn btn-sm btn-danger";
+          btnExcluir.textContent = "Excluir";
+          btnExcluir.onclick = async () => {
+            if (confirm(`Excluir empresa ${data.nome}?`) ) {
+              try {
+                await window.db.collection("empresas").doc(doc.id).delete();
+                alert("Empresa excluída!");
+                if (empresaId.value === doc.id) {
+                  formCadastro.reset();
+                  empresaId.value = "";
+                  btnSalvar.textContent = "Salvar Empresa";
+                }
+              } catch (err) {
+                alert("Erro ao excluir empresa: " + err.message);
+              }
+            }
+          };
 
-      return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-    }
+          const divBtns = document.createElement("div");
+          divBtns.appendChild(btnEditar);
+          divBtns.appendChild(btnExcluir);
 
-    function mostrarEntregasAgrupadas(entregas) {
-      relatorioDias.innerHTML = "";
-      const diasMap = {};
-      let totalGeral = 0;
-
-      entregas.forEach((e) => {
-        if (!diasMap[e.data]) diasMap[e.data] = [];
-        diasMap[e.data].push(e);
-        totalGeral += e.valorFrete;
-      });
-
-      Object.keys(diasMap)
-        .sort((a, b) => {
-          // Ordena pelo formato dd/mm/yyyy
-          const [d1, m1, y1] = a.split("/").map(Number);
-          const [d2, m2, y2] = b.split("/").map(Number);
-          return new Date(y1, m1 - 1, d1) - new Date(y2, m2 - 1, d2);
-        })
-        .forEach((dia) => {
-          const ul = document.createElement("ul");
-          ul.className = "list-group mb-3";
-
-          const titulo = document.createElement("h5");
-          titulo.textContent = `Dia ${dia}`;
-          titulo.className = "text-primary mt-3";
-          relatorioDias.appendChild(titulo);
-
-          let totalDia = 0;
-          diasMap[dia].forEach((e) => {
-            const li = document.createElement("li");
-            li.className = "list-group-item";
-            li.textContent = `${e.nomeEmpresa} (${e.tipoEntrega || "N/A"}): R$ ${e.valorFrete.toFixed(2)}`;
-            ul.appendChild(li);
-            totalDia += e.valorFrete;
-          });
-
-          const liTotal = document.createElement("li");
-          liTotal.className = "list-group-item active d-flex justify-content-between";
-          liTotal.innerHTML = `<strong>Total do dia:</strong> <span>R$ ${totalDia.toFixed(2)}</span>`;
-          ul.appendChild(liTotal);
-
-          relatorioDias.appendChild(ul);
+          li.appendChild(divBtns);
+          listaEmpresas.appendChild(li);
         });
-
-      totalRelatorio.textContent = totalGeral.toFixed(2);
+      });
     }
 
-    btnFiltrar.addEventListener("click", async () => {
-      const dataInicio = document.getElementById("dataInicio").value;
-      const dataFim = document.getElementById("dataFim").value;
+    formCadastro.addEventListener("submit", async (e) => {
+      e.preventDefault();
 
-      if (!dataInicio || !dataFim) {
-        alert("Informe as duas datas para filtrar.");
-        return;
-      }
-      if (dataFim < dataInicio) {
-        alert("Data fim deve ser maior ou igual à data início.");
-        return;
-      }
+      const nome = nomeEmpresa.value.trim();
+      const endereco = enderecoEmpresa.value.trim();
+      const valor = parseFloat(valorFrete.value);
 
-      const entregas = await buscarEntregasPorPeriodo(dataInicio, dataFim);
-      mostrarEntregasAgrupadas(entregas);
-    });
-
-    btnGerarPdf.addEventListener("click", () => {
-      const { jsPDF } = window.jspdf;
-      const doc = new jsPDF();
-
-      doc.setFontSize(18);
-      doc.text("Relatório de Entregas", 14, 22);
-
-      let y = 30;
-      const dias = relatorioDias.querySelectorAll("h5, ul li");
-
-      if (dias.length === 0) {
-        alert("Nenhum dado para gerar relatório.");
+      if (!nome || !endereco || isNaN(valor) || valor < 0) {
+        alert("Preencha todos os campos corretamente.");
         return;
       }
 
-      dias.forEach((el) => {
-        if (el.tagName === "H5") {
-          doc.setFontSize(14);
-          doc.text(el.textContent, 14, y);
+      const empresaData = {
+        nome,
+        endereco,
+        valorFrete: valor,
+      };
+
+      try {
+        if (empresaId.value) {
+          // Atualizar
+          await window.db.collection("empresas").doc(empresaId.value).update(empresaData);
+          alert("Empresa atualizada com sucesso!");
         } else {
-          doc.setFontSize(11);
-          doc.text(el.textContent, 16, y);
+          // Criar nova
+          await window.db.collection("empresas").add(empresaData);
+          alert("Empresa cadastrada com sucesso!");
         }
-        y += 8;
-        if (y > 280) {
-          doc.addPage();
-          y = 20;
-        }
-      });
-
-      doc.setFontSize(14);
-      doc.text(`Total Geral: R$ ${totalRelatorio.textContent}`, 14, y + 10);
-
-      doc.save("relatorio_entregas.pdf");
+        formCadastro.reset();
+        empresaId.value = "";
+        btnSalvar.textContent = "Salvar Empresa";
+      } catch (err) {
+        alert("Erro ao salvar empresa: " + err.message);
+      }
     });
+
+    carregarEmpresas();
   </script>
 </body>
 </html>
