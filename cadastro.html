@@ -8,105 +8,170 @@
     href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
     rel="stylesheet"
   />
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"
+    rel="stylesheet"
+  />
   <style>
     body {
-      background: #f8f9fa;
+      background: #e9f0ef;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
     .card {
-      box-shadow: 0 2px 6px rgb(0 0 0 / 0.1);
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgb(0 0 0 / 0.1);
     }
-    .tipo-frete-group > div {
-      margin-bottom: 10px;
+    h1 {
+      font-weight: 700;
+      color: #2c7a7b;
+      letter-spacing: 1px;
     }
-    .tipo-frete-group input[type="number"] {
-      max-width: 120px;
-      display: inline-block;
-      margin-left: 10px;
+    label {
+      font-weight: 600;
+      color: #2c7a7b;
+    }
+    .btn-success {
+      background-color: #38a169;
+      border: none;
+      font-weight: 600;
+    }
+    .btn-success:hover {
+      background-color: #2f855a;
+    }
+    .form-check-label {
+      user-select: none;
     }
   </style>
 </head>
 <body>
-  <nav class="navbar navbar-expand navbar-dark bg-success mb-4">
+  <nav class="navbar navbar-expand navbar-dark bg-success mb-4 shadow-sm">
     <div class="container">
-      <a class="navbar-brand" href="index.html">Home</a>
-      <a class="navbar-brand" href="cadastro.html">Cadastro</a>
-      <a class="navbar-brand" href="relatorio.html">Relatório</a>
+      <a class="navbar-brand fs-4 fw-semibold" href="index.html">Home</a>
+      <a class="navbar-brand fs-4 fw-semibold" href="cadastro.html">Cadastro</a>
+      <a class="navbar-brand fs-4 fw-semibold" href="relatorio.html">Relatório</a>
     </div>
   </nav>
 
   <main class="container">
-    <div class="card p-4 mb-4">
-      <h1 class="mb-4 text-center text-success">Cadastro de Empresas</h1>
+    <div class="card p-5 mb-5">
+      <h1 class="text-center mb-4">Cadastro de Empresas</h1>
 
       <form id="formCadastro">
-        <div class="mb-3">
+        <div class="mb-4">
           <label for="nomeEmpresa" class="form-label">Nome da Empresa</label>
-          <input type="text" class="form-control" id="nomeEmpresa" required />
+          <input
+            type="text"
+            class="form-control form-control-lg"
+            id="nomeEmpresa"
+            required
+            placeholder="Digite o nome da empresa"
+          />
         </div>
 
-        <div class="mb-3 tipo-frete-group">
-          <label class="form-label">Tipos de Entrega e Valores</label>
-          <div>
-            <input type="checkbox" id="chkAlmoco" />
-            <label for="chkAlmoco">Almoço</label>
-            <input
-              type="number"
-              id="valorAlmoco"
-              placeholder="Valor R$"
-              step="0.01"
-              min="0"
-              disabled
-            />
+        <fieldset class="mb-4">
+          <legend class="mb-3 fw-semibold text-primary">Tipos de Entrega e Valores</legend>
+
+          <div class="row g-3">
+            <div class="col-md-3 form-check">
+              <input
+                class="form-check-input"
+                type="checkbox"
+                value=""
+                id="entregaAlmoco"
+                name="tiposEntrega"
+                data-tipo="almoco"
+              />
+              <label class="form-check-label" for="entregaAlmoco">
+                Almoço
+              </label>
+              <input
+                type="number"
+                class="form-control form-control-sm mt-1"
+                id="valorAlmoco"
+                placeholder="R$ 0,00"
+                min="0"
+                step="0.01"
+                disabled
+              />
+            </div>
+
+            <div class="col-md-3 form-check">
+              <input
+                class="form-check-input"
+                type="checkbox"
+                value=""
+                id="entregaJanta"
+                name="tiposEntrega"
+                data-tipo="janta"
+              />
+              <label class="form-check-label" for="entregaJanta">
+                Janta
+              </label>
+              <input
+                type="number"
+                class="form-control form-control-sm mt-1"
+                id="valorJanta"
+                placeholder="R$ 0,00"
+                min="0"
+                step="0.01"
+                disabled
+              />
+            </div>
+
+            <div class="col-md-3 form-check">
+              <input
+                class="form-check-input"
+                type="checkbox"
+                value=""
+                id="entregaCeia"
+                name="tiposEntrega"
+                data-tipo="ceia"
+              />
+              <label class="form-check-label" for="entregaCeia">
+                Ceia
+              </label>
+              <input
+                type="number"
+                class="form-control form-control-sm mt-1"
+                id="valorCeia"
+                placeholder="R$ 0,00"
+                min="0"
+                step="0.01"
+                disabled
+              />
+            </div>
+
+            <div class="col-md-3 form-check">
+              <input
+                class="form-check-input"
+                type="checkbox"
+                value=""
+                id="entregaDesjejum"
+                name="tiposEntrega"
+                data-tipo="desjejum"
+              />
+              <label class="form-check-label" for="entregaDesjejum">
+                Desjejum
+              </label>
+              <input
+                type="number"
+                class="form-control form-control-sm mt-1"
+                id="valorDesjejum"
+                placeholder="R$ 0,00"
+                min="0"
+                step="0.01"
+                disabled
+              />
+            </div>
           </div>
-          <div>
-            <input type="checkbox" id="chkJanta" />
-            <label for="chkJanta">Janta</label>
-            <input
-              type="number"
-              id="valorJanta"
-              placeholder="Valor R$"
-              step="0.01"
-              min="0"
-              disabled
-            />
-          </div>
-          <div>
-            <input type="checkbox" id="chkCeia" />
-            <label for="chkCeia">Ceia</label>
-            <input
-              type="number"
-              id="valorCeia"
-              placeholder="Valor R$"
-              step="0.01"
-              min="0"
-              disabled
-            />
-          </div>
-          <div>
-            <input type="checkbox" id="chkDesjejum" />
-            <label for="chkDesjejum">Desjejum</label>
-            <input
-              type="number"
-              id="valorDesjejum"
-              placeholder="Valor R$"
-              step="0.01"
-              min="0"
-              disabled
-            />
-          </div>
-        </div>
+        </fieldset>
 
         <input type="hidden" id="empresaId" />
 
-        <button type="submit" class="btn btn-success w-100 mb-4" id="btnSalvar">
-          Salvar Empresa
+        <button type="submit" class="btn btn-success btn-lg w-100" id="btnSalvar">
+          <i class="bi bi-save me-2"></i> Salvar Empresa
         </button>
       </form>
-    </div>
-
-    <div class="card p-4">
-      <h3 class="mb-3 text-center">Empresas Cadastradas</h3>
-      <ul class="list-group" id="listaEmpresas"></ul>
     </div>
   </main>
 
@@ -117,128 +182,58 @@
 
   <script>
     const formCadastro = document.getElementById("formCadastro");
-    const listaEmpresas = document.getElementById("listaEmpresas");
-    const nomeEmpresa = document.getElementById("nomeEmpresa");
+    const btnSalvar = document.getElementById("btnSalvar");
     const empresaId = document.getElementById("empresaId");
+    const nomeEmpresa = document.getElementById("nomeEmpresa");
 
-    const checkboxes = {
-      almoco: document.getElementById("chkAlmoco"),
-      janta: document.getElementById("chkJanta"),
-      ceia: document.getElementById("chkCeia"),
-      desjejum: document.getElementById("chkDesjejum"),
-    };
-    const valores = {
+    const checkboxes = document.querySelectorAll('input[name="tiposEntrega"]');
+    const inputsValores = {
       almoco: document.getElementById("valorAlmoco"),
       janta: document.getElementById("valorJanta"),
       ceia: document.getElementById("valorCeia"),
       desjejum: document.getElementById("valorDesjejum"),
     };
 
-    // Habilita/desabilita input valor conforme checkbox
-    Object.keys(checkboxes).forEach((key) => {
-      checkboxes[key].addEventListener("change", () => {
-        valores[key].disabled = !checkboxes[key].checked;
-        if (!checkboxes[key].checked) valores[key].value = "";
+    // Habilitar/desabilitar input valor conforme checkbox
+    checkboxes.forEach((chk) => {
+      chk.addEventListener("change", () => {
+        const tipo = chk.dataset.tipo;
+        if (chk.checked) {
+          inputsValores[tipo].disabled = false;
+          inputsValores[tipo].focus();
+        } else {
+          inputsValores[tipo].disabled = true;
+          inputsValores[tipo].value = "";
+        }
       });
     });
 
-    function carregarEmpresas() {
-      window.db.collection("empresas").onSnapshot((snapshot) => {
-        listaEmpresas.innerHTML = "";
-        snapshot.docs.forEach((doc) => {
-          const data = doc.data();
-          const li = document.createElement("li");
-          li.className = "list-group-item d-flex justify-content-between align-items-center flex-wrap";
-
-          let tiposText = Object.entries(data.tiposEntrega || {})
-            .filter(([_, val]) => val !== null && val !== undefined)
-            .map(([key, val]) => {
-              // Capitaliza primeira letra
-              return `${key.charAt(0).toUpperCase() + key.slice(1)}: R$ ${val.toFixed(2)}`;
-            })
-            .join(" | ");
-
-          li.textContent = `${data.nome} — ${tiposText}`;
-
-          const btnEditar = document.createElement("button");
-          btnEditar.className = "btn btn-sm btn-primary me-2";
-          btnEditar.textContent = "Editar";
-          btnEditar.onclick = () => {
-            empresaId.value = doc.id;
-            nomeEmpresa.value = data.nome;
-            Object.keys(checkboxes).forEach((key) => {
-              const valor = data.tiposEntrega?.[key];
-              if (valor !== undefined && valor !== null) {
-                checkboxes[key].checked = true;
-                valores[key].disabled = false;
-                valores[key].value = valor;
-              } else {
-                checkboxes[key].checked = false;
-                valores[key].disabled = true;
-                valores[key].value = "";
-              }
-            });
-            window.scrollTo({ top: 0, behavior: "smooth" });
-            document.getElementById("btnSalvar").textContent = "Atualizar Empresa";
-          };
-
-          const btnExcluir = document.createElement("button");
-          btnExcluir.className = "btn btn-sm btn-danger";
-          btnExcluir.textContent = "Excluir";
-          btnExcluir.onclick = async () => {
-            if (confirm(`Excluir empresa ${data.nome}?`)) {
-              try {
-                await window.db.collection("empresas").doc(doc.id).delete();
-                alert("Empresa excluída!");
-                if (empresaId.value === doc.id) {
-                  formCadastro.reset();
-                  empresaId.value = "";
-                  document.getElementById("btnSalvar").textContent = "Salvar Empresa";
-                }
-              } catch (err) {
-                alert("Erro ao excluir empresa: " + err.message);
-              }
-            }
-          };
-
-          const divBtns = document.createElement("div");
-          divBtns.appendChild(btnEditar);
-          divBtns.appendChild(btnExcluir);
-
-          li.appendChild(divBtns);
-          listaEmpresas.appendChild(li);
-        });
-      });
-    }
-
+    // Salvar empresa
     formCadastro.addEventListener("submit", async (e) => {
       e.preventDefault();
 
       const nome = nomeEmpresa.value.trim();
-
-      // Monta o objeto de tipos de entrega selecionados com valores
-      const tiposEntrega = {};
-      let valid = true;
-      Object.keys(checkboxes).forEach((key) => {
-        if (checkboxes[key].checked) {
-          const val = parseFloat(valores[key].value);
-          if (isNaN(val) || val < 0) {
-            alert(`Informe valor válido para ${key.charAt(0).toUpperCase() + key.slice(1)}`);
-            valid = false;
-          } else {
-            tiposEntrega[key] = val;
-          }
-        }
-      });
-
       if (!nome) {
         alert("Informe o nome da empresa.");
         return;
       }
-      if (!valid) return;
 
-      if (Object.keys(tiposEntrega).length === 0) {
-        alert("Selecione pelo menos um tipo de entrega com valor.");
+      const tiposEntrega = {};
+      let algumSelecionado = false;
+      for (const chk of checkboxes) {
+        if (chk.checked) {
+          const tipo = chk.dataset.tipo;
+          const valor = parseFloat(inputsValores[tipo].value);
+          if (isNaN(valor) || valor < 0) {
+            alert(`Informe o valor correto para o tipo ${tipo}.`);
+            return;
+          }
+          tiposEntrega[tipo] = valor;
+          algumSelecionado = true;
+        }
+      }
+      if (!algumSelecionado) {
+        alert("Selecione ao menos um tipo de entrega.");
         return;
       }
 
@@ -257,13 +252,13 @@
         }
         formCadastro.reset();
         empresaId.value = "";
-        document.getElementById("btnSalvar").textContent = "Salvar Empresa";
+        btnSalvar.innerHTML = '<i class="bi bi-save me-2"></i> Salvar Empresa';
       } catch (err) {
         alert("Erro ao salvar empresa: " + err.message);
       }
     });
 
-    carregarEmpresas();
+    // Se quiser, aqui pode carregar dados para edição (igual antes)
   </script>
 </body>
 </html>
