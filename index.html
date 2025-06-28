@@ -43,6 +43,33 @@
   <script src="firebase-config.js"></script>
 
   <script>
+  document.addEventListener("DOMContentLoaded", async () => {
+    if (!window.db) {
+      console.error("Firebase Firestore não está inicializado!");
+      return;
+    }
+
+    try {
+      // Tenta listar as coleções existentes (Firestore API não tem método direto para isso,
+      // então tentamos obter um documento de uma coleção qualquer — use 'empresas' que você criou)
+      const snapshot = await window.db.collection("empresas").limit(1).get();
+
+      if (snapshot.empty) {
+        console.log("Conexão ok, mas não há documentos na coleção 'empresas'.");
+      } else {
+        console.log("Conexão com Firebase Firestore estabelecida com sucesso!");
+        snapshot.forEach(doc => {
+          console.log("Documento exemplo:", doc.id, doc.data());
+        });
+      }
+    } catch (error) {
+      console.error("Erro ao conectar com Firebase Firestore:", error);
+    }
+  });
+</script>
+
+
+  <script>
     document.addEventListener("DOMContentLoaded", () => {
       const empresaSelect = document.getElementById("empresaSelect");
       const relatorioList = document.getElementById("relatorioList");
