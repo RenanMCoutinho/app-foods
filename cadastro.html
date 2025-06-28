@@ -3,68 +3,69 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Controle de Entregas - Cadastro de Empresas</title>
+  <title>Controle de Entregas - Cadastro</title>
   <link
     href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
     rel="stylesheet"
   />
   <style>
-    .btn-sm { padding: 0.25rem 0.5rem; font-size: 0.875rem; }
+    body {
+      background: #f8f9fa;
+    }
+    .card {
+      box-shadow: 0 2px 6px rgb(0 0 0 / 0.1);
+    }
   </style>
 </head>
 <body>
-  <nav class="navbar navbar-expand bg-dark navbar-dark mb-4">
+  <nav class="navbar navbar-expand navbar-dark bg-success mb-4">
     <div class="container">
       <a class="navbar-brand" href="index.html">Home</a>
       <a class="navbar-brand" href="cadastro.html">Cadastro</a>
+      <a class="navbar-brand" href="relatorio.html">Relatório</a>
     </div>
   </nav>
 
-  <div class="container">
-    <h1 class="mb-4 text-center">Cadastrar Empresa</h1>
+  <main class="container">
+    <div class="card p-4 mb-4">
+      <h1 class="mb-4 text-center text-success">Cadastro de Empresas</h1>
 
-    <form id="formCadastro">
-      <input type="hidden" id="empresaId" /> <!-- Para editar -->
+      <form id="formCadastro">
+        <div class="mb-3">
+          <label for="nomeEmpresa" class="form-label">Nome da Empresa</label>
+          <input type="text" class="form-control" id="nomeEmpresa" required />
+        </div>
 
-      <div class="mb-3">
-        <label for="nomeEmpresa" class="form-label">Nome da Empresa</label>
-        <input type="text" id="nomeEmpresa" class="form-control" required />
-      </div>
+        <div class="mb-3">
+          <label for="enderecoEmpresa" class="form-label">Endereço</label>
+          <input type="text" class="form-control" id="enderecoEmpresa" required />
+        </div>
 
-      <div class="mb-3">
-        <label for="enderecoEmpresa" class="form-label">Endereço</label>
-        <input type="text" id="enderecoEmpresa" class="form-control" required />
-      </div>
+        <div class="mb-3">
+          <label for="valorFrete" class="form-label">Valor do Frete (R$)</label>
+          <input
+            type="number"
+            class="form-control"
+            id="valorFrete"
+            min="0"
+            step="0.01"
+            required
+          />
+        </div>
 
-      <div class="mb-3">
-        <label for="valorFrete" class="form-label">Valor do Frete (R$)</label>
-        <input
-          type="number"
-          id="valorFrete"
-          class="form-control"
-          step="0.01"
-          min="0"
-          required
-        />
-      </div>
+        <input type="hidden" id="empresaId" />
 
-      <button type="submit" class="btn btn-primary w-100 mb-4" id="btnSalvar">Cadastrar</button>
-      <button type="button" class="btn btn-secondary w-100 mb-4 d-none" id="btnCancelar">Cancelar edição</button>
-    </form>
+        <button type="submit" class="btn btn-success w-100 mb-4" id="btnSalvar">
+          Salvar Empresa
+        </button>
+      </form>
+    </div>
 
-    <h2>Empresas Cadastradas</h2>
-    <table class="table table-striped" id="tabelaEmpresas">
-      <thead>
-        <tr>
-          <th>Nome</th>
-          <th>Endereço</th>
-          <th>Valor Frete (R$)</th>
-          <th>Ações</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-  </div>
+    <div class="card p-4">
+      <h3 class="mb-3 text-center">Empresas Cadastradas</h3>
+      <ul class="list-group" id="listaEmpresas"></ul>
+    </div>
+  </main>
 
   <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
@@ -72,134 +73,103 @@
   <script src="firebase-config.js"></script>
 
   <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      const formCadastro = document.getElementById("formCadastro");
-      const empresaIdInput = document.getElementById("empresaId");
-      const nomeEmpresa = document.getElementById("nomeEmpresa");
-      const enderecoEmpresa = document.getElementById("enderecoEmpresa");
-      const valorFrete = document.getElementById("valorFrete");
-      const btnSalvar = document.getElementById("btnSalvar");
-      const btnCancelar = document.getElementById("btnCancelar");
-      const tabelaBody = document.querySelector("#tabelaEmpresas tbody");
+    const formCadastro = document.getElementById("formCadastro");
+    const listaEmpresas = document.getElementById("listaEmpresas");
+    const nomeEmpresa = document.getElementById("nomeEmpresa");
+    const enderecoEmpresa = document.getElementById("enderecoEmpresa");
+    const valorFrete = document.getElementById("valorFrete");
+    const empresaId = document.getElementById("empresaId");
+    const btnSalvar = document.getElementById("btnSalvar");
 
-      if (!window.db) {
-        alert("Erro: Firebase não inicializado corretamente!");
+    // Carrega empresas e mostra na lista
+    function carregarEmpresas() {
+      window.db.collection("empresas").onSnapshot((snapshot) => {
+        listaEmpresas.innerHTML = "";
+        snapshot.docs.forEach((doc) => {
+          const data = doc.data();
+          const li = document.createElement("li");
+          li.className = "list-group-item d-flex justify-content-between align-items-center";
+
+          li.textContent = `${data.nome} - ${data.endereco} - R$ ${data.valorFrete.toFixed(2)}`;
+
+          const btnEditar = document.createElement("button");
+          btnEditar.className = "btn btn-sm btn-primary me-2";
+          btnEditar.textContent = "Editar";
+          btnEditar.onclick = () => {
+            empresaId.value = doc.id;
+            nomeEmpresa.value = data.nome;
+            enderecoEmpresa.value = data.endereco;
+            valorFrete.value = data.valorFrete;
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            btnSalvar.textContent = "Atualizar Empresa";
+          };
+
+          const btnExcluir = document.createElement("button");
+          btnExcluir.className = "btn btn-sm btn-danger";
+          btnExcluir.textContent = "Excluir";
+          btnExcluir.onclick = async () => {
+            if (confirm(`Excluir empresa ${data.nome}?`) ) {
+              try {
+                await window.db.collection("empresas").doc(doc.id).delete();
+                alert("Empresa excluída!");
+                if (empresaId.value === doc.id) {
+                  formCadastro.reset();
+                  empresaId.value = "";
+                  btnSalvar.textContent = "Salvar Empresa";
+                }
+              } catch (err) {
+                alert("Erro ao excluir empresa: " + err.message);
+              }
+            }
+          };
+
+          const divBtns = document.createElement("div");
+          divBtns.appendChild(btnEditar);
+          divBtns.appendChild(btnExcluir);
+
+          li.appendChild(divBtns);
+          listaEmpresas.appendChild(li);
+        });
+      });
+    }
+
+    formCadastro.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const nome = nomeEmpresa.value.trim();
+      const endereco = enderecoEmpresa.value.trim();
+      const valor = parseFloat(valorFrete.value);
+
+      if (!nome || !endereco || isNaN(valor) || valor < 0) {
+        alert("Preencha todos os campos corretamente.");
         return;
       }
 
-      // Função para carregar empresas e atualizar tabela
-      function carregarEmpresas() {
-        window.db.collection("empresas").onSnapshot((snapshot) => {
-          tabelaBody.innerHTML = "";
-          snapshot.forEach((doc) => {
-            const data = doc.data();
-            const tr = document.createElement("tr");
+      const empresaData = {
+        nome,
+        endereco,
+        valorFrete: valor,
+      };
 
-            tr.innerHTML = `
-              <td>${data.nome}</td>
-              <td>${data.endereco}</td>
-              <td>R$ ${data.valorFrete.toFixed(2)}</td>
-              <td>
-                <button class="btn btn-sm btn-warning btn-editar" data-id="${doc.id}">Editar</button>
-                <button class="btn btn-sm btn-danger btn-excluir" data-id="${doc.id}">Excluir</button>
-              </td>
-            `;
-
-            tabelaBody.appendChild(tr);
-          });
-
-          // Adicionar eventos para os botões Editar e Excluir
-          document.querySelectorAll(".btn-editar").forEach((btn) => {
-            btn.addEventListener("click", async () => {
-              const id = btn.getAttribute("data-id");
-              try {
-                const doc = await window.db.collection("empresas").doc(id).get();
-                if (doc.exists) {
-                  const empresa = doc.data();
-                  empresaIdInput.value = id;
-                  nomeEmpresa.value = empresa.nome;
-                  enderecoEmpresa.value = empresa.endereco;
-                  valorFrete.value = empresa.valorFrete;
-
-                  btnSalvar.textContent = "Salvar Alterações";
-                  btnCancelar.classList.remove("d-none");
-                  window.scrollTo({ top: 0, behavior: "smooth" });
-                }
-              } catch (error) {
-                alert("Erro ao carregar empresa: " + error.message);
-              }
-            });
-          });
-
-          document.querySelectorAll(".btn-excluir").forEach((btn) => {
-            btn.addEventListener("click", async () => {
-              const id = btn.getAttribute("data-id");
-              if (confirm("Tem certeza que deseja excluir esta empresa?")) {
-                try {
-                  await window.db.collection("empresas").doc(id).delete();
-                  alert("Empresa excluída com sucesso!");
-                } catch (error) {
-                  alert("Erro ao excluir empresa: " + error.message);
-                }
-              }
-            });
-          });
-        });
-      }
-
-      // Enviar formulário para criar ou editar empresa
-      formCadastro.addEventListener("submit", async (e) => {
-        e.preventDefault();
-
-        const nome = nomeEmpresa.value.trim();
-        const endereco = enderecoEmpresa.value.trim();
-        const valor = parseFloat(valorFrete.value);
-
-        if (!nome || !endereco || isNaN(valor) || valor < 0) {
-          alert("Preencha todos os campos corretamente.");
-          return;
+      try {
+        if (empresaId.value) {
+          // Atualizar
+          await window.db.collection("empresas").doc(empresaId.value).update(empresaData);
+          alert("Empresa atualizada com sucesso!");
+        } else {
+          // Criar nova
+          await window.db.collection("empresas").add(empresaData);
+          alert("Empresa cadastrada com sucesso!");
         }
-
-        const idEdit = empresaIdInput.value;
-
-        try {
-          if (idEdit) {
-            // Atualizar empresa existente
-            await window.db.collection("empresas").doc(idEdit).update({
-              nome,
-              endereco,
-              valorFrete: valor,
-            });
-            alert("Empresa atualizada com sucesso!");
-          } else {
-            // Criar nova empresa
-            await window.db.collection("empresas").add({
-              nome,
-              endereco,
-              valorFrete: valor,
-            });
-            alert("Empresa cadastrada com sucesso!");
-          }
-
-          formCadastro.reset();
-          empresaIdInput.value = "";
-          btnSalvar.textContent = "Cadastrar";
-          btnCancelar.classList.add("d-none");
-        } catch (error) {
-          alert("Erro ao salvar empresa: " + error.message);
-        }
-      });
-
-      // Cancelar edição
-      btnCancelar.addEventListener("click", () => {
         formCadastro.reset();
-        empresaIdInput.value = "";
-        btnSalvar.textContent = "Cadastrar";
-        btnCancelar.classList.add("d-none");
-      });
-
-      carregarEmpresas();
+        empresaId.value = "";
+        btnSalvar.textContent = "Salvar Empresa";
+      } catch (err) {
+        alert("Erro ao salvar empresa: " + err.message);
+      }
     });
+
+    carregarEmpresas();
   </script>
 </body>
 </html>
