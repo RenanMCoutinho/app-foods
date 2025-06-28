@@ -15,6 +15,14 @@
     .card {
       box-shadow: 0 2px 6px rgb(0 0 0 / 0.1);
     }
+    .tipo-frete-group > div {
+      margin-bottom: 10px;
+    }
+    .tipo-frete-group input[type="number"] {
+      max-width: 120px;
+      display: inline-block;
+      margin-left: 10px;
+    }
   </style>
 </head>
 <body>
@@ -36,31 +44,55 @@
           <input type="text" class="form-control" id="nomeEmpresa" required />
         </div>
 
-        <div class="mb-3">
-          <label class="form-label">Tipos de Entrega</label>
-
-          <div class="form-check">
-            <input class="form-check-input" type="checkbox" id="entregaAlmoco" />
-            <label class="form-check-label" for="entregaAlmoco">Almoço</label>
-            <input type="number" class="form-control mt-1 mb-2" id="valorAlmoco" placeholder="Valor frete almoço" step="0.01" disabled />
+        <div class="mb-3 tipo-frete-group">
+          <label class="form-label">Tipos de Entrega e Valores</label>
+          <div>
+            <input type="checkbox" id="chkAlmoco" />
+            <label for="chkAlmoco">Almoço</label>
+            <input
+              type="number"
+              id="valorAlmoco"
+              placeholder="Valor R$"
+              step="0.01"
+              min="0"
+              disabled
+            />
           </div>
-
-          <div class="form-check">
-            <input class="form-check-input" type="checkbox" id="entregaJanta" />
-            <label class="form-check-label" for="entregaJanta">Janta</label>
-            <input type="number" class="form-control mt-1 mb-2" id="valorJanta" placeholder="Valor frete janta" step="0.01" disabled />
+          <div>
+            <input type="checkbox" id="chkJanta" />
+            <label for="chkJanta">Janta</label>
+            <input
+              type="number"
+              id="valorJanta"
+              placeholder="Valor R$"
+              step="0.01"
+              min="0"
+              disabled
+            />
           </div>
-
-          <div class="form-check">
-            <input class="form-check-input" type="checkbox" id="entregaCeia" />
-            <label class="form-check-label" for="entregaCeia">Ceia</label>
-            <input type="number" class="form-control mt-1 mb-2" id="valorCeia" placeholder="Valor frete ceia" step="0.01" disabled />
+          <div>
+            <input type="checkbox" id="chkCeia" />
+            <label for="chkCeia">Ceia</label>
+            <input
+              type="number"
+              id="valorCeia"
+              placeholder="Valor R$"
+              step="0.01"
+              min="0"
+              disabled
+            />
           </div>
-
-          <div class="form-check">
-            <input class="form-check-input" type="checkbox" id="entregaDesjejum" />
-            <label class="form-check-label" for="entregaDesjejum">Desjejum</label>
-            <input type="number" class="form-control mt-1 mb-2" id="valorDesjejum" placeholder="Valor frete desjejum" step="0.01" disabled />
+          <div>
+            <input type="checkbox" id="chkDesjejum" />
+            <label for="chkDesjejum">Desjejum</label>
+            <input
+              type="number"
+              id="valorDesjejum"
+              placeholder="Valor R$"
+              step="0.01"
+              min="0"
+              disabled
+            />
           </div>
         </div>
 
@@ -88,18 +120,25 @@
     const listaEmpresas = document.getElementById("listaEmpresas");
     const nomeEmpresa = document.getElementById("nomeEmpresa");
     const empresaId = document.getElementById("empresaId");
-    const btnSalvar = document.getElementById("btnSalvar");
 
-    const entregas = [
-      { check: "entregaAlmoco", input: "valorAlmoco" },
-      { check: "entregaJanta", input: "valorJanta" },
-      { check: "entregaCeia", input: "valorCeia" },
-      { check: "entregaDesjejum", input: "valorDesjejum" },
-    ];
+    const checkboxes = {
+      almoco: document.getElementById("chkAlmoco"),
+      janta: document.getElementById("chkJanta"),
+      ceia: document.getElementById("chkCeia"),
+      desjejum: document.getElementById("chkDesjejum"),
+    };
+    const valores = {
+      almoco: document.getElementById("valorAlmoco"),
+      janta: document.getElementById("valorJanta"),
+      ceia: document.getElementById("valorCeia"),
+      desjejum: document.getElementById("valorDesjejum"),
+    };
 
-    entregas.forEach(({ check, input }) => {
-      document.getElementById(check).addEventListener("change", (e) => {
-        document.getElementById(input).disabled = !e.target.checked;
+    // Habilita/desabilita input valor conforme checkbox
+    Object.keys(checkboxes).forEach((key) => {
+      checkboxes[key].addEventListener("change", () => {
+        valores[key].disabled = !checkboxes[key].checked;
+        if (!checkboxes[key].checked) valores[key].value = "";
       });
     });
 
@@ -109,10 +148,17 @@
         snapshot.docs.forEach((doc) => {
           const data = doc.data();
           const li = document.createElement("li");
-          li.className = "list-group-item d-flex justify-content-between align-items-center";
+          li.className = "list-group-item d-flex justify-content-between align-items-center flex-wrap";
 
-          const tipos = Object.entries(data.tiposEntrega || {}).map(([tipo, valor]) => `${tipo}: R$ ${valor.toFixed(2)}`).join(" | ");
-          li.textContent = `${data.nome} - ${tipos}`;
+          let tiposText = Object.entries(data.tiposEntrega || {})
+            .filter(([_, val]) => val !== null && val !== undefined)
+            .map(([key, val]) => {
+              // Capitaliza primeira letra
+              return `${key.charAt(0).toUpperCase() + key.slice(1)}: R$ ${val.toFixed(2)}`;
+            })
+            .join(" | ");
+
+          li.textContent = `${data.nome} — ${tiposText}`;
 
           const btnEditar = document.createElement("button");
           btnEditar.className = "btn btn-sm btn-primary me-2";
@@ -120,17 +166,20 @@
           btnEditar.onclick = () => {
             empresaId.value = doc.id;
             nomeEmpresa.value = data.nome;
-            entregas.forEach(({ check, input }) => {
-              const tipo = check.replace("entrega", "").toLowerCase();
-              const valor = data.tiposEntrega?.[tipo];
-              const checkbox = document.getElementById(check);
-              const inputValor = document.getElementById(input);
-              checkbox.checked = !!valor;
-              inputValor.disabled = !valor;
-              inputValor.value = valor || "";
+            Object.keys(checkboxes).forEach((key) => {
+              const valor = data.tiposEntrega?.[key];
+              if (valor !== undefined && valor !== null) {
+                checkboxes[key].checked = true;
+                valores[key].disabled = false;
+                valores[key].value = valor;
+              } else {
+                checkboxes[key].checked = false;
+                valores[key].disabled = true;
+                valores[key].value = "";
+              }
             });
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-            btnSalvar.textContent = "Atualizar Empresa";
+            window.scrollTo({ top: 0, behavior: "smooth" });
+            document.getElementById("btnSalvar").textContent = "Atualizar Empresa";
           };
 
           const btnExcluir = document.createElement("button");
@@ -144,7 +193,7 @@
                 if (empresaId.value === doc.id) {
                   formCadastro.reset();
                   empresaId.value = "";
-                  btnSalvar.textContent = "Salvar Empresa";
+                  document.getElementById("btnSalvar").textContent = "Salvar Empresa";
                 }
               } catch (err) {
                 alert("Erro ao excluir empresa: " + err.message);
@@ -166,27 +215,30 @@
       e.preventDefault();
 
       const nome = nomeEmpresa.value.trim();
-      const tiposEntrega = {};
-      let valido = true;
-      let peloMenosUm = false;
 
-      entregas.forEach(({ check, input }) => {
-        const checkbox = document.getElementById(check);
-        const valorInput = document.getElementById(input);
-        if (checkbox.checked) {
-          const valor = parseFloat(valorInput.value);
-          if (isNaN(valor) || valor <= 0) {
-            alert(`Informe um valor válido para o frete de ${checkbox.nextElementSibling.textContent}.`);
-            valido = false;
-            return;
+      // Monta o objeto de tipos de entrega selecionados com valores
+      const tiposEntrega = {};
+      let valid = true;
+      Object.keys(checkboxes).forEach((key) => {
+        if (checkboxes[key].checked) {
+          const val = parseFloat(valores[key].value);
+          if (isNaN(val) || val < 0) {
+            alert(`Informe valor válido para ${key.charAt(0).toUpperCase() + key.slice(1)}`);
+            valid = false;
+          } else {
+            tiposEntrega[key] = val;
           }
-          tiposEntrega[check.replace("entrega", "").toLowerCase()] = valor;
-          peloMenosUm = true;
         }
       });
 
-      if (!valido || !peloMenosUm) {
-        if (!peloMenosUm) alert("Selecione pelo menos um tipo de entrega.");
+      if (!nome) {
+        alert("Informe o nome da empresa.");
+        return;
+      }
+      if (!valid) return;
+
+      if (Object.keys(tiposEntrega).length === 0) {
+        alert("Selecione pelo menos um tipo de entrega com valor.");
         return;
       }
 
@@ -205,7 +257,7 @@
         }
         formCadastro.reset();
         empresaId.value = "";
-        btnSalvar.textContent = "Salvar Empresa";
+        document.getElementById("btnSalvar").textContent = "Salvar Empresa";
       } catch (err) {
         alert("Erro ao salvar empresa: " + err.message);
       }

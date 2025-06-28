@@ -4,7 +4,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Controle de Entregas - Relatório</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+  />
   <style>
     body {
       background: #f8f9fa;
@@ -105,7 +108,6 @@
 
       Object.keys(diasMap)
         .sort((a, b) => {
-          // Ordena pelo formato dd/mm/yyyy
           const [d1, m1, y1] = a.split("/").map(Number);
           const [d2, m2, y2] = b.split("/").map(Number);
           return new Date(y1, m1 - 1, d1) - new Date(y2, m2 - 1, d2);
@@ -123,7 +125,7 @@
           diasMap[dia].forEach((e) => {
             const li = document.createElement("li");
             li.className = "list-group-item";
-            li.textContent = `${e.nomeEmpresa} (${e.tipoEntrega || "N/A"}): R$ ${e.valorFrete.toFixed(2)}`;
+            li.textContent = `${e.nomeEmpresa} (${e.tipoEntrega}): R$ ${e.valorFrete.toFixed(2)}`;
             ul.appendChild(li);
             totalDia += e.valorFrete;
           });
