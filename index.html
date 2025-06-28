@@ -4,20 +4,13 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Controle de Entregas - Home</title>
-  <link
-    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
-    rel="stylesheet"
-  />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
   <style>
     body {
       background: #f8f9fa;
     }
     .card {
       box-shadow: 0 2px 6px rgb(0 0 0 / 0.1);
-    }
-    #totalHoje {
-      font-size: 1.5rem;
-      color: #198754;
     }
   </style>
 </head>
@@ -35,20 +28,22 @@
       <h1 class="mb-4 text-center text-success">Registrar Entregas do Dia</h1>
 
       <div class="mb-3">
-        <label for="empresaSelect" class="form-label">Selecione a Empresa</label>
+        <label for="empresaSelect" class="form-label">Empresa</label>
         <select id="empresaSelect" class="form-select"></select>
       </div>
 
-      <button id="btnRegistrar" class="btn btn-success w-100 mb-4">
-        Registrar Frete
-      </button>
-    </div>
+      <div class="mb-3">
+        <label for="tipoEntrega" class="form-label">Tipo de Entrega</label>
+        <select id="tipoEntrega" class="form-select">
+          <option value="">Selecione o tipo</option>
+        </select>
+      </div>
 
-    <div class="card p-4">
-      <h3 class="mb-3 text-center">Relatório do Dia (<span id="dataHoje"></span>)</h3>
-      <ul class="list-group mb-3" id="relatorioList"></ul>
+      <button id="btnRegistrar" class="btn btn-success w-100 mb-4">Registrar Frete</button>
 
-      <div class="text-end">
+      <h3>Relatório do Dia (<span id="dataHoje"></span>)</h3>
+      <ul class="list-group" id="relatorioList"></ul>
+      <div class="mt-2 text-end">
         <strong>Total:</strong> R$ <span id="totalHoje">0.00</span>
       </div>
     </div>
@@ -61,6 +56,7 @@
 
   <script>
     const empresaSelect = document.getElementById("empresaSelect");
+    const tipoEntrega = document.getElementById("tipoEntrega");
     const relatorioList = document.getElementById("relatorioList");
     const totalHoje = document.getElementById("totalHoje");
     const dataHoje = document.getElementById("dataHoje");
@@ -77,11 +73,8 @@
     }
 
     function carregarEmpresas() {
-      window.db.collection("empresas").onSnapshot((snapshot) => {
-        empresas = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
+      db.collection("empresas").onSnapshot((snapshot) => {
+        empresas = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
 
         empresaSelect.innerHTML = '<option value="">Selecione...</option>';
         empresas.forEach((emp) => {
@@ -93,26 +86,45 @@
       });
     }
 
+    empresaSelect.addEventListener("change", () => {
+      const empresaId = empresaSelect.value;
+      tipoEntrega.innerHTML = '<option value="">Selecione o tipo</option>';
+      const empresa = empresas.find((e) => e.id === empresaId);
+      if (empresa && empresa.tiposEntrega) {
+        Object.entries(empresa.tiposEntrega).forEach(([tipo, valor]) => {
+          const option = document.createElement("option");
+          option.value = tipo;
+          option.textContent = `${tipo.charAt(0).toUpperCase() + tipo.slice(1)} - R$ ${valor.toFixed(2)}`;
+          tipoEntrega.appendChild(option);
+        });
+      }
+    });
+
     async function registrarEntrega() {
       const empresaId = empresaSelect.value;
-      if (!empresaId) {
-        alert("Selecione uma empresa!");
-        return;
-      }
-      const empresa = empresas.find((e) => e.id === empresaId);
-      if (!empresa) {
-        alert("Empresa inválida!");
+      const tipo = tipoEntrega.value;
+
+      if (!empresaId || !tipo) {
+        alert("Selecione a empresa e o tipo de entrega.");
         return;
       }
 
-      const hoje = new Date();
+      const empresa = empresas.find((e) => e.id === empresaId);
+      if (!empresa || !empresa.tiposEntrega[tipo]) {
+        alert("Dados inválidos.");
+        return;
+      }
+
+      const valorFrete = empresa.tiposEntrega[tipo];
+      const hoje = formatarData(new Date());
 
       try {
-        await window.db.collection("entregas").add({
+        await db.collection("entregas").add({
           empresaId: empresa.id,
           nomeEmpresa: empresa.nome,
-          valorFrete: empresa.valorFrete,
-          data: hoje,
+          tipoEntrega: tipo,
+          valorFrete,
+          data: hoje
         });
         alert("Entrega registrada com sucesso!");
         atualizarRelatorio();
@@ -125,47 +137,29 @@
       const hoje = formatarData(new Date());
       dataHoje.textContent = hoje;
 
-      const inicioDia = new Date();
-      inicioDia.setHours(0,0,0,0);
-      const fimDia = new Date();
-      fimDia.setHours(23,59,59,999);
+      db.collection("entregas").where("data", "==", hoje).get().then((querySnapshot) => {
+        relatorioList.innerHTML = "";
+        let total = 0;
+        querySnapshot.forEach((doc) => {
+          const e = doc.data();
+          total += e.valorFrete;
+          const li = document.createElement("li");
+          li.className = "list-group-item d-flex justify-content-between align-items-center";
+          li.textContent = `${e.nomeEmpresa} (${e.tipoEntrega}): R$ ${e.valorFrete.toFixed(2)}`;
 
-      window.db.collection("entregas")
-        .where("data", ">=", inicioDia)
-        .where("data", "<=", fimDia)
-        .onSnapshot((querySnapshot) => {
-          relatorioList.innerHTML = "";
-          let total = 0;
+          const btnExcluir = document.createElement("button");
+          btnExcluir.className = "btn btn-sm btn-danger";
+          btnExcluir.textContent = "Remover";
+          btnExcluir.onclick = async () => {
+            await db.collection("entregas").doc(doc.id).delete();
+            atualizarRelatorio();
+          };
 
-          querySnapshot.forEach((doc) => {
-            const e = doc.data();
-            total += e.valorFrete;
-
-            const li = document.createElement("li");
-            li.className = "list-group-item d-flex justify-content-between align-items-center";
-
-            li.textContent = `${e.nomeEmpresa}: R$ ${e.valorFrete.toFixed(2)}`;
-
-            const btnRemover = document.createElement("button");
-            btnRemover.className = "btn btn-sm btn-danger";
-            btnRemover.textContent = "Remover";
-            btnRemover.onclick = async () => {
-              if (confirm(`Remover entrega de ${e.nomeEmpresa}?`)) {
-                try {
-                  await window.db.collection("entregas").doc(doc.id).delete();
-                  alert("Entrega removida!");
-                } catch (err) {
-                  alert("Erro ao remover entrega: " + err.message);
-                }
-              }
-            };
-
-            li.appendChild(btnRemover);
-            relatorioList.appendChild(li);
-          });
-
-          totalHoje.textContent = total.toFixed(2);
+          li.appendChild(btnExcluir);
+          relatorioList.appendChild(li);
         });
+        totalHoje.textContent = total.toFixed(2);
+      });
     }
 
     btnRegistrar.addEventListener("click", registrarEntrega);
