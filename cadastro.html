@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Cadastro de Empresas</title>
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+  />
+  <link href="style.css" rel="stylesheet" />
+</head>
+<body>
+  <nav class="navbar navbar-expand bg-dark navbar-dark mb-4">
+    <div class="container">
+      <a class="navbar-brand" href="index.html">Home</a>
+      <a class="navbar-brand" href="cadastro.html">Cadastro</a>
+    </div>
+  </nav>
+
+  <div class="container">
+    <h1 class="mb-4 text-center">Cadastrar Empresas</h1>
+
+    <form id="empresaForm" class="mb-4">
+      <input type="hidden" id="empresaId" />
+      <div class="mb-3">
+        <label for="nome" class="form-label">Nome da Empresa</label>
+        <input
+          type="text"
+          id="nome"
+          class="form-control"
+          required
+          placeholder="Ex: Transportadora XYZ"
+        />
+      </div>
+
+      <div class="mb-3">
+        <label for="valorFrete" class="form-label">Valor do Frete (R$)</label>
+        <input
+          type="number"
+          id="valorFrete"
+          class="form-control"
+          required
+          min="0"
+          step="0.01"
+          placeholder="Ex: 120.50"
+        />
+      </div>
+
+      <button type="submit" class="btn btn-primary w-100">Salvar Empresa</button>
+    </form>
+
+    <h3>Empresas Cadastradas</h3>
+    <ul class="list-group" id="listaEmpresas"></ul>
+  </div>
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+  <script src="firebase-config.js"></script>
+
+  <script>
+    const empresaForm = document.getElementById("empresaForm");
+    const listaEmpresas = document.getElementById("listaEmpresas");
+    const empresaIdInput = document.getElementById("empresaId");
+
+    function renderEmpresas(empresas) {
+      listaEmpresas.innerHTML = "";
+      empresas.forEach((doc) => {
+        const empresa = doc.data();
+        const li = document.createElement("li");
+        li.className =
+          "list-group-item d-flex justify-content-between align-items-center";
+        li.textContent = `${empresa.nome} - R$ ${empresa.valorFrete.toFixed(2)}`;
+
+        const btns = document.createElement("div");
+
+        // Editar
+        const btnEdit = document.createElement("button");
+        btnEdit.className = "btn btn-sm btn-outline-secondary me-2";
+        btnEdit.textContent = "✏️";
+        btnEdit.onclick = () => {
+          empresaIdInput.value = doc.id;
+          document.getElementById("nome").value = empresa.nome;
+          document.getElementById("valorFrete").value = empresa.valorFrete;
+        };
+        btns.appendChild(btnEdit);
+
+        // Excluir
+        const btnDel = document.createElement("button");
+        btnDel.className = "btn btn-sm btn-outline-danger";
+        btnDel.textContent = "🗑️";
+        btnDel.onclick = async () => {
+          if (
+            confirm(
+              `Deseja mesmo excluir a empresa "${empresa.nome}"? Essa ação não pode ser desfeita.`
+            )
+          ) {
+            await db.collection("empresas").doc(doc.id).delete();
+          }
+        };
+        btns.appendChild(btnDel);
+
+        li.appendChild(btns);
+        listaEmpresas.appendChild(li);
+      });
+    }
+
+    // Carregar empresas do Firestore e renderizar
+    function loadEmpresas() {
+      db.collection("empresas").onSnapshot((snapshot) => {
+        renderEmpresas(snapshot.docs);
+      });
+    }
+
+    empresaForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const nome = document.getElementById("nome").value.trim();
+      const valorFrete = parseFloat(document.getElementById("valorFrete").value);
+      const empresaId = empresaIdInput.value;
+
+      if (!nome || isNaN(valorFrete)) {
+        alert("Preencha todos os campos corretamente.");
+        return;
+      }
+
+      try {
+        if (empresaId) {
+          // Atualizar empresa
+          await db.collection("empresas").doc(empresaId).update({
+            nome,
+            valorFrete,
+          });
+        } else {
+          // Criar nova empresa
+          await db.collection("empresas").add({
+            nome,
+            valorFrete,
+          });
+        }
+
+        empresaForm.reset();
+        empresaIdInput.value = "";
+      } catch (error) {
+        alert("Erro ao salvar empresa: " + error.message);
+      }
+    });
+
+    loadEmpresas();
+  </script>
+</body>
+</html>
