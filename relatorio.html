@@ -4,10 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Controle de Entregas - Relatório</title>
-  <link
-    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
-    rel="stylesheet"
-  />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
   <style>
     body {
       background: #f8f9fa;
@@ -69,7 +66,7 @@
     const btnGerarPdf = document.getElementById("btnGerarPdf");
 
     function formatarData(d) {
-      const dt = d.toDate ? d.toDate() : new Date(d);
+      const dt = d instanceof Date ? d : d.toDate();
       const day = String(dt.getDate()).padStart(2, "0");
       const month = String(dt.getMonth() + 1).padStart(2, "0");
       const year = dt.getFullYear();
@@ -82,17 +79,21 @@
         return [];
       }
 
-      const inicio = new Date(dataInicio);
-      const fim = new Date(dataFim);
-      fim.setHours(23, 59, 59, 999);
+      const inicio = new Date(dataInicio + "T00:00:00");
+      const fim = new Date(dataFim + "T23:59:59");
 
-      const snapshot = await window.db
-        .collection("entregas")
-        .where("data", ">=", inicio)
-        .where("data", "<=", fim)
-        .get();
+      try {
+        const snapshot = await window.db
+          .collection("entregas")
+          .where("data", ">=", inicio)
+          .where("data", "<=", fim)
+          .get();
 
-      return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+        return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+      } catch (err) {
+        alert("Erro ao buscar entregas: " + err.message);
+        return [];
+      }
     }
 
     function mostrarEntregas(entregas) {
@@ -103,9 +104,7 @@
         total += e.valorFrete;
         const li = document.createElement("li");
         li.className = "list-group-item";
-        li.textContent = `${formatarData(e.data)} - ${e.nomeEmpresa}: R$ ${e.valorFrete.toFixed(
-          2
-        )}`;
+        li.textContent = `${formatarData(e.data)} - ${e.nomeEmpresa}: R$ ${e.valorFrete.toFixed(2)}`;
         listaRelatorio.appendChild(li);
       });
 
@@ -120,6 +119,7 @@
         alert("Informe as duas datas para filtrar.");
         return;
       }
+
       if (dataFim < dataInicio) {
         alert("Data fim deve ser maior ou igual à data início.");
         return;
@@ -138,6 +138,7 @@
 
       let y = 30;
       const itens = listaRelatorio.querySelectorAll("li");
+
       if (itens.length === 0) {
         alert("Nenhum dado para gerar relatório.");
         return;
@@ -155,7 +156,6 @@
 
       doc.setFontSize(14);
       doc.text(`Total: R$ ${totalRelatorio.textContent}`, 14, y + 10);
-
       doc.save("relatorio_entregas.pdf");
     });
   </script>
