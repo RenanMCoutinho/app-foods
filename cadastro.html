@@ -167,11 +167,18 @@
         </fieldset>
 
         <input type="hidden" id="empresaId" />
+      </form>
+        <!-- ... Cabeçalho permanece o mesmo até o fechamento do <form> -->
 
-        <button type="submit" class="btn btn-success btn-lg w-100" id="btnSalvar">
+        <button type="submit" class="btn btn-success btn-lg w-100 mb-4" id="btnSalvar">
           <i class="bi bi-save me-2"></i> Salvar Empresa
         </button>
       </form>
+
+      <!-- Lista de empresas -->
+      <hr />
+      <h3 class="text-center text-primary mb-3">Empresas Cadastradas</h3>
+      <ul class="list-group" id="listaEmpresas"></ul>
     </div>
   </main>
 
@@ -185,6 +192,7 @@
     const btnSalvar = document.getElementById("btnSalvar");
     const empresaId = document.getElementById("empresaId");
     const nomeEmpresa = document.getElementById("nomeEmpresa");
+    const listaEmpresas = document.getElementById("listaEmpresas");
 
     const checkboxes = document.querySelectorAll('input[name="tiposEntrega"]');
     const inputsValores = {
@@ -194,7 +202,7 @@
       desjejum: document.getElementById("valorDesjejum"),
     };
 
-    // Habilitar/desabilitar input valor conforme checkbox
+    // Habilita/desabilita inputs
     checkboxes.forEach((chk) => {
       chk.addEventListener("change", () => {
         const tipo = chk.dataset.tipo;
@@ -208,7 +216,75 @@
       });
     });
 
-    // Salvar empresa
+    // Carregar empresas já cadastradas
+    function carregarListaEmpresas() {
+      window.db.collection("empresas").onSnapshot((snapshot) => {
+        listaEmpresas.innerHTML = "";
+
+        if (snapshot.empty) {
+          listaEmpresas.innerHTML = '<li class="list-group-item text-muted">Nenhuma empresa cadastrada.</li>';
+          return;
+        }
+
+        snapshot.forEach((doc) => {
+          const e = doc.data();
+          const li = document.createElement("li");
+          li.className = "list-group-item d-flex justify-content-between align-items-center";
+
+          const nome = document.createElement("strong");
+          nome.textContent = e.nome;
+
+          const acoes = document.createElement("div");
+
+          const btnEditar = document.createElement("button");
+          btnEditar.className = "btn btn-sm btn-outline-primary me-2";
+          btnEditar.innerHTML = '<i class="bi bi-pencil"></i>';
+          btnEditar.onclick = () => preencherFormulario(doc.id, e);
+
+          const btnExcluir = document.createElement("button");
+          btnExcluir.className = "btn btn-sm btn-outline-danger";
+          btnExcluir.innerHTML = '<i class="bi bi-trash"></i>';
+          btnExcluir.onclick = async () => {
+            if (confirm("Deseja excluir esta empresa?")) {
+              await window.db.collection("empresas").doc(doc.id).delete();
+              alert("Empresa excluída!");
+            }
+          };
+
+          acoes.appendChild(btnEditar);
+          acoes.appendChild(btnExcluir);
+
+          li.appendChild(nome);
+          li.appendChild(acoes);
+
+          listaEmpresas.appendChild(li);
+        });
+      });
+    }
+
+    function preencherFormulario(id, dados) {
+      empresaId.value = id;
+      nomeEmpresa.value = dados.nome;
+
+      // Resetar os campos
+      checkboxes.forEach((chk) => {
+        const tipo = chk.dataset.tipo;
+        const input = inputsValores[tipo];
+        if (dados.tiposEntrega[tipo] !== undefined) {
+          chk.checked = true;
+          input.value = dados.tiposEntrega[tipo];
+          input.disabled = false;
+        } else {
+          chk.checked = false;
+          input.value = "";
+          input.disabled = true;
+        }
+      });
+
+      btnSalvar.innerHTML = '<i class="bi bi-save me-2"></i> Atualizar Empresa';
+    }
+
+    // Salvar nova empresa ou atualizar
     formCadastro.addEventListener("submit", async (e) => {
       e.preventDefault();
 
@@ -225,15 +301,16 @@
           const tipo = chk.dataset.tipo;
           const valor = parseFloat(inputsValores[tipo].value);
           if (isNaN(valor) || valor < 0) {
-            alert(`Informe o valor correto para o tipo ${tipo}.`);
+            alert(`Informe um valor válido para o tipo ${tipo}.`);
             return;
           }
           tiposEntrega[tipo] = valor;
           algumSelecionado = true;
         }
       }
+
       if (!algumSelecionado) {
-        alert("Selecione ao menos um tipo de entrega.");
+        alert("Selecione pelo menos um tipo de entrega.");
         return;
       }
 
@@ -250,6 +327,7 @@
           await window.db.collection("empresas").add(empresaData);
           alert("Empresa cadastrada com sucesso!");
         }
+
         formCadastro.reset();
         empresaId.value = "";
         btnSalvar.innerHTML = '<i class="bi bi-save me-2"></i> Salvar Empresa';
@@ -258,7 +336,8 @@
       }
     });
 
-    // Se quiser, aqui pode carregar dados para edição (igual antes)
+    // Inicializar
+    carregarListaEmpresas();
   </script>
 </body>
 </html>
