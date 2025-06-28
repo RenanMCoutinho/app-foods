@@ -43,99 +43,101 @@
   <script src="firebase-config.js"></script>
 
   <script>
-    const empresaSelect = document.getElementById("empresaSelect");
-    const relatorioList = document.getElementById("relatorioList");
-    const totalHoje = document.getElementById("totalHoje");
-    const dataHoje = document.getElementById("dataHoje");
-    const btnRegistrar = document.getElementById("btnRegistrar");
+    document.addEventListener("DOMContentLoaded", () => {
+      const empresaSelect = document.getElementById("empresaSelect");
+      const relatorioList = document.getElementById("relatorioList");
+      const totalHoje = document.getElementById("totalHoje");
+      const dataHoje = document.getElementById("dataHoje");
+      const btnRegistrar = document.getElementById("btnRegistrar");
 
-    let empresas = [];
+      let empresas = [];
 
-    function formatarData(d) {
-      const dt = new Date(d);
-      const day = String(dt.getDate()).padStart(2, "0");
-      const month = String(dt.getMonth() + 1).padStart(2, "0");
-      const year = dt.getFullYear();
-      return `${day}/${month}/${year}`;
-    }
-
-    function carregarEmpresas() {
-      db.collection("empresas").onSnapshot((snapshot) => {
-        empresas = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-
-        empresaSelect.innerHTML = '<option value="">Selecione...</option>';
-        empresas.forEach((emp) => {
-          const option = document.createElement("option");
-          option.value = emp.id;
-          option.textContent = emp.nome;
-          empresaSelect.appendChild(option);
-        });
-      });
-    }
-
-    async function registrarEntrega() {
-      const empresaId = empresaSelect.value;
-      if (!empresaId) {
-        alert("Selecione uma empresa!");
-        return;
-      }
-      const empresa = empresas.find((e) => e.id === empresaId);
-      if (!empresa) {
-        alert("Empresa inválida!");
-        return;
+      function formatarData(d) {
+        const dt = new Date(d);
+        const day = String(dt.getDate()).padStart(2, "0");
+        const month = String(dt.getMonth() + 1).padStart(2, "0");
+        const year = dt.getFullYear();
+        return `${day}/${month}/${year}`;
       }
 
-      const hoje = new Date();
-      const dataStr = formatarData(hoje);
+      function carregarEmpresas() {
+        window.db.collection("empresas").onSnapshot((snapshot) => {
+          empresas = snapshot.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+          }));
 
-      try {
-        await db.collection("entregas").add({
-          empresaId: empresa.id,
-          nomeEmpresa: empresa.nome,
-          valorFrete: empresa.valorFrete,
-          data: dataStr,
-        });
-        alert("Entrega registrada com sucesso!");
-        atualizarRelatorio();
-      } catch (error) {
-        alert("Erro ao registrar entrega: " + error.message);
-      }
-    }
-
-    function atualizarRelatorio() {
-      const hoje = formatarData(new Date());
-      dataHoje.textContent = hoje;
-
-      db.collection("entregas")
-        .where("data", "==", hoje)
-        .get()
-        .then((querySnapshot) => {
-          relatorioList.innerHTML = "";
-          let total = 0;
-          querySnapshot.forEach((doc) => {
-            const e = doc.data();
-            total += e.valorFrete;
-            const li = document.createElement("li");
-            li.className = "list-group-item";
-            li.textContent = `${e.nomeEmpresa}: R$ ${e.valorFrete.toFixed(2)}`;
-            relatorioList.appendChild(li);
+          empresaSelect.innerHTML = '<option value="">Selecione...</option>';
+          empresas.forEach((emp) => {
+            const option = document.createElement("option");
+            option.value = emp.id;
+            option.textContent = emp.nome;
+            empresaSelect.appendChild(option);
           });
-          totalHoje.textContent = total.toFixed(2);
         });
-    }
+      }
 
-    btnRegistrar.addEventListener("click", registrarEntrega);
+      async function registrarEntrega() {
+        const empresaId = empresaSelect.value;
+        if (!empresaId) {
+          alert("Selecione uma empresa!");
+          return;
+        }
+        const empresa = empresas.find((e) => e.id === empresaId);
+        if (!empresa) {
+          alert("Empresa inválida!");
+          return;
+        }
 
-    carregarEmpresas();
-    atualizarRelatorio();
+        const hoje = new Date();
+        const dataStr = formatarData(hoje);
+
+        try {
+          await window.db.collection("entregas").add({
+            empresaId: empresa.id,
+            nomeEmpresa: empresa.nome,
+            valorFrete: empresa.valorFrete,
+            data: dataStr,
+          });
+          alert("Entrega registrada com sucesso!");
+          atualizarRelatorio();
+        } catch (error) {
+          alert("Erro ao registrar entrega: " + error.message);
+        }
+      }
+
+      async function atualizarRelatorio() {
+        const hoje = formatarData(new Date());
+        dataHoje.textContent = hoje;
+
+        const querySnapshot = await window.db
+          .collection("entregas")
+          .where("data", "==", hoje)
+          .get();
+
+        relatorioList.innerHTML = "";
+        let total = 0;
+        querySnapshot.forEach((doc) => {
+          const e = doc.data();
+          total += e.valorFrete;
+          const li = document.createElement("li");
+          li.className = "list-group-item";
+          li.textContent = `${e.nomeEmpresa}: R$ ${e.valorFrete.toFixed(2)}`;
+          relatorioList.appendChild(li);
+        });
+        totalHoje.textContent = total.toFixed(2);
+      }
+
+      btnRegistrar.addEventListener("click", registrarEntrega);
+
+      carregarEmpresas();
+      atualizarRelatorio();
+    });
   </script>
 
   <script>
-  console.log('db está definido?', typeof db !== 'undefined');
-</script>
+    console.log('db está definido?', typeof window.db !== 'undefined');
+  </script>
 
 </body>
 </html>
