@@ -68,16 +68,16 @@
     const btnFiltrar = document.getElementById("btnFiltrar");
     const btnGerarPdf = document.getElementById("btnGerarPdf");
 
-    // Formata data para dd/mm/yyyy
-    function formatarData(d) {
-      const dt = d.toDate ? d.toDate() : new Date(d);
+    // Formata data de timestamp Firestore para dd/mm/yyyy
+    function formatarData(timestampOrDate) {
+      const dt = timestampOrDate.toDate ? timestampOrDate.toDate() : new Date(timestampOrDate);
       const day = String(dt.getDate()).padStart(2, "0");
       const month = String(dt.getMonth() + 1).padStart(2, "0");
       const year = dt.getFullYear();
       return `${day}/${month}/${year}`;
     }
 
-    // Busca entregas no Firestore pelo intervalo timestamp
+    // Busca entregas no Firestore entre as datas, usando timestamp
     async function buscarEntregasPorPeriodo(dataInicio, dataFim) {
       if (!window.db) {
         alert("Firebase não inicializado!");
@@ -85,28 +85,32 @@
       }
 
       const inicio = new Date(dataInicio);
+      inicio.setHours(0, 0, 0, 0);
       const fim = new Date(dataFim);
       fim.setHours(23, 59, 59, 999);
 
+      const inicioTimestamp = firebase.firestore.Timestamp.fromDate(inicio);
+      const fimTimestamp = firebase.firestore.Timestamp.fromDate(fim);
+
       const snapshot = await window.db
         .collection("entregas")
-        .where("timestamp", ">=", firebase.firestore.Timestamp.fromDate(inicio))
-        .where("timestamp", "<=", firebase.firestore.Timestamp.fromDate(fim))
+        .where("timestamp", ">=", inicioTimestamp)
+        .where("timestamp", "<=", fimTimestamp)
         .get();
 
       return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
     }
 
-    // Agrupa entregas por dia (extraído do timestamp) e mostra na tela
+    // Exibe as entregas agrupadas por dia no relatório
     function mostrarEntregasAgrupadas(entregas) {
       relatorioDias.innerHTML = "";
       const diasMap = {};
       let totalGeral = 0;
 
       entregas.forEach((e) => {
-        const dataFormatada = formatarData(e.timestamp);
-        if (!diasMap[dataFormatada]) diasMap[dataFormatada] = [];
-        diasMap[dataFormatada].push(e);
+        const dia = formatarData(e.timestamp);
+        if (!diasMap[dia]) diasMap[dia] = [];
+        diasMap[dia].push(e);
         totalGeral += e.valorFrete;
       });
 
@@ -129,7 +133,7 @@
           diasMap[dia].forEach((e) => {
             const li = document.createElement("li");
             li.className = "list-group-item";
-            li.textContent = `${e.nomeEmpresa} (${e.tipoEntrega || "N/A"}): R$ ${e.valorFrete.toFixed(2)}`;
+            li.textContent = `${e.nomeEmpresa} (${e.tipoEntrega}): R$ ${e.valorFrete.toFixed(2)}`;
             ul.appendChild(li);
             totalDia += e.valorFrete;
           });
@@ -170,14 +174,14 @@
       doc.text("Relatório de Entregas", 14, 22);
 
       let y = 30;
-      const elementos = relatorioDias.querySelectorAll("h5, ul li");
+      const dias = relatorioDias.querySelectorAll("h5, ul li");
 
-      if (elementos.length === 0) {
+      if (dias.length === 0) {
         alert("Nenhum dado para gerar relatório.");
         return;
       }
 
-      elementos.forEach((el) => {
+      dias.forEach((el) => {
         if (el.tagName === "H5") {
           doc.setFontSize(14);
           doc.text(el.textContent, 14, y);
