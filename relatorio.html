@@ -4,7 +4,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Controle de Entregas - Relatório</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+  />
   <style>
     body {
       background: #f8f9fa;
@@ -41,10 +44,10 @@
         </div>
       </div>
 
-      <ul class="list-group mb-3" id="listaRelatorio"></ul>
+      <div id="relatorioDias"></div>
 
       <div class="text-end">
-        <strong>Total:</strong> R$ <span id="totalRelatorio">0.00</span>
+        <strong>Total Geral:</strong> R$ <span id="totalRelatorio">0.00</span>
       </div>
 
       <button id="btnGerarPdf" class="btn btn-success mt-3 w-100">Gerar PDF</button>
@@ -60,13 +63,13 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
   <script>
-    const listaRelatorio = document.getElementById("listaRelatorio");
+    const relatorioDias = document.getElementById("relatorioDias");
     const totalRelatorio = document.getElementById("totalRelatorio");
     const btnFiltrar = document.getElementById("btnFiltrar");
     const btnGerarPdf = document.getElementById("btnGerarPdf");
 
     function formatarData(d) {
-      const dt = d instanceof Date ? d : d.toDate();
+      const dt = d.toDate ? d.toDate() : new Date(d);
       const day = String(dt.getDate()).padStart(2, "0");
       const month = String(dt.getMonth() + 1).padStart(2, "0");
       const year = dt.getFullYear();
@@ -79,36 +82,57 @@
         return [];
       }
 
-      const inicio = new Date(dataInicio + "T00:00:00");
-      const fim = new Date(dataFim + "T23:59:59");
+      const inicio = new Date(dataInicio);
+      const fim = new Date(dataFim);
+      fim.setHours(23, 59, 59, 999);
 
-      try {
-        const snapshot = await window.db
-          .collection("entregas")
-          .where("data", ">=", inicio)
-          .where("data", "<=", fim)
-          .get();
+      const snapshot = await window.db
+        .collection("entregas")
+        .where("data", ">=", formatarData(inicio))
+        .where("data", "<=", formatarData(fim))
+        .get();
 
-        return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-      } catch (err) {
-        alert("Erro ao buscar entregas: " + err.message);
-        return [];
-      }
+      return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
     }
 
-    function mostrarEntregas(entregas) {
-      listaRelatorio.innerHTML = "";
-      let total = 0;
+    function mostrarEntregasAgrupadas(entregas) {
+      relatorioDias.innerHTML = "";
+      const diasMap = {};
+      let totalGeral = 0;
 
       entregas.forEach((e) => {
-        total += e.valorFrete;
-        const li = document.createElement("li");
-        li.className = "list-group-item";
-        li.textContent = `${formatarData(e.data)} - ${e.nomeEmpresa}: R$ ${e.valorFrete.toFixed(2)}`;
-        listaRelatorio.appendChild(li);
+        if (!diasMap[e.data]) diasMap[e.data] = [];
+        diasMap[e.data].push(e);
+        totalGeral += e.valorFrete;
       });
 
-      totalRelatorio.textContent = total.toFixed(2);
+      Object.keys(diasMap).sort().forEach((dia) => {
+        const ul = document.createElement("ul");
+        ul.className = "list-group mb-3";
+
+        const titulo = document.createElement("h5");
+        titulo.textContent = `Dia ${dia}`;
+        titulo.className = "text-primary mt-3";
+        relatorioDias.appendChild(titulo);
+
+        let totalDia = 0;
+        diasMap[dia].forEach((e) => {
+          const li = document.createElement("li");
+          li.className = "list-group-item";
+          li.textContent = `${e.nomeEmpresa} (${e.tipoEntrega}): R$ ${e.valorFrete.toFixed(2)}`;
+          ul.appendChild(li);
+          totalDia += e.valorFrete;
+        });
+
+        const liTotal = document.createElement("li");
+        liTotal.className = "list-group-item active d-flex justify-content-between";
+        liTotal.innerHTML = `<strong>Total do dia:</strong> <span>R$ ${totalDia.toFixed(2)}</span>`;
+        ul.appendChild(liTotal);
+
+        relatorioDias.appendChild(ul);
+      });
+
+      totalRelatorio.textContent = totalGeral.toFixed(2);
     }
 
     btnFiltrar.addEventListener("click", async () => {
@@ -119,82 +143,50 @@
         alert("Informe as duas datas para filtrar.");
         return;
       }
-
       if (dataFim < dataInicio) {
         alert("Data fim deve ser maior ou igual à data início.");
         return;
       }
 
       const entregas = await buscarEntregasPorPeriodo(dataInicio, dataFim);
-      mostrarEntregas(entregas);
+      mostrarEntregasAgrupadas(entregas);
     });
 
     btnGerarPdf.addEventListener("click", () => {
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
 
-  doc.setFontSize(18);
-  doc.text("Relatório de Entregas", 14, 22);
+      doc.setFontSize(18);
+      doc.text("Relatório de Entregas", 14, 22);
 
-  const itens = Array.from(listaRelatorio.querySelectorAll("li"));
-  if (itens.length === 0) {
-    alert("Nenhum dado para gerar relatório.");
-    return;
-  }
+      let y = 30;
+      const dias = relatorioDias.querySelectorAll("h5, ul li");
 
-  // Agrupar por data
-  const entregasPorData = {};
-
-  itens.forEach((li) => {
-    const texto = li.textContent;
-    const regex = /^(\d{2}\/\d{2}\/\d{4}) - (.+): R\$ ([\d,]+(?:\.\d{2})?)/;
-    const match = texto.match(regex);
-
-    if (match) {
-      const [_, data, empresa, valorStr] = match;
-      const valor = parseFloat(valorStr.replace(",", "."));
-
-      if (!entregasPorData[data]) {
-        entregasPorData[data] = {
-          entregas: [],
-          total: 0,
-        };
+      if (dias.length === 0) {
+        alert("Nenhum dado para gerar relatório.");
+        return;
       }
 
-      entregasPorData[data].entregas.push({ empresa, valor });
-      entregasPorData[data].total += valor;
-    }
-  });
+      dias.forEach((el) => {
+        if (el.tagName === "H5") {
+          doc.setFontSize(14);
+          doc.text(el.textContent, 14, y);
+        } else {
+          doc.setFontSize(11);
+          doc.text(el.textContent, 16, y);
+        }
+        y += 8;
+        if (y > 280) {
+          doc.addPage();
+          y = 20;
+        }
+      });
 
-  // Inserir no PDF
-  let y = 30;
-  doc.setFontSize(14);
+      doc.setFontSize(14);
+      doc.text(`Total Geral: R$ ${totalRelatorio.textContent}`, 14, y + 10);
 
-  Object.keys(entregasPorData).forEach((data) => {
-    if (y > 270) {
-      doc.addPage();
-      y = 20;
-    }
-
-    doc.setFont(undefined, "bold");
-    doc.text(`${data}`, 14, y);
-    y += 8;
-
-    entregasPorData[data].entregas.forEach(({ empresa, valor }) => {
-      const linha = `- ${empresa} .................. R$ ${valor.toFixed(2)}`;
-      doc.setFont(undefined, "normal");
-      doc.text(linha, 18, y);
-      y += 7;
+      doc.save("relatorio_entregas.pdf");
     });
-
-    doc.setFont(undefined, "bold");
-    doc.text(`Total do dia: R$ ${entregasPorData[data].total.toFixed(2)}`, 18, y);
-    y += 12;
-  });
-
-  doc.save("relatorio_entregas.pdf");
-});
-
   </script>
 </body>
 </html>
