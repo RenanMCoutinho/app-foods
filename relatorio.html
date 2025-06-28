@@ -68,6 +68,7 @@
     const btnFiltrar = document.getElementById("btnFiltrar");
     const btnGerarPdf = document.getElementById("btnGerarPdf");
 
+    // Formata data para dd/mm/yyyy
     function formatarData(d) {
       const dt = d.toDate ? d.toDate() : new Date(d);
       const day = String(dt.getDate()).padStart(2, "0");
@@ -76,6 +77,7 @@
       return `${day}/${month}/${year}`;
     }
 
+    // Busca entregas no Firestore pelo intervalo timestamp
     async function buscarEntregasPorPeriodo(dataInicio, dataFim) {
       if (!window.db) {
         alert("Firebase não inicializado!");
@@ -95,14 +97,16 @@
       return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
     }
 
+    // Agrupa entregas por dia (extraído do timestamp) e mostra na tela
     function mostrarEntregasAgrupadas(entregas) {
       relatorioDias.innerHTML = "";
       const diasMap = {};
       let totalGeral = 0;
 
       entregas.forEach((e) => {
-        if (!diasMap[e.data]) diasMap[e.data] = [];
-        diasMap[e.data].push(e);
+        const dataFormatada = formatarData(e.timestamp);
+        if (!diasMap[dataFormatada]) diasMap[dataFormatada] = [];
+        diasMap[dataFormatada].push(e);
         totalGeral += e.valorFrete;
       });
 
@@ -125,7 +129,7 @@
           diasMap[dia].forEach((e) => {
             const li = document.createElement("li");
             li.className = "list-group-item";
-            li.textContent = `${e.nomeEmpresa} (${e.tipoEntrega}): R$ ${e.valorFrete.toFixed(2)}`;
+            li.textContent = `${e.nomeEmpresa} (${e.tipoEntrega || "N/A"}): R$ ${e.valorFrete.toFixed(2)}`;
             ul.appendChild(li);
             totalDia += e.valorFrete;
           });
@@ -166,14 +170,14 @@
       doc.text("Relatório de Entregas", 14, 22);
 
       let y = 30;
-      const dias = relatorioDias.querySelectorAll("h5, ul li");
+      const elementos = relatorioDias.querySelectorAll("h5, ul li");
 
-      if (dias.length === 0) {
+      if (elementos.length === 0) {
         alert("Nenhum dado para gerar relatório.");
         return;
       }
 
-      dias.forEach((el) => {
+      elementos.forEach((el) => {
         if (el.tagName === "H5") {
           doc.setFontSize(14);
           doc.text(el.textContent, 14, y);
