@@ -158,47 +158,50 @@
     }
 
     function atualizarRelatorio() {
-      const hojeStr = formatarData(new Date());
-      dataHoje.textContent = hojeStr;
+  const hoje = new Date();
+  const inicioDia = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate(), 0, 0, 0);
+  const fimDia = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate(), 23, 59, 59, 999);
+  dataHoje.textContent = formatarData(hoje);
 
-      window.db.collection("entregas")
-        .where("data", "==", hojeStr)
-        .get()
-        .then((snapshot) => {
-          relatorioList.innerHTML = "";
-          let total = 0;
+  window.db.collection("entregas")
+    .where("timestamp", ">=", firebase.firestore.Timestamp.fromDate(inicioDia))
+    .where("timestamp", "<=", firebase.firestore.Timestamp.fromDate(fimDia))
+    .get()
+    .then((snapshot) => {
+      relatorioList.innerHTML = "";
+      let total = 0;
 
-          snapshot.forEach((doc) => {
-            const e = doc.data();
-            total += e.valorFrete;
+      snapshot.forEach((doc) => {
+        const e = doc.data();
+        total += e.valorFrete;
 
-            const li = document.createElement("li");
-            li.className = "list-group-item d-flex justify-content-between align-items-center";
+        const li = document.createElement("li");
+        li.className = "list-group-item d-flex justify-content-between align-items-center";
 
-            li.textContent = `${e.nomeEmpresa} (${e.tipoEntrega}): R$ ${e.valorFrete.toFixed(2)}`;
+        li.textContent = `${e.nomeEmpresa} (${e.tipoEntrega}): R$ ${e.valorFrete.toFixed(2)}`;
 
-            const btnExcluir = document.createElement("button");
-            btnExcluir.className = "btn btn-sm btn-danger";
-            btnExcluir.textContent = "Excluir";
-            btnExcluir.onclick = async () => {
-              if (confirm("Deseja excluir essa entrega?")) {
-                try {
-                  await window.db.collection("entregas").doc(doc.id).delete();
-                  alert("Entrega excluída!");
-                  atualizarRelatorio();
-                } catch (err) {
-                  alert("Erro ao excluir entrega: " + err.message);
-                }
-              }
-            };
+        const btnExcluir = document.createElement("button");
+        btnExcluir.className = "btn btn-sm btn-danger";
+        btnExcluir.textContent = "Excluir";
+        btnExcluir.onclick = async () => {
+          if (confirm("Deseja excluir essa entrega?")) {
+            try {
+              await window.db.collection("entregas").doc(doc.id).delete();
+              alert("Entrega excluída!");
+              atualizarRelatorio();
+            } catch (err) {
+              alert("Erro ao excluir entrega: " + err.message);
+            }
+          }
+        };
 
-            li.appendChild(btnExcluir);
-            relatorioList.appendChild(li);
-          });
+        li.appendChild(btnExcluir);
+        relatorioList.appendChild(li);
+      });
 
-          totalHoje.textContent = total.toFixed(2);
-        });
-    }
+      totalHoje.textContent = total.toFixed(2);
+    });
+}
 
     btnRegistrar.addEventListener("click", registrarEntrega);
 
