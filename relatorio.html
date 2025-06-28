@@ -130,34 +130,71 @@
     });
 
     btnGerarPdf.addEventListener("click", () => {
-      const { jsPDF } = window.jspdf;
-      const doc = new jsPDF();
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
 
-      doc.setFontSize(18);
-      doc.text("Relatório de Entregas", 14, 22);
+  doc.setFontSize(18);
+  doc.text("Relatório de Entregas", 14, 22);
 
-      let y = 30;
-      const itens = listaRelatorio.querySelectorAll("li");
+  const itens = Array.from(listaRelatorio.querySelectorAll("li"));
+  if (itens.length === 0) {
+    alert("Nenhum dado para gerar relatório.");
+    return;
+  }
 
-      if (itens.length === 0) {
-        alert("Nenhum dado para gerar relatório.");
-        return;
+  // Agrupar por data
+  const entregasPorData = {};
+
+  itens.forEach((li) => {
+    const texto = li.textContent;
+    const regex = /^(\d{2}\/\d{2}\/\d{4}) - (.+): R\$ ([\d,]+(?:\.\d{2})?)/;
+    const match = texto.match(regex);
+
+    if (match) {
+      const [_, data, empresa, valorStr] = match;
+      const valor = parseFloat(valorStr.replace(",", "."));
+
+      if (!entregasPorData[data]) {
+        entregasPorData[data] = {
+          entregas: [],
+          total: 0,
+        };
       }
 
-      doc.setFontSize(12);
-      itens.forEach((li) => {
-        doc.text(li.textContent, 14, y);
-        y += 10;
-        if (y > 280) {
-          doc.addPage();
-          y = 20;
-        }
-      });
+      entregasPorData[data].entregas.push({ empresa, valor });
+      entregasPorData[data].total += valor;
+    }
+  });
 
-      doc.setFontSize(14);
-      doc.text(`Total: R$ ${totalRelatorio.textContent}`, 14, y + 10);
-      doc.save("relatorio_entregas.pdf");
+  // Inserir no PDF
+  let y = 30;
+  doc.setFontSize(14);
+
+  Object.keys(entregasPorData).forEach((data) => {
+    if (y > 270) {
+      doc.addPage();
+      y = 20;
+    }
+
+    doc.setFont(undefined, "bold");
+    doc.text(`📅 ${data}`, 14, y);
+    y += 8;
+
+    entregasPorData[data].entregas.forEach(({ empresa, valor }) => {
+      const linha = `- ${empresa} .................. R$ ${valor.toFixed(2)}`;
+      doc.setFont(undefined, "normal");
+      doc.text(linha, 18, y);
+      y += 7;
     });
+
+    doc.setFont(undefined, "bold");
+    doc.text(`Total do dia: R$ ${entregasPorData[data].total.toFixed(2)}`, 18, y);
+    y += 12;
+  });
+
+  doc.save("relatorio_entregas.pdf");
+});
+
   </script>
 </body>
 </html>
