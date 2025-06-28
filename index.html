@@ -32,6 +32,7 @@
 
     <h3>Relatório do Dia (<span id="dataHoje"></span>)</h3>
     <ul class="list-group" id="relatorioList"></ul>
+
     <div class="mt-2">
       <strong>Total:</strong> R$ <span id="totalHoje">0.00</span>
     </div>
@@ -43,128 +44,115 @@
   <script src="firebase-config.js"></script>
 
   <script>
-  document.addEventListener("DOMContentLoaded", async () => {
-    if (!window.db) {
-      console.error("Firebase Firestore não está inicializado!");
-      return;
+    const empresaSelect = document.getElementById("empresaSelect");
+    const relatorioList = document.getElementById("relatorioList");
+    const totalHoje = document.getElementById("totalHoje");
+    const dataHoje = document.getElementById("dataHoje");
+    const btnRegistrar = document.getElementById("btnRegistrar");
+
+    let empresas = [];
+
+    function formatarData(d) {
+      const dt = new Date(d);
+      const day = String(dt.getDate()).padStart(2, "0");
+      const month = String(dt.getMonth() + 1).padStart(2, "0");
+      const year = dt.getFullYear();
+      return `${day}/${month}/${year}`;
     }
 
-    try {
-      // Tenta listar as coleções existentes (Firestore API não tem método direto para isso,
-      // então tentamos obter um documento de uma coleção qualquer — use 'empresas' que você criou)
-      const snapshot = await window.db.collection("empresas").limit(1).get();
+    function carregarEmpresas() {
+      window.db.collection("empresas").onSnapshot((snapshot) => {
+        empresas = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
 
-      if (snapshot.empty) {
-        console.log("Conexão ok, mas não há documentos na coleção 'empresas'.");
-      } else {
-        console.log("Conexão com Firebase Firestore estabelecida com sucesso!");
-        snapshot.forEach(doc => {
-          console.log("Documento exemplo:", doc.id, doc.data());
+        empresaSelect.innerHTML = '<option value="">Selecione...</option>';
+        empresas.forEach((emp) => {
+          const option = document.createElement("option");
+          option.value = emp.id;
+          option.textContent = emp.nome;
+          empresaSelect.appendChild(option);
         });
-      }
-    } catch (error) {
-      console.error("Erro ao conectar com Firebase Firestore:", error);
+      });
     }
-  });
-</script>
 
-
-  <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      const empresaSelect = document.getElementById("empresaSelect");
-      const relatorioList = document.getElementById("relatorioList");
-      const totalHoje = document.getElementById("totalHoje");
-      const dataHoje = document.getElementById("dataHoje");
-      const btnRegistrar = document.getElementById("btnRegistrar");
-
-      let empresas = [];
-
-      function formatarData(d) {
-        const dt = new Date(d);
-        const day = String(dt.getDate()).padStart(2, "0");
-        const month = String(dt.getMonth() + 1).padStart(2, "0");
-        const year = dt.getFullYear();
-        return `${day}/${month}/${year}`;
+    async function registrarEntrega() {
+      const empresaId = empresaSelect.value;
+      if (!empresaId) {
+        alert("Selecione uma empresa!");
+        return;
+      }
+      const empresa = empresas.find((e) => e.id === empresaId);
+      if (!empresa) {
+        alert("Empresa inválida!");
+        return;
       }
 
-      function carregarEmpresas() {
-        window.db.collection("empresas").onSnapshot((snapshot) => {
-          empresas = snapshot.docs.map((doc) => ({
-            id: doc.id,
-            ...doc.data(),
-          }));
+      const hoje = new Date();
+      const dataStr = formatarData(hoje);
 
-          empresaSelect.innerHTML = '<option value="">Selecione...</option>';
-          empresas.forEach((emp) => {
-            const option = document.createElement("option");
-            option.value = emp.id;
-            option.textContent = emp.nome;
-            empresaSelect.appendChild(option);
-          });
+      try {
+        await window.db.collection("entregas").add({
+          empresaId: empresa.id,
+          nomeEmpresa: empresa.nome,
+          valorFrete: empresa.valorFrete,
+          data: dataStr,
         });
+        alert("Entrega registrada com sucesso!");
+        atualizarRelatorio();
+      } catch (error) {
+        alert("Erro ao registrar entrega: " + error.message);
       }
+    }
 
-      async function registrarEntrega() {
-        const empresaId = empresaSelect.value;
-        if (!empresaId) {
-          alert("Selecione uma empresa!");
-          return;
-        }
-        const empresa = empresas.find((e) => e.id === empresaId);
-        if (!empresa) {
-          alert("Empresa inválida!");
-          return;
-        }
+    function atualizarRelatorio() {
+      const hoje = formatarData(new Date());
+      dataHoje.textContent = hoje;
 
-        const hoje = new Date();
-        const dataStr = formatarData(hoje);
+      window.db.collection("entregas")
+        .where("data", "==", hoje)
+        .onSnapshot((querySnapshot) => {
+          relatorioList.innerHTML = "";
+          let total = 0;
 
-        try {
-          await window.db.collection("entregas").add({
-            empresaId: empresa.id,
-            nomeEmpresa: empresa.nome,
-            valorFrete: empresa.valorFrete,
-            data: dataStr,
+          querySnapshot.forEach((doc) => {
+            const e = doc.data();
+            total += e.valorFrete;
+
+            const li = document.createElement("li");
+            li.className = "list-group-item d-flex justify-content-between align-items-center";
+
+            li.textContent = `${e.nomeEmpresa}: R$ ${e.valorFrete.toFixed(2)}`;
+
+            // Botão remover
+            const btnRemover = document.createElement("button");
+            btnRemover.className = "btn btn-sm btn-danger";
+            btnRemover.textContent = "Remover";
+            btnRemover.onclick = async () => {
+              if (confirm(`Remover entrega de ${e.nomeEmpresa}?`)) {
+                try {
+                  await window.db.collection("entregas").doc(doc.id).delete();
+                  alert("Entrega removida!");
+                  // atualizarRelatorio(); não precisa, onSnapshot atualiza automaticamente
+                } catch (err) {
+                  alert("Erro ao remover entrega: " + err.message);
+                }
+              }
+            };
+
+            li.appendChild(btnRemover);
+            relatorioList.appendChild(li);
           });
-          alert("Entrega registrada com sucesso!");
-          atualizarRelatorio();
-        } catch (error) {
-          alert("Erro ao registrar entrega: " + error.message);
-        }
-      }
 
-      async function atualizarRelatorio() {
-        const hoje = formatarData(new Date());
-        dataHoje.textContent = hoje;
-
-        const querySnapshot = await window.db
-          .collection("entregas")
-          .where("data", "==", hoje)
-          .get();
-
-        relatorioList.innerHTML = "";
-        let total = 0;
-        querySnapshot.forEach((doc) => {
-          const e = doc.data();
-          total += e.valorFrete;
-          const li = document.createElement("li");
-          li.className = "list-group-item";
-          li.textContent = `${e.nomeEmpresa}: R$ ${e.valorFrete.toFixed(2)}`;
-          relatorioList.appendChild(li);
+          totalHoje.textContent = total.toFixed(2);
         });
-        totalHoje.textContent = total.toFixed(2);
-      }
+    }
 
-      btnRegistrar.addEventListener("click", registrarEntrega);
+    btnRegistrar.addEventListener("click", registrarEntrega);
 
-      carregarEmpresas();
-      atualizarRelatorio();
-    });
+    carregarEmpresas();
+    atualizarRelatorio();
   </script>
-
-  <script>
-    console.log('db está definido?', typeof window.db !== 'undefined');
-  </script>
-
 </body>
 </html>
