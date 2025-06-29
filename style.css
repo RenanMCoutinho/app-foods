@@ -1,7 +1,70 @@
+
+/* Estilos base */
 body {
-  background: #f8f9fa;
+  background-color: #f8f9fa;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #333;
+  margin: 0;
+  padding: 0;
 }
 
 .navbar-brand {
-  cursor: pointer;
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+.card {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border: none;
+  border-radius: 12px;
+}
+
+.card h1, .card h3 {
+  font-weight: 600;
+}
+
+.form-label {
+  font-weight: 500;
+}
+
+input[type="text"],
+input[type="number"],
+input[type="date"],
+select {
+  border-radius: 8px !important;
+  padding: 10px;
+}
+
+.btn {
+  border-radius: 8px;
+  font-weight: 500;
+}
+
+ul.list-group {
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+ul.list-group li {
+  font-size: 0.95rem;
+}
+
+ul.list-group .list-group-item.active {
+  background-color: #198754;
+  border-color: #198754;
+}
+
+/* Responsivo */
+@media (max-width: 768px) {
+  h1, h3 {
+    font-size: 1.5rem;
+  }
+
+  .navbar-brand {
+    font-size: 1rem;
+  }
+
+  .form-label {
+    font-size: 0.9rem;
+  }
 }
