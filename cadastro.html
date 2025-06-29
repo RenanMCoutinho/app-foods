@@ -58,10 +58,18 @@
        <div class="col-md-3 form-check">
         <input class="form-check-input" data-tipo="ceia" id="entregaCeia" name="tiposEntrega" type="checkbox" value=""/>
         <label class="form-check-label" for="entregaCeia">
-         Ceia
+         Ceia/Granel
         </label>
         <input class="form-control form-control-sm mt-1" disabled id="valorCeia" min="0" placeholder="R$ 0,00" step="0.01" type="number"/>
        </div>
+       <div class="col-md-3 form-check">
+  <input class="form-check-input" data-tipo="ceiaMtx" id="entregaCeiaMtx" name="tiposEntrega" type="checkbox" value=""/>
+  <label class="form-check-label" for="entregaCeiaMtx">
+    Ceia/mtx
+  </label>
+  <input class="form-control form-control-sm mt-1" disabled="" id="valorCeiaMtx" min="0" placeholder="R$ 0,00" step="0.01" type="number"/>
+</div>
+
        <div class="col-md-3 form-check">
         <input class="form-check-input" data-tipo="desjejum" id="entregaDesjejum" name="tiposEntrega" type="checkbox" value=""/>
         <label class="form-check-label" for="entregaDesjejum">
@@ -106,6 +114,7 @@
      janta: document.getElementById("valorJanta"),
      ceia: document.getElementById("valorCeia"),
      desjejum: document.getElementById("valorDesjejum"),
+     ceiaMtx: document.getElementById("valorCeiaMtx"),
    };
 
    // Habilita/desabilita inputs
