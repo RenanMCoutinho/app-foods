@@ -72,27 +72,32 @@
     }
 
     async function buscarEntregasPorPeriodo(dataInicio, dataFim) {
-      if (!window.db) {
-        alert("Firebase não inicializado!");
-        return [];
-      }
+  if (!window.db) {
+    alert("Firebase não inicializado!");
+    return [];
+  }
 
-      const inicio = new Date(dataInicio);
-      inicio.setHours(0, 0, 0, 0);
-      const fim = new Date(dataFim);
-      fim.setHours(23, 59, 59, 999);
+  // Extrair ano, mês e dia
+  const [anoI, mesI, diaI] = dataInicio.split("-");
+  const [anoF, mesF, diaF] = dataFim.split("-");
 
-      const inicioTimestamp = window.firebase.firestore.Timestamp.fromDate(inicio);
-      const fimTimestamp = window.firebase.firestore.Timestamp.fromDate(fim);
+  // Criar datas no horário UTC, para evitar deslocamento
+  const inicioUTC = new Date(Date.UTC(Number(anoI), Number(mesI) - 1, Number(diaI), 0, 0, 0, 0));
+  const fimUTC = new Date(Date.UTC(Number(anoF), Number(mesF) - 1, Number(diaF), 23, 59, 59, 999));
 
-      const snapshot = await window.db
-        .collection("entregas")
-        .where("timestamp", ">=", inicioTimestamp)
-        .where("timestamp", "<=", fimTimestamp)
-        .get();
+  // Criar timestamps do Firestore a partir das datas UTC
+  const inicioTimestamp = window.firebase.firestore.Timestamp.fromDate(inicioUTC);
+  const fimTimestamp = window.firebase.firestore.Timestamp.fromDate(fimUTC);
 
-      return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-    }
+  const snapshot = await window.db
+    .collection("entregas")
+    .where("timestamp", ">=", inicioTimestamp)
+    .where("timestamp", "<=", fimTimestamp)
+    .get();
+
+  return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+}
+
 
     function mostrarEntregasAgrupadas(entregas) {
       relatorioDias.innerHTML = "";
