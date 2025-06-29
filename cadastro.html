@@ -155,7 +155,8 @@
 
     // Carregar empresas já cadastradas
     function carregarListaEmpresas() {
-      window.db.collection("empresas").onSnapshot((snapshot) => {
+      window.db.collection("empresas").orderBy("nome").onSnapshot((snapshot) => {
+
         listaEmpresas.innerHTML = "";
 
         if (snapshot.empty) {
