@@ -58,7 +58,7 @@
     </ul>
     <div class="mt-3 text-end fs-5">
      <strong>
-      Total:
+      Total do dia:
      </strong>
      R$
      <span id="totalHoje">
@@ -200,7 +200,7 @@
               if (confirm("Deseja excluir essa entrega?")) {
                 try {
                   await window.db.collection("entregas").doc(doc.id).delete();
-                  alert("Entrega excluída!");
+                  //alert("Entrega excluída!");
                   atualizarRelatorio();
                 } catch (err) {
                   alert("Erro ao excluir entrega: " + err.message);
