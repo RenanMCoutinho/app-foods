@@ -1,16 +1,17 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Controle de Entregas - Relatório</title>
   <link rel="icon" href="img/favicon.ico" type="image/x-icon" />
   <link rel="apple-touch-icon" href="img/apple-touch-icon.png" />
-
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet"/>
-  <link href="style.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
+  <link href="style.css" rel="stylesheet" />
 </head>
+
 <body>
   <nav class="navbar navbar-expand navbar-dark bg-success mb-4 shadow-sm">
     <div class="container">
@@ -27,11 +28,11 @@
       <div class="row mb-4">
         <div class="col-md-5 mb-3 mb-md-0">
           <label class="form-label" for="dataInicio">Data Início</label>
-          <input class="form-control form-control-lg" id="dataInicio" type="date"/>
+          <input class="form-control form-control-lg" id="dataInicio" type="date" />
         </div>
         <div class="col-md-5">
           <label class="form-label" for="dataFim">Data Fim</label>
-          <input class="form-control form-control-lg" id="dataFim" type="date"/>
+          <input class="form-control form-control-lg" id="dataFim" type="date" />
         </div>
         <div class="col-md-2 d-flex align-items-end">
           <button class="btn btn-success btn-lg w-100" id="btnFiltrar">
@@ -66,6 +67,15 @@
     const btnFiltrar = document.getElementById("btnFiltrar");
     const btnGerarPdf = document.getElementById("btnGerarPdf");
 
+    const tiposEntrega = {
+      almoco: "Almoço",
+      janta: "Jantar",
+      ceia: "Ceia/Granel",
+      desjejum: "Desjejum",
+      recolha: "Recolha",
+      ceiaMtx: "Ceia/MTX"
+    };
+
     function formatarData(timestampOrDate) {
       const dt = timestampOrDate.toDate ? timestampOrDate.toDate() : new Date(timestampOrDate);
       const day = String(dt.getDate()).padStart(2, "0");
@@ -74,33 +84,20 @@
       return `${day}/${month}/${year}`;
     }
 
-    async function buscarEntregasPorPeriodo(dataInicio, dataFim) {
-  if (!window.db) {
-    alert("Firebase não inicializado!");
-    return [];
-  }
+    async function buscarEntregasPorPeriodo(inicioUTC, fimUTC) {
+      if (!window.db) {
+        alert("Firebase não inicializado!");
+        return [];
+      }
 
-  // Extrair ano, mês e dia
-  const [anoI, mesI, diaI] = dataInicio.split("-");
-  const [anoF, mesF, diaF] = dataFim.split("-");
+      const snapshot = await window.db
+        .collection("entregas")
+        .where("timestamp", ">=", firebase.firestore.Timestamp.fromDate(inicioUTC))
+        .where("timestamp", "<=", firebase.firestore.Timestamp.fromDate(fimUTC))
+        .get();
 
-  // Criar datas no horário UTC, para evitar deslocamento
-  const inicioUTC = new Date(Date.UTC(Number(anoI), Number(mesI) - 1, Number(diaI), 0, 0, 0, 0));
-  const fimUTC = new Date(Date.UTC(Number(anoF), Number(mesF) - 1, Number(diaF), 23, 59, 59, 999));
-
-  // Criar timestamps do Firestore a partir das datas UTC
-  const inicioTimestamp = window.firebase.firestore.Timestamp.fromDate(inicioUTC);
-  const fimTimestamp = window.firebase.firestore.Timestamp.fromDate(fimUTC);
-
-  const snapshot = await window.db
-    .collection("entregas")
-    .where("timestamp", ">=", inicioTimestamp)
-    .where("timestamp", "<=", fimTimestamp)
-    .get();
-
-  return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-}
-
+      return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    }
 
     function mostrarEntregasAgrupadas(entregas) {
       relatorioDias.innerHTML = "";
@@ -131,7 +128,8 @@
         diasMap[dia].forEach((e) => {
           const li = document.createElement("li");
           li.className = "list-group-item d-flex justify-content-between align-items-center";
-          li.textContent = `${e.nomeEmpresa} (${e.tipoEntrega})`;
+          const tipoNome = tiposEntrega[e.tipoEntrega] || e.tipoEntrega;
+          li.textContent = `${e.nomeEmpresa} (${tipoNome})`;
           const valor = document.createElement("span");
           valor.textContent = `R$ ${e.valorFrete.toFixed(2)}`;
           li.appendChild(valor);
@@ -150,6 +148,17 @@
       totalRelatorio.textContent = totalGeral.toFixed(2);
     }
 
+    function criarInicioDoDiaLocal(dateStr) {
+      const [ano, mes, dia] = dateStr.split("-");
+      return new Date(+ano, +mes - 1, +dia, 0, 0, 0, 0);  // horário local início do dia
+    }
+
+    function criarFimDoDiaLocal(dateStr) {
+      const [ano, mes, dia] = dateStr.split("-");
+      return new Date(+ano, +mes - 1, +dia, 23, 59, 59, 999);  // horário local fim do dia
+    }
+
+
     btnFiltrar.addEventListener("click", async () => {
       const dataInicio = document.getElementById("dataInicio").value;
       const dataFim = document.getElementById("dataFim").value;
@@ -158,49 +167,140 @@
         alert("Informe as duas datas para filtrar.");
         return;
       }
+
       if (dataFim < dataInicio) {
         alert("Data fim deve ser maior ou igual à data início.");
         return;
       }
 
-      const entregas = await buscarEntregasPorPeriodo(dataInicio, dataFim);
+      const inicioLocal = criarInicioDoDiaLocal(dataInicio);
+      const fimLocal = criarFimDoDiaLocal(dataFim);
+
+      const entregas = await buscarEntregasPorPeriodo(inicioLocal, fimLocal);
+
       mostrarEntregasAgrupadas(entregas);
     });
 
     btnGerarPdf.addEventListener("click", () => {
       const { jsPDF } = window.jspdf;
-      const doc = new jsPDF();
+      const doc = new jsPDF({ orientation: "landscape" });
 
-      doc.setFontSize(18);
-      doc.text("Relatório de Entregas", 14, 22);
+      const marginLeft = 8;
+      const topMargin = 15;
+      const colSpacing = 55;
+      const rowSpacing = 45;
+      const rowHeight = 5;
 
-      let y = 30;
-      const dias = relatorioDias.querySelectorAll("h5, ul li");
+      doc.setFontSize(14);
+      doc.text("Relatório de Entregas", 148, 10, { align: "center" });
 
-      if (dias.length === 0) {
+      const elementos = [...relatorioDias.children];
+      const blocos = [];
+
+      for (let i = 0; i < elementos.length; i += 2) {
+        const tituloEl = elementos[i];
+        const listaEl = elementos[i + 1];
+
+        if (!tituloEl || !listaEl) continue;
+
+        blocos.push({
+          titulo: tituloEl.textContent,
+          itens: [...listaEl.querySelectorAll("li")],
+        });
+      }
+
+      if (blocos.length === 0) {
         alert("Nenhum dado para gerar relatório.");
         return;
       }
 
-      dias.forEach((el) => {
-        if (el.tagName === "H5") {
-          doc.setFontSize(14);
-          doc.text(el.textContent, 14, y);
-        } else {
-          doc.setFontSize(11);
-          doc.text(el.textContent, 16, y);
-        }
-        y += 8;
-        if (y > 280) {
+      let col = 0;
+      let row = 0;
+      const maxCols = 5;
+      const maxRows = 3;
+
+      blocos.forEach((bloco) => {
+        const x = marginLeft + col * colSpacing;
+        let y = topMargin + row * rowSpacing;
+
+        if (row >= maxRows) {
           doc.addPage();
-          y = 20;
+          row = 0;
+          col = 0;
+          y = topMargin;
+        }
+
+        doc.setFontSize(11);
+        doc.text(bloco.titulo, x + colSpacing / 2, y, { align: "center" });
+        y += rowHeight;
+
+        doc.setFontSize(9);
+        doc.text("Empresa", x, y);
+        doc.text("Tipo", x + 18, y);
+        doc.text("Valor", x + 35, y);
+        y += rowHeight;
+
+        bloco.itens.forEach((li) => {
+          const spans = li.querySelectorAll("span");
+          const isTotal = li.classList.contains("active");
+
+          if (spans.length >= 1) {
+            const valor = spans[spans.length - 1].textContent.trim();
+            const texto = li.textContent.replace(valor, "").trim();
+
+            let empresa = texto;
+            let tipo = "";
+
+            const match = texto.match(/(.+)\s+\(([^)]+)\)/);
+            if (match) {
+              empresa = match[1];
+              tipo = match[2];
+              tipo = Object.values(tiposEntrega).includes(tipo) ? tipo : (tiposEntrega[tipo.toLowerCase()] || tipo);
+            }
+
+            const empresaLines = doc.splitTextToSize(empresa, 20);
+
+            if (isTotal) {
+              const rectHeight = empresaLines.length * rowHeight;
+              doc.setFillColor(255, 255, 153);
+              doc.rect(x - 1, y - rowHeight + 1, 51, rectHeight + 1, "F");
+            }
+
+            empresaLines.forEach((line, i) => {
+              doc.setFontSize(isTotal ? 9 : 8);
+              doc.text(line, x, y);
+              if (i === 0) {
+                doc.text(tipo.slice(0, 15), x + 18, y);
+                doc.text(valor, x + 35, y);
+              }
+              y += rowHeight;
+            });
+          }
+        });
+
+        col++;
+        if (col >= maxCols) {
+          col = 0;
+          row++;
         }
       });
 
-      doc.setFontSize(14);
-      doc.text(`Total Geral: R$ ${totalRelatorio.textContent}`, 14, y + 10);
+      // Fundo amarelo e texto para o total geral alinhado à direita
+      const totalMesTexto = `Total mês Geral: R$ ${totalRelatorio.textContent}`;
+      const textWidth = doc.getTextWidth(totalMesTexto);
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const xTotal = pageWidth - textWidth - 20;
+      const yTotal = 200;
+
+      doc.setFillColor(255, 255, 153);
+      doc.rect(xTotal - 1, yTotal - 5, textWidth + 15, 8, "F");
+
+      doc.setFontSize(12);
+      doc.text(totalMesTexto, xTotal, yTotal);
+
       doc.save("relatorio_entregas.pdf");
     });
   </script>
 </body>
+
 </html>
