@@ -100,6 +100,17 @@
               <input class="form-control form-control-sm mt-1" disabled="" id="valorRecolha" min="0"
                 placeholder="R$ 0,00" step="0.01" type="number" />
             </div>
+            <div class="col-md-3 form-check">
+              <input class="form-check-input" data-tipo="bo" id="entregabo" name="tiposEntrega"
+                type="checkbox" value="" />
+              <label class="form-check-label" for="entregabo">
+                B.O
+              </label>
+              <input class="form-control form-control-sm mt-1" disabled="" id="valorbo" min="0"
+                placeholder="R$ 0,00" step="0.01" type="number" />
+            </div>
+
+
           </div>
         </fieldset>
         <input id="empresaId" type="hidden" />
@@ -130,6 +141,7 @@
     const empresaId = document.getElementById("empresaId");
     const nomeEmpresa = document.getElementById("nomeEmpresa");
     const listaEmpresas = document.getElementById("listaEmpresas");
+    
 
     const checkboxes = document.querySelectorAll('input[name="tiposEntrega"]');
     const inputsValores = {
@@ -139,6 +151,7 @@
       desjejum: document.getElementById("valorDesjejum"),
       ceiaMtx: document.getElementById("valorCeiaMtx"),
       recolha: document.getElementById("valorRecolha"),
+      bo: document.getElementById("valorbo"),
     };
 
     // Habilita/desabilita inputs
