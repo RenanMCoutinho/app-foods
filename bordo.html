@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1" name="viewport" />
+  <title>Computador de Bordo - Consumo de Combustível</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+</head>
+
+<body>
+  <nav class="navbar navbar-expand navbar-dark bg-success mb-4 shadow-sm">
+    <div class="container">
+      <a class="navbar-brand fs-4 fw-semibold" href="index.html">Início</a>
+      <a class="navbar-brand fs-4 fw-semibold" href="bordo.html">Viagem</a>
+      <a class="navbar-brand fs-4 fw-semibold" href="cadastro.html">Cadastro</a>
+      <a class="navbar-brand fs-4 fw-semibold" href="relatorio.html">Relatório</a>
+    </div>
+  </nav>
+
+  <main class="container">
+    <div class="card p-4 mb-4">
+      <h2 class="text-center mb-4">Consumo de Combustível</h2>
+
+      <div class="mb-3">
+        <label for="kmInicial" class="form-label">KM Inicial</label>
+        <input type="number" class="form-control" id="kmInicial" placeholder="Informe o KM inicial" />
+        <button id="btnSalvarKmInicial" class="btn btn-primary mt-2">Salvar KM Inicial</button>
+      </div>
+
+      <div class="mb-3">
+        <label for="kmFinal" class="form-label">KM Final do Dia</label>
+        <input type="number" class="form-control" id="kmFinal" placeholder="Digite o KM final do dia (opcional)" />
+      </div>
+
+      <div class="mb-3">
+        <label for="combustivelAbastecido" class="form-label">Combustível Abastecido (L)</label>
+        <input type="number" class="form-control" id="combustivelAbastecido" step="0.01"
+          placeholder="Digite a quantidade abastecida" />
+      </div>
+
+      <div class="mb-3">
+        <label for="precoCombustivel" class="form-label">Preço do Combustível (R$/L)</label>
+        <input type="number" class="form-control" id="precoCombustivel" step="0.01" placeholder="Ex: 5.49" />
+      </div>
+
+      <button id="btnCalcular" class="btn btn-success w-100 mb-2">Calcular</button>
+      <button id="btnLimparCache" class="btn btn-danger w-100">Limpar Cache e Dados</button>
+
+      <div class="mt-4">
+        <h5>Resultado:</h5>
+        <p id="kmRodadoResultado">KM Rodado: -</p>
+        <p id="consumoResultado">Combustível Consumido: -</p>
+        <p id="combustivelRestanteResultado">Combustível Restante: -</p>
+        <p id="valorTotalGastoResultado">Valor Abastecimento: -</p>
+        <p id="gastoDoDiaResultado">Gasto do Dia com KM Percorrido: -</p>
+      </div>
+    </div>
+  </main>
+  <!-- ... HTML acima permanece igual ... -->
+
+  <script>
+    let kmInicial = null;
+    let combustivelRestante = 0;
+    let valorTotalGasto = parseFloat(localStorage.getItem("valorTotalGasto")) || 0;
+
+    const kmInicialInput = document.getElementById("kmInicial");
+    const btnSalvarKmInicial = document.getElementById("btnSalvarKmInicial");
+    const kmFinalInput = document.getElementById("kmFinal");
+    const combustivelInput = document.getElementById("combustivelAbastecido");
+    const precoCombustivelInput = document.getElementById("precoCombustivel");
+
+    const kmRodadoResultado = document.getElementById("kmRodadoResultado");
+    const consumoResultado = document.getElementById("consumoResultado");
+    const combustivelRestanteResultado = document.getElementById("combustivelRestanteResultado");
+    const valorTotalGastoResultado = document.getElementById("valorTotalGastoResultado");
+    const gastoDoDiaResultado = document.getElementById("gastoDoDiaResultado");
+
+    function salvarLocalStorage() {
+      localStorage.setItem("kmInicial", kmInicial);
+      localStorage.setItem("combustivelRestante", combustivelRestante);
+      localStorage.setItem("valorTotalGasto", valorTotalGasto);
+    }
+
+    function carregarLocalStorage() {
+      const kmIni = localStorage.getItem("kmInicial");
+      const combRes = localStorage.getItem("combustivelRestante");
+      const precoSalvo = localStorage.getItem("precoCombustivel");
+
+      kmInicial = kmIni !== null ? parseFloat(kmIni) : null;
+      combustivelRestante = combRes ? parseFloat(combRes) : 0;
+
+      if (kmInicial !== null) {
+        kmInicialInput.value = kmInicial;
+        kmInicialInput.disabled = true;
+        btnSalvarKmInicial.style.display = "none";
+      } else {
+        kmInicialInput.value = "";
+        kmInicialInput.disabled = false;
+        btnSalvarKmInicial.style.display = "inline-block";
+      }
+
+      if (precoSalvo) {
+        precoCombustivelInput.value = precoSalvo;
+      }
+
+      atualizarResultados(0, 0, combustivelRestante, 0);
+    }
+
+    function atualizarResultados(kmRodado, consumo, combustivelRest, gastoDoDia) {
+      kmRodadoResultado.textContent = `KM Rodado: ${kmRodado > 0 ? kmRodado.toFixed(2) + " km" : "-"}`;
+      consumoResultado.textContent = `Combustível Consumido: ${consumo > 0 ? consumo.toFixed(2) + " litros" : "-"}`;
+      combustivelRestanteResultado.textContent = `Combustível Restante: ${combustivelRest.toFixed(2)} litros`;
+      valorTotalGastoResultado.textContent = `Valor Abastecimento: R$ ${valorTotalGasto.toFixed(2)}`;
+      gastoDoDiaResultado.textContent =
+        !isNaN(gastoDoDia) && gastoDoDia > 0
+          ? `Gasto do Dia com KM Percorrido: R$ ${gastoDoDia.toFixed(2)}`
+          : `Gasto do Dia com KM Percorrido: R$ 0,00`;
+    }
+
+    btnSalvarKmInicial.addEventListener("click", () => {
+      const kmValue = parseFloat(kmInicialInput.value);
+      if (isNaN(kmValue) || kmValue <= 0) {
+        alert("Informe um KM inicial válido maior que zero.");
+        return;
+      }
+      kmInicial = kmValue;
+      kmInicialInput.disabled = true;
+      btnSalvarKmInicial.style.display = "none";
+      salvarLocalStorage();
+      alert("KM inicial salvo com sucesso!");
+    });
+
+    document.getElementById("btnCalcular").addEventListener("click", () => {
+      if (kmInicial === null) {
+        alert("Informe e salve o KM inicial antes de calcular.");
+        return;
+      }
+
+      const kmFinal = parseFloat(kmFinalInput.value);
+      const abastecido = parseFloat(combustivelInput.value) || 0;
+
+      const precoCombustivelRaw = precoCombustivelInput.value.replace(',', '.');
+      const precoCombustivel = parseFloat(precoCombustivelRaw);
+
+      if (!isNaN(precoCombustivel) && precoCombustivel > 0) {
+        localStorage.setItem("precoCombustivel", precoCombustivel.toString());
+      } else {
+        alert("Informe um preço válido do combustível.");
+        return;
+      }
+
+      const mediaKmPorLitro = 10;
+      let kmRodado = 0;
+      let consumo = 0;
+      let gastoDoDia = 0;
+
+      // Calcula km rodado e consumo se km final informado
+      if (!isNaN(kmFinal) && kmFinal > kmInicial) {
+        kmRodado = kmFinal - kmInicial;
+        consumo = kmRodado / mediaKmPorLitro;
+
+        combustivelRestante -= consumo;
+        kmInicial = kmFinal;
+        kmInicialInput.value = kmInicial;
+      }
+
+      // Atualiza combustivel restante e valor total gasto se houve abastecimento
+      if (abastecido > 0) {
+        combustivelRestante += abastecido;
+        valorTotalGasto += abastecido * precoCombustivel;
+      }
+
+      // Calcula gasto do dia se km rodado informado
+      if (kmRodado > 0) {
+        gastoDoDia = consumo * precoCombustivel;
+      }
+
+      // Validação básica para evitar cálculo sem dados
+      if (kmRodado === 0 && abastecido === 0) {
+        alert("Informe KM final maior que inicial ou combustível abastecido para calcular.");
+        return;
+      }
+
+      atualizarResultados(kmRodado, consumo, combustivelRestante, gastoDoDia);
+      salvarLocalStorage();
+
+      kmFinalInput.value = "";
+      combustivelInput.value = "";
+      // Não limpa o preço do combustível para facilitar uso contínuo
+    });
+
+
+    document.getElementById("btnLimparCache").addEventListener("click", () => {
+      if (confirm("Tem certeza que deseja limpar todo o cache e os dados salvos?")) {
+        localStorage.clear();
+        location.reload();
+      }
+    });
+
+    carregarLocalStorage();
+  </script>
