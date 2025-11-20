@@ -1,15 +1,15 @@
-/* Estilos base */
+/* ===== ESTILO BASE ===== */
 body {
     background-color: #f8f9fa;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     color: #333;
     margin: 0;
-    padding: 0;
+    padding-top: 60px;      /* espaço para a NAV superior */
+    padding-bottom: 60px;   /* espaço para a NAV inferior */
 }
 
 .navbar-brand {
-    font-weight: bold;
-    font-size: 1.1rem;
+       font-size: 1.8rem;
 }
 
 .card {
@@ -53,43 +53,68 @@ ul.list-group .list-group-item.active {
     border-color: #198754;
 }
 
-/* RESPONSIVO */
+/* ===============================
+   NAVBAR SUPERIOR (TOP NAVBAR)
+   =============================== */
+#topNavbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    width: 100%;
+    height: 50px;
+    font-family: 'Open Sans', sans-serif;
+
+}
+
+#topNavbar .container {
+    justify-content: center !important;
+}
+
+#topNavbar .navbar-brand {
+    margin-left: 0 !important;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+/* ===============================
+   NAVBAR INFERIOR (BOTTOM NAVBAR)
+   =============================== */
+.navbar-bottom {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 999;
+    margin: 0;
+    padding: 0;
+}
+
+.navbar-bottom .container {
+    display: flex;
+    justify-content: space-around !important;
+    padding: 0 !important;
+}
+
+.navbar-bottom a.navbar-brand {
+    flex-grow: 1;
+    text-align: center;
+    padding: 10px 0;
+    margin: 0;
+}
+
+.navbar-bottom a.navbar-brand i {
+    font-size: 1.6rem;
+}
+
+/* ===============================
+   RESPONSIVO
+   =============================== */
 @media (max-width: 768px) {
-
-    /* Remove QUALQUER espaçamento da nav */
-    nav.navbar {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        margin: 0;
-        padding: 0; /* <-- tiramos o padding */
-        border-radius: 0; /* colado no fim da tela */
-        z-index: 999;
-    }
-
-    /* Remove padding do container da navbar */
-    nav.navbar .container {
-        padding: 0 !important;
-        margin: 0 !important;
-        justify-content: space-around !important;
-    }
-
-    /* Estilo dos botões/ícones */
-    nav.navbar a.navbar-brand {
-        flex-grow: 1;
-        text-align: center;
-        padding: 10px 0; /* espaço só nos links */
-        margin: 0;
-    }
-
-    nav.navbar a.navbar-brand i {
-        font-size: 1.6rem;
-    }
-
-    /* Mantém o conteúdo acima da navbar */
     body {
+        padding-top: 60px;
         padding-bottom: 60px;
     }
 }
-

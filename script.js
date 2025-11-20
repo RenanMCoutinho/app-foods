@@ -36,6 +36,7 @@ function editEmpresa(id) {
   document.getElementById('endereco').value = emp.endereco;
   document.getElementById('valorFrete').value = emp.valorFrete;
   document.getElementById('tituloForm').innerText = 'Editar Empresa';
+
 }
 document.getElementById('empresaForm').onsubmit = e => {
   e.preventDefault();
