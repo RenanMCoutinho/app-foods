@@ -94,68 +94,117 @@
     }
 
     async function buscarEntregasPorPeriodo(inicioUTC, fimUTC) {
-      if (!window.db) {
-        alert("Firebase não inicializado!");
-        return [];
-      }
+        try {
+            if (!window.db) {
+                alert("Firebase não inicializado!");
+                return {
+                    ok: false,
+                    data: [],
+                    mensagem: "Firebase não inicializado!"
+                };
+            }
 
-      const snapshot = await window.db
-        .collection("entregas")
-        .where("timestamp", ">=", firebase.firestore.Timestamp.fromDate(inicioUTC))
-        .where("timestamp", "<=", firebase.firestore.Timestamp.fromDate(fimUTC))
-        .get();
+            const snapshot = await window.db
+                .collection("entregas")
+                .where("timestamp", ">=", firebase.firestore.Timestamp.fromDate(inicioUTC))
+                .where("timestamp", "<=", firebase.firestore.Timestamp.fromDate(fimUTC))
+                .get();
 
-      return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            if (snapshot.empty) {
+                return {
+                    ok: true,
+                    data: [],
+                    mensagem: "Nenhuma entrega encontrada no período selecionado!"
+                };
+            }
+
+            return {
+                ok: true,
+                data: snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })),
+                mensagem: null
+            };
+
+        } catch (error) {
+            console.error("Erro ao buscar entregas!", error);
+            return {
+                ok: false,
+                data: [],
+                mensagem: "Erro ao buscar entregas."
+            };
+        }
+    }
+
+
+
+    function nomeDiaSemana(dateStr) {
+        const [d, m, y] = dateStr.split("/").map(Number);
+        const date = new Date(y, m - 1, d);
+
+        const dias = [
+            "Domingo",
+            "Segunda",
+            "Terça",
+            "Quarta",
+            "Quinta",
+            "Sexta",
+            "Sábado"
+        ];
+
+        return dias[date.getDay()];
     }
 
     function mostrarEntregasAgrupadas(entregas) {
-      relatorioDias.innerHTML = "";
-      const diasMap = {};
-      let totalGeral = 0;
+        relatorioDias.innerHTML = "";
+        const diasMap = {};
+        let totalGeral = 0;
 
-      entregas.forEach((e) => {
-        const dia = formatarData(e.timestamp);
-        if (!diasMap[dia]) diasMap[dia] = [];
-        diasMap[dia].push(e);
-        totalGeral += e.valorFrete;
-      });
-
-      Object.keys(diasMap).sort((a, b) => {
-        const [d1, m1, y1] = a.split("/").map(Number);
-        const [d2, m2, y2] = b.split("/").map(Number);
-        return new Date(y1, m1 - 1, d1) - new Date(y2, m2 - 1, d2);
-      }).forEach((dia) => {
-        const ul = document.createElement("ul");
-        ul.className = "list-group mb-3";
-
-        const titulo = document.createElement("h5");
-        titulo.textContent = `Dia ${dia}`;
-        titulo.className = "text-primary mt-3";
-        relatorioDias.appendChild(titulo);
-
-        let totalDia = 0;
-        diasMap[dia].forEach((e) => {
-          const li = document.createElement("li");
-          li.className = "list-group-item d-flex justify-content-between align-items-center";
-          const tipoNome = tiposEntrega[e.tipoEntrega] || e.tipoEntrega;
-          li.textContent = `${e.nomeEmpresa} (${tipoNome})`;
-          const valor = document.createElement("span");
-          valor.textContent = `R$ ${e.valorFrete.toFixed(2)}`;
-          li.appendChild(valor);
-          ul.appendChild(li);
-          totalDia += e.valorFrete;
+        entregas.forEach((e) => {
+            const dia = formatarData(e.timestamp);
+            if (!diasMap[dia]) diasMap[dia] = [];
+            diasMap[dia].push(e);
+            totalGeral += e.valorFrete;
         });
 
-        const liTotal = document.createElement("li");
-        liTotal.className = "list-group-item active d-flex justify-content-between";
-        liTotal.innerHTML = `<strong>Total do dia:</strong> <span>R$ ${totalDia.toFixed(2)}</span>`;
-        ul.appendChild(liTotal);
+        Object.keys(diasMap).sort((a, b) => {
+            const [d1, m1, y1] = a.split("/").map(Number);
+            const [d2, m2, y2] = b.split("/").map(Number);
+            return new Date(y1, m1 - 1, d1) - new Date(y2, m2 - 1, d2);
+        }).forEach((dia) => {
 
-        relatorioDias.appendChild(ul);
-      });
+            const nomeDia = nomeDiaSemana(dia);   // <<< AQUI
+            const titulo = document.createElement("h5");
+            titulo.textContent = `${nomeDia} - ${dia}`;
+            titulo.className = "text-primary mt-3";
+            relatorioDias.appendChild(titulo);
 
-      totalRelatorio.textContent = totalGeral.toFixed(2);
+            const ul = document.createElement("ul");
+            ul.className = "list-group mb-3";
+
+            let totalDia = 0;
+
+            diasMap[dia].forEach((e) => {
+                const li = document.createElement("li");
+                li.className = "list-group-item d-flex justify-content-between align-items-center";
+                const tipoNome = tiposEntrega[e.tipoEntrega] || e.tipoEntrega;
+                li.textContent = `${e.nomeEmpresa} (${tipoNome})`;
+                const valor = document.createElement("span");
+                valor.textContent = `R$ ${e.valorFrete.toFixed(2)}`;
+                li.appendChild(valor);
+                ul.appendChild(li);
+                totalDia += e.valorFrete;
+            });
+
+            const liTotal = document.createElement("li");
+            liTotal.className = "list-group-item active d-flex justify-content-between";
+            liTotal.innerHTML = `<strong>Total do dia:</strong> <span>R$ ${totalDia.toFixed(2)}</span>`;
+            ul.appendChild(liTotal);
+
+            relatorioDias.appendChild(ul);
+        });
+
+        totalRelatorio.textContent = totalGeral.toFixed(2);
     }
+
 
     function criarInicioDoDiaLocal(dateStr) {
       const [ano, mes, dia] = dateStr.split("-");
@@ -169,26 +218,40 @@
 
 
     btnFiltrar.addEventListener("click", async () => {
-      const dataInicio = document.getElementById("dataInicio").value;
-      const dataFim = document.getElementById("dataFim").value;
+        const dataInicio = document.getElementById("dataInicio").value;
+        const dataFim = document.getElementById("dataFim").value;
 
-      if (!dataInicio || !dataFim) {
-        alert("Informe as duas datas para filtrar.");
-        return;
-      }
+        if (!dataInicio || !dataFim) {
+            alert("Informe as duas datas para filtrar.");
+            return;
+        }
 
-      if (dataFim < dataInicio) {
-        alert("Data fim deve ser maior ou igual à data início.");
-        return;
-      }
+        if (dataFim < dataInicio) {
+            alert("Data fim deve ser maior ou igual à data início.");
+            return;
+        }
 
-      const inicioLocal = criarInicioDoDiaLocal(dataInicio);
-      const fimLocal = criarFimDoDiaLocal(dataFim);
+        const inicioLocal = criarInicioDoDiaLocal(dataInicio);
+        const fimLocal = criarFimDoDiaLocal(dataFim);
 
-      const entregas = await buscarEntregasPorPeriodo(inicioLocal, fimLocal);
+        const entregas = await buscarEntregasPorPeriodo(inicioLocal, fimLocal);
 
-      mostrarEntregasAgrupadas(entregas);
+        // ---- AQUI ESTÁ A CORREÇÃO ----
+        if (!entregas.ok) {
+            alert(entregas.mensagem);
+            return;
+        }
+
+        if (entregas.data.length === 0) {
+            alert(entregas.mensagem);
+            relatorioDias.innerHTML = "";
+            totalRelatorio.textContent = "0.00";
+            return;
+        }
+
+        mostrarEntregasAgrupadas(entregas.data);
     });
+
 
     btnGerarPdf.addEventListener("click", () => {
       const { jsPDF } = window.jspdf;
