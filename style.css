@@ -55,47 +55,41 @@ ul.list-group .list-group-item.active {
 
 /* RESPONSIVO */
 @media (max-width: 768px) {
-    h1, h3 {
-        font-size: 1.5rem;
-    }
 
-    .navbar-brand {
-        font-size: 1rem;
-    }
-
-    .form-label {
-        font-size: 0.9rem;
-    }
-
-    /* ----- MENU INFERIOR (Bottom Navigation) ----- */
+    /* Remove QUALQUER espaçamento da nav */
     nav.navbar {
         position: fixed;
         bottom: 0;
         left: 0;
         right: 0;
-        width: 100%;
+        margin: 0;
+        padding: 0; /* <-- tiramos o padding */
+        border-radius: 0; /* colado no fim da tela */
         z-index: 999;
-        border-radius: 16px 16px 0 0;
-        padding-top: 8px;
-        padding-bottom: 8px;
     }
 
-    body {
-        padding-bottom: 80px; /* evita que o conteúdo fique escondido */
-    }
-
+    /* Remove padding do container da navbar */
     nav.navbar .container {
+        padding: 0 !important;
+        margin: 0 !important;
         justify-content: space-around !important;
     }
 
+    /* Estilo dos botões/ícones */
     nav.navbar a.navbar-brand {
         flex-grow: 1;
         text-align: center;
+        padding: 10px 0; /* espaço só nos links */
         margin: 0;
-        padding: 4px 0;
     }
 
     nav.navbar a.navbar-brand i {
         font-size: 1.6rem;
     }
+
+    /* Mantém o conteúdo acima da navbar */
+    body {
+        padding-bottom: 60px;
+    }
 }
+
