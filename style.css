@@ -1,70 +1,101 @@
-
 /* Estilos base */
 body {
-  background-color: #f8f9fa;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  color: #333;
-  margin: 0;
-  padding: 0;
+    background-color: #f8f9fa;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #333;
+    margin: 0;
+    padding: 0;
 }
 
 .navbar-brand {
-  font-weight: bold;
-  font-size: 1.1rem;
+    font-weight: bold;
+    font-size: 1.1rem;
 }
 
 .card {
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  border: none;
-  border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    border: none;
+    border-radius: 12px;
 }
 
 .card h1, .card h3 {
-  font-weight: 600;
+    font-weight: 600;
 }
 
 .form-label {
-  font-weight: 500;
+    font-weight: 500;
 }
 
 input[type="text"],
 input[type="number"],
 input[type="date"],
 select {
-  border-radius: 8px !important;
-  padding: 10px;
+    border-radius: 8px !important;
+    padding: 10px;
 }
 
 .btn {
-  border-radius: 8px;
-  font-weight: 500;
+    border-radius: 8px;
+    font-weight: 500;
 }
 
 ul.list-group {
-  border-radius: 8px;
-  overflow: hidden;
+    border-radius: 8px;
+    overflow: hidden;
 }
 
 ul.list-group li {
-  font-size: 0.95rem;
+    font-size: 0.95rem;
 }
 
 ul.list-group .list-group-item.active {
-  background-color: #198754;
-  border-color: #198754;
+    background-color: #198754;
+    border-color: #198754;
 }
 
-/* Responsivo */
+/* RESPONSIVO */
 @media (max-width: 768px) {
-  h1, h3 {
-    font-size: 1.5rem;
-  }
+    h1, h3 {
+        font-size: 1.5rem;
+    }
 
-  .navbar-brand {
-    font-size: 1rem;
-  }
+    .navbar-brand {
+        font-size: 1rem;
+    }
 
-  .form-label {
-    font-size: 0.9rem;
-  }
+    .form-label {
+        font-size: 0.9rem;
+    }
+
+    /* ----- MENU INFERIOR (Bottom Navigation) ----- */
+    nav.navbar {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        width: 100%;
+        z-index: 999;
+        border-radius: 16px 16px 0 0;
+        padding-top: 8px;
+        padding-bottom: 8px;
+    }
+
+    body {
+        padding-bottom: 80px; /* evita que o conteúdo fique escondido */
+    }
+
+    nav.navbar .container {
+        justify-content: space-around !important;
+    }
+
+    nav.navbar a.navbar-brand {
+        flex-grow: 1;
+        text-align: center;
+        margin: 0;
+        padding: 4px 0;
+    }
+
+    nav.navbar a.navbar-brand i {
+        font-size: 1.6rem;
+    }
 }
