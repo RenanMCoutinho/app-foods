@@ -1,0 +1,175 @@
+/* CSS IOS Premium Overrides */
+
+/* Variáveis de Cores e Fontes */
+:root {
+    --f7-theme-color: #007aff;
+    /* Apple Blue */
+    --f7-theme-color-rgb: 0, 122, 255;
+    --f7-theme-color-shade: #0066cc;
+    --f7-theme-color-tint: #4da6ff;
+
+    --ios-surface-color: #ffffff;
+    --ios-background-color: #f2f2f7;
+    /* Apple System Gray 6 */
+    --ios-card-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    --ios-button-radius: 12px;
+    --ios-card-radius: 16px;
+}
+
+body {
+    background-color: var(--ios-background-color);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+}
+
+/* Navbar & Toolbar com Efeito de Vidro */
+.navbar-bg,
+.toolbar-bg,
+.subnavbar-bg,
+.searchbar-bg {
+    background-color: rgba(255, 255, 255, 0.85) !important;
+    backdrop-filter: saturate(180%) blur(20px);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+}
+
+.navbar .title {
+    font-weight: 600;
+    color: #000;
+}
+
+/* Ajuste para Navbar verde se o usuário preferir, mas iOS geralmente é branco/translucido. 
+   Vou manter o padrão iOS limpo (branco) e usar a cor do tema nos ícones/botões.
+   Mas se o app original era verde (DriverLog), vamos fazer um verde estilo iOS.
+*/
+
+.bg-color-green {
+    background-color: #34c759 !important;
+    /* Apple Green */
+}
+
+/* Cards Premium */
+.card {
+    border-radius: var(--ios-card-radius);
+    box-shadow: var(--ios-card-shadow);
+    border: none;
+    margin: 16px;
+    background: var(--ios-surface-color);
+}
+
+.card-header,
+.card-footer {
+    border: none;
+    background: transparent;
+    font-weight: 600;
+}
+
+/* Botões */
+.button {
+    border-radius: var(--ios-button-radius);
+    font-weight: 600;
+    text-transform: none;
+    /* iOS buttons não são uppercase */
+    letter-spacing: 0;
+    padding: 8px 16px;
+    height: 44px;
+    /* Altura de toque padrão iOS */
+    line-height: 44px;
+}
+
+.button-fill {
+    box-shadow: 0 4px 6px rgba(52, 199, 89, 0.3);
+    /* Sombra suave na cor do botão */
+}
+
+/* Inputs */
+.item-input-wrap {
+    border-radius: 8px;
+    background-color: rgba(142, 142, 147, 0.12);
+    /* Cinza claro input */
+    padding-left: 12px;
+    padding-right: 12px;
+}
+
+.item-input-wrap input,
+.item-input-wrap select {
+    font-size: 17px;
+    height: 36px;
+}
+
+.list .item-content {
+    padding-left: 16px;
+}
+
+.list .item-inner {
+    padding-right: 16px;
+}
+
+/* Listas Limpas */
+.list {
+    margin: 20px 0;
+}
+
+.list ul {
+    background: transparent;
+}
+
+.list ul::before,
+.list ul::after {
+    display: none;
+}
+
+.list .item-inner::after {
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+/* Botões de Ação na Lista (Excluir/Editar) */
+.button-small {
+    height: 28px;
+    line-height: 28px;
+    font-size: 13px;
+    border-radius: 14px;
+}
+
+/* Navegação de Data na Home */
+#dataHoje {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #1c1c1e;
+}
+
+/* Totais */
+#totalHoje,
+#totalRelatorio {
+    font-weight: 700;
+    color: #34c759;
+}
+
+/* Tabbar */
+.toolbar-bottom .tab-link {
+    color: #8e8e93;
+}
+
+.toolbar-bottom .tab-link-active {
+    color: #34c759;
+    /* Green active */
+}
+
+/* Ícones */
+i.icon {
+    font-size: 24px;
+}
+
+/* Títulos de Blocos */
+.block-title {
+    color: #8e8e93;
+    font-size: 13px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+}
+
+/* Toast Customizado */
+.toast-success .toast-content {
+    background-color: #34c759;
+    border-radius: 25px;
+    color: #fff;
+    font-weight: 600;
+}
