@@ -7,6 +7,10 @@ import { initHome } from './controllers/home.js';
 import { initCadastro } from './controllers/cadastro.js';
 import { initRelatorio } from './controllers/relatorio.js';
 
+import homeHtml from '../pages/home.html?url';
+import cadastroHtml from '../pages/cadastro.html?url';
+import relatorioHtml from '../pages/relatorio.html?url';
+
 const app = new Framework7({
     el: '#app',
     name: 'DriverLog',
@@ -14,7 +18,7 @@ const app = new Framework7({
     routes: [
         {
             path: '/',
-            url: './pages/home.html',
+            url: homeHtml,
             on: {
                 pageInit: function (e, page) {
                     initHome(page, app);
@@ -23,7 +27,7 @@ const app = new Framework7({
         },
         {
             path: '/cadastro/',
-            url: './pages/cadastro.html',
+            url: cadastroHtml,
             on: {
                 pageInit: function (e, page) {
                     initCadastro(page, app);
@@ -32,7 +36,7 @@ const app = new Framework7({
         },
         {
             path: '/relatorio/',
-            url: './pages/relatorio.html',
+            url: relatorioHtml,
             on: {
                 pageInit: function (e, page) {
                     initRelatorio(page, app);
