@@ -1,0 +1,30 @@
+{
+  "name": "app-foods",
+  "version": "1.0.0",
+  "description": "",
+  "main": "firebase-config.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RenanMCoutinho/app-foods.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/RenanMCoutinho/app-foods/issues"
+  },
+  "homepage": "https://github.com/RenanMCoutinho/app-foods#readme",
+  "dependencies": {
+    "firebase": "^12.10.0",
+    "framework7": "^9.0.3",
+    "framework7-icons": "^5.0.5"
+  },
+  "devDependencies": {
+    "vite": "^7.3.1"
+  }
+}

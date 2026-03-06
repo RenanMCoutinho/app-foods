@@ -1,58 +1,72 @@
-/* CSS IOS Premium Overrides */
+/* CSS Premium Framework7 Overrides */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
-/* Variáveis de Cores e Fontes */
 :root {
-    --f7-theme-color: #007aff;
-    /* Apple Blue */
-    --f7-theme-color-rgb: 0, 122, 255;
-    --f7-theme-color-shade: #0066cc;
-    --f7-theme-color-tint: #4da6ff;
+    /* Primary Deep Green */
+    --f7-theme-color: #0b9e4a;
+    --f7-theme-color-rgb: 11, 158, 74;
+    --f7-theme-color-shade: #09813c;
+    --f7-theme-color-tint: #1ccb6a;
 
     --ios-surface-color: #ffffff;
-    --ios-background-color: #f2f2f7;
-    /* Apple System Gray 6 */
-    --ios-card-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-    --ios-button-radius: 12px;
-    --ios-card-radius: 16px;
+    --ios-background-color: #f7f9fc; /* Soft Off-White for depth */
+    
+    /* Modern soft diffuse shadow */
+    --ios-card-shadow: 0 10px 30px rgba(0, 0, 0, 0.04), 0 2px 8px rgba(0, 0, 0, 0.02);
+    --ios-button-radius: 14px;
+    --ios-card-radius: 20px; /* Squircle feel */
 }
 
 body {
     background-color: var(--ios-background-color);
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+    color: #1a1d20;
+    -webkit-font-smoothing: antialiased;
+    letter-spacing: -0.01em;
 }
 
-/* Navbar & Toolbar com Efeito de Vidro */
+/* Glassmorphism for Navbar & Toolbar */
 .navbar-bg,
 .toolbar-bg,
 .subnavbar-bg,
 .searchbar-bg {
-    background-color: rgba(255, 255, 255, 0.85) !important;
-    backdrop-filter: saturate(180%) blur(20px);
-    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    background-color: rgba(255, 255, 255, 0.65) !important;
+    backdrop-filter: saturate(200%) blur(25px);
+    -webkit-backdrop-filter: saturate(200%) blur(25px);
+    border-bottom: 0.5px solid rgba(0,0,0,0.05); /* very subtle separating line */
+}
+
+/* Override the solid green from HTML classes to allow glass */
+.bg-color-green {
+    background: linear-gradient(135deg, rgba(11, 158, 74, 0.85) 0%, rgba(9, 129, 60, 0.95) 100%) !important;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+}
+.navbar .bg-color-green, .toolbar .bg-color-green {
+    /* Slightly more transparent on header/footer to see content roll underneath */
+    background: linear-gradient(135deg, rgba(11, 158, 74, 0.75) 0%, rgba(9, 129, 60, 0.85) 100%) !important;
 }
 
 .navbar .title {
-    font-weight: 600;
-    color: #000;
+    font-weight: 700;
+    font-size: 18px;
+    letter-spacing: -0.02em;
 }
 
-/* Ajuste para Navbar verde se o usuário preferir, mas iOS geralmente é branco/translucido. 
-   Vou manter o padrão iOS limpo (branco) e usar a cor do tema nos ícones/botões.
-   Mas se o app original era verde (DriverLog), vamos fazer um verde estilo iOS.
-*/
-
-.bg-color-green {
-    background-color: #34c759 !important;
-    /* Apple Green */
-}
-
-/* Cards Premium */
+/* Premium Cards */
 .card {
     border-radius: var(--ios-card-radius);
     box-shadow: var(--ios-card-shadow);
     border: none;
-    margin: 16px;
+    margin: 16px 14px;
     background: var(--ios-surface-color);
+    transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.2s ease;
+}
+
+/* Micro interaction on card touch */
+.card:active {
+    transform: scale(0.98);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.03);
 }
 
 .card-header,
@@ -62,114 +76,151 @@ body {
     font-weight: 600;
 }
 
-/* Botões */
+/* Buttons */
 .button {
     border-radius: var(--ios-button-radius);
     font-weight: 600;
     text-transform: none;
-    /* iOS buttons não são uppercase */
-    letter-spacing: 0;
+    letter-spacing: -0.01em;
     padding: 8px 16px;
-    height: 44px;
-    /* Altura de toque padrão iOS */
-    line-height: 44px;
+    height: 48px; 
+    line-height: 48px;
+    transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 .button-fill {
-    box-shadow: 0 4px 6px rgba(52, 199, 89, 0.3);
-    /* Sombra suave na cor do botão */
+    box-shadow: 0 8px 16px rgba(11, 158, 74, 0.25);
+    background: linear-gradient(135deg, var(--f7-theme-color-tint) 0%, var(--f7-theme-color) 100%);
 }
 
-/* Inputs */
+.button-fill:active {
+    transform: scale(0.96);
+    box-shadow: 0 4px 8px rgba(11, 158, 74, 0.15);
+}
+
+.button-outline {
+    border-width: 1.5px;
+    height: 44px;
+    line-height: 41px;
+}
+.button-outline:active {
+    transform: scale(0.96);
+}
+
+/* Inputs & Form Elements */
 .item-input-wrap {
-    border-radius: 8px;
-    background-color: rgba(142, 142, 147, 0.12);
-    /* Cinza claro input */
-    padding-left: 12px;
-    padding-right: 12px;
+    border-radius: 12px;
+    background-color: #f0f2f5;
+    padding-left: 14px;
+    padding-right: 14px;
+    transition: background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Active focus ring imitation */
+.item-input-focused .item-input-wrap {
+    background-color: #ffffff;
+    box-shadow: 0 0 0 2px rgba(11, 158, 74, 0.2);
 }
 
 .item-input-wrap input,
 .item-input-wrap select {
-    font-size: 17px;
-    height: 36px;
+    font-size: 16px;
+    height: 42px;
+    font-family: inherit;
+    font-weight: 500;
+    color: #2c3136;
 }
 
 .list .item-content {
     padding-left: 16px;
 }
-
 .list .item-inner {
     padding-right: 16px;
 }
 
-/* Listas Limpas */
+/* Clean Lists */
 .list {
-    margin: 20px 0;
+    margin: 24px 0;
 }
-
 .list ul {
     background: transparent;
 }
-
 .list ul::before,
 .list ul::after {
     display: none;
 }
-
 .list .item-inner::after {
-    background-color: rgba(0, 0, 0, 0.1);
+    background-color: rgba(0, 0, 0, 0.05); /* Very light divider */
 }
 
-/* Botões de Ação na Lista (Excluir/Editar) */
+/* List Items Entrance Animation */
+@keyframes slideUpFade {
+    0% { opacity: 0; transform: translateY(10px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+
+.list li {
+    animation: slideUpFade 0.3s ease-out forwards;
+}
+/* Staggering the first few items lightly */
+.list li:nth-child(1) { animation-delay: 0.05s; }
+.list li:nth-child(2) { animation-delay: 0.1s; }
+.list li:nth-child(3) { animation-delay: 0.15s; }
+.list li:nth-child(n+4) { animation-delay: 0.2s; }
+
+
 .button-small {
-    height: 28px;
-    line-height: 28px;
+    height: 32px;
+    line-height: 32px;
     font-size: 13px;
-    border-radius: 14px;
+    border-radius: 16px;
 }
 
-/* Navegação de Data na Home */
-#dataHoje {
-    font-size: 1.2rem;
+/* Section Titles */
+.block-title {
+    color: #6a7178;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
     font-weight: 700;
-    color: #1c1c1e;
+    margin-bottom: 12px;
+    margin-top: 32px;
 }
 
-/* Totais */
+#dataHoje {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #1a1d20;
+    font-feature-settings: "tnum"; /* Tabular numbers for consistency */
+}
+
 #totalHoje,
 #totalRelatorio {
-    font-weight: 700;
-    color: #34c759;
+    font-weight: 800;
+    color: var(--f7-theme-color);
+    font-feature-settings: "tnum";
 }
 
-/* Tabbar */
+/* Toolbar active states */
 .toolbar-bottom .tab-link {
-    color: #8e8e93;
+    color: rgba(255, 255, 255, 0.6);
+    transition: color 0.2s ease, transform 0.2s ease;
 }
-
+.toolbar-bottom .tab-link:active {
+    transform: scale(0.9);
+}
 .toolbar-bottom .tab-link-active {
-    color: #34c759;
-    /* Green active */
+    color: #ffffff;
+    font-weight: 600;
 }
 
-/* Ícones */
-i.icon {
-    font-size: 24px;
-}
-
-/* Títulos de Blocos */
-.block-title {
-    color: #8e8e93;
-    font-size: 13px;
-    text-transform: uppercase;
-    margin-bottom: 8px;
-}
-
-/* Toast Customizado */
+/* Custom Success Toast with Glass */
 .toast-success .toast-content {
-    background-color: #34c759;
-    border-radius: 25px;
+    background: rgba(11, 158, 74, 0.9);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-radius: 30px;
     color: #fff;
     font-weight: 600;
+    box-shadow: 0 8px 24px rgba(11, 158, 74, 0.3);
 }
