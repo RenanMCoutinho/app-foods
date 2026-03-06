@@ -1,0 +1,95 @@
+<div class="page" data-name="relatorio">
+    <div class="navbar">
+        <div class="navbar-bg bg-color-green"></div>
+        <div class="navbar-inner sliding">
+            <div class="left">
+                <a href="#" class="link back text-color-white">
+                    <i class="icon icon-back"></i>
+                    <span class="if-not-md">Voltar</span>
+                </a>
+            </div>
+            <div class="title text-color-white">Relatório de Entregas</div>
+        </div>
+    </div>
+
+    <div class="toolbar tabbar toolbar-bottom bg-color-green">
+        <div class="toolbar-inner">
+            <a href="/" class="tab-link text-color-white">
+                <i class="icon f7-icons if-not-md">house</i>
+                <i class="icon material-icons if-md">home</i>
+            </a>
+            <a href="/cadastro/" class="tab-link text-color-white">
+                <i class="icon f7-icons if-not-md">building_2_fill</i>
+                <i class="icon material-icons if-md">business</i>
+            </a>
+            <a href="/relatorio/" class="tab-link tab-link-active text-color-white">
+                <i class="icon f7-icons if-not-md">doc_text_fill</i>
+                <i class="icon material-icons if-md">description</i>
+            </a>
+        </div>
+    </div>
+
+    <div class="page-content">
+        <div class="block-title display-flex align-items-center">
+            <i class="icon f7-icons size-16 margin-right-half">calendar</i>
+            Filtro de Período
+        </div>
+        <div class="list no-hairlines-md">
+            <ul>
+                <li class="item-content item-input">
+                    <div class="item-inner">
+                        <div class="item-title item-label">Data Início</div>
+                        <div class="item-input-wrap">
+                            <input type="date" id="dataInicio" placeholder="Data de início">
+                        </div>
+                    </div>
+                </li>
+                <li class="item-content item-input">
+                    <div class="item-inner">
+                        <div class="item-title item-label">Data Fim</div>
+                        <div class="item-input-wrap">
+                            <input type="date" id="dataFim" placeholder="Data de fim">
+                        </div>
+                    </div>
+                </li>
+            </ul>
+        </div>
+        <div class="padding-horizontal padding-bottom">
+            <button class="button button-fill button-large color-green width-100" id="btnFiltrar">
+                <i class="icon f7-icons if-not-md margin-right">funnel_fill</i>
+                <i class="icon material-icons if-md margin-right">filter_alt</i>
+                Filtrar Resultados
+            </button>
+        </div>
+
+        <div class="block-title display-flex align-items-center">
+            <i class="icon f7-icons size-16 margin-right-half">doc_text</i>
+            Resultados
+        </div>
+        <div id="relatorioDias">
+            <!-- Conteúdo inserido dinamicamente -->
+            <div class="block text-align-center text-color-gray">Selecione as datas e clique em Filtrar</div>
+        </div>
+
+        <div class="block block-strong card margin-top margin-bottom-lg padding">
+            <div class="display-flex flex-direction-column justify-content-center align-items-center">
+                <span class="text-color-gray uppercase"
+                    style="font-size: 13px; font-weight: 700; letter-spacing: 0.1em; margin-bottom: 4px;">Total Geral no
+                    Período</span>
+                <span class="text-color-green"
+                    style="font-size: 32px; font-weight: 800; font-family: 'Outfit', sans-serif;">R$ <span
+                        id="totalRelatorio">0.00</span></span>
+            </div>
+        </div>
+
+        <div class="padding-horizontal padding-bottom">
+            <button class="button button-outline button-large width-100" id="btnGerarPdf"
+                style="border-color: #64748b; color: #64748b; box-shadow: none;">
+                <i class="icon f7-icons if-not-md margin-right">printer</i>
+                <i class="icon material-icons if-md margin-right">print</i>
+                Exportar Relatório PDF
+            </button>
+        </div>
+
+    </div>
+</div>
