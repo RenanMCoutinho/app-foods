@@ -1,0 +1,158 @@
+<div class="page" data-name="cadastro">
+    <div class="navbar">
+        <div class="navbar-bg bg-color-green"></div>
+        <div class="navbar-inner sliding">
+            <div class="left">
+                <a href="#" class="link back text-color-white">
+                    <i class="icon icon-back"></i>
+                    <span class="if-not-md">Voltar</span>
+                </a>
+            </div>
+            <div class="title text-color-white">Cadastro de Empresas</div>
+        </div>
+    </div>
+
+    <div class="toolbar tabbar toolbar-bottom bg-color-green">
+        <div class="toolbar-inner">
+            <a href="/" class="tab-link text-color-white">
+                <i class="icon f7-icons if-not-md">house</i>
+                <i class="icon material-icons if-md">home</i>
+            </a>
+            <a href="/cadastro/" class="tab-link tab-link-active text-color-white">
+                <i class="icon f7-icons if-not-md">building_2_fill</i>
+                <i class="icon material-icons if-md">business</i>
+            </a>
+            <a href="/relatorio/" class="tab-link text-color-white">
+                <i class="icon f7-icons if-not-md">doc_text_fill</i>
+                <i class="icon material-icons if-md">description</i>
+            </a>
+        </div>
+    </div>
+
+    <div class="page-content">
+        <div class="block-title">Dados da Empresa</div>
+        <form class="list" id="formCadastro">
+            <input type="hidden" id="empresaId">
+            <ul>
+                <li class="item-content item-input">
+                    <div class="item-inner">
+                        <div class="item-title item-label">Nome da Empresa</div>
+                        <div class="item-input-wrap">
+                            <input type="text" id="nomeEmpresa" placeholder="Digite o nome" required>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+
+            <div class="block-title">Tipos de Entrega e Valores</div>
+            <div class="list">
+                <ul>
+                    <!-- Almoço -->
+                    <li>
+                        <label class="item-checkbox item-content">
+                            <input type="checkbox" name="tiposEntrega" data-tipo="almoco" />
+                            <i class="icon icon-checkbox"></i>
+                            <div class="item-inner">
+                                <div class="item-title">Almoço</div>
+                            </div>
+                        </label>
+                        <div class="item-input-wrap padding-horizontal" style="display:none" id="wrap-almoco">
+                            <input type="number" step="0.01" placeholder="R$ 0,00" id="valorAlmoco" disabled>
+                        </div>
+                    </li>
+                    <!-- Jantar -->
+                    <li>
+                        <label class="item-checkbox item-content">
+                            <input type="checkbox" name="tiposEntrega" data-tipo="janta" />
+                            <i class="icon icon-checkbox"></i>
+                            <div class="item-inner">
+                                <div class="item-title">Jantar</div>
+                            </div>
+                        </label>
+                        <div class="item-input-wrap padding-horizontal" style="display:none" id="wrap-janta">
+                            <input type="number" step="0.01" placeholder="R$ 0,00" id="valorJanta" disabled>
+                        </div>
+                    </li>
+                    <!-- Ceia -->
+                    <li>
+                        <label class="item-checkbox item-content">
+                            <input type="checkbox" name="tiposEntrega" data-tipo="ceia" />
+                            <i class="icon icon-checkbox"></i>
+                            <div class="item-inner">
+                                <div class="item-title">Ceia/Granel</div>
+                            </div>
+                        </label>
+                        <div class="item-input-wrap padding-horizontal" style="display:none" id="wrap-ceia">
+                            <input type="number" step="0.01" placeholder="R$ 0,00" id="valorCeia" disabled>
+                        </div>
+                    </li>
+                    <!-- Ceia MTX -->
+                    <li>
+                        <label class="item-checkbox item-content">
+                            <input type="checkbox" name="tiposEntrega" data-tipo="ceiaMtx" />
+                            <i class="icon icon-checkbox"></i>
+                            <div class="item-inner">
+                                <div class="item-title">Ceia/MTX</div>
+                            </div>
+                        </label>
+                        <div class="item-input-wrap padding-horizontal" style="display:none" id="wrap-ceiaMtx">
+                            <input type="number" step="0.01" placeholder="R$ 0,00" id="valorCeiaMtx" disabled>
+                        </div>
+                    </li>
+                    <!-- Desjejum -->
+                    <li>
+                        <label class="item-checkbox item-content">
+                            <input type="checkbox" name="tiposEntrega" data-tipo="desjejum" />
+                            <i class="icon icon-checkbox"></i>
+                            <div class="item-inner">
+                                <div class="item-title">Desjejum</div>
+                            </div>
+                        </label>
+                        <div class="item-input-wrap padding-horizontal" style="display:none" id="wrap-desjejum">
+                            <input type="number" step="0.01" placeholder="R$ 0,00" id="valorDesjejum" disabled>
+                        </div>
+                    </li>
+                    <!-- Recolha -->
+                    <li>
+                        <label class="item-checkbox item-content">
+                            <input type="checkbox" name="tiposEntrega" data-tipo="recolha" />
+                            <i class="icon icon-checkbox"></i>
+                            <div class="item-inner">
+                                <div class="item-title">Recolha</div>
+                            </div>
+                        </label>
+                        <div class="item-input-wrap padding-horizontal" style="display:none" id="wrap-recolha">
+                            <input type="number" step="0.01" placeholder="R$ 0,00" id="valorRecolha" disabled>
+                        </div>
+                    </li>
+                    <!-- BO -->
+                    <li>
+                        <label class="item-checkbox item-content">
+                            <input type="checkbox" name="tiposEntrega" data-tipo="bo" />
+                            <i class="icon icon-checkbox"></i>
+                            <div class="item-inner">
+                                <div class="item-title">B.O</div>
+                            </div>
+                        </label>
+                        <div class="item-input-wrap padding-horizontal" style="display:none" id="wrap-bo">
+                            <input type="number" step="0.01" placeholder="R$ 0,00" id="valorbo" disabled>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="block">
+                <button type="submit" class="button button-fill button-large color-green" id="btnSalvar">
+                    <i class="icon f7-icons if-not-md margin-right">floppy_disk</i>
+                    <i class="icon material-icons if-md margin-right">save</i>
+                    Salvar Empresa
+                </button>
+            </div>
+        </form>
+
+        <div class="block-title">Empresas Cadastradas</div>
+        <div class="list simple-list" id="listaEmpresas">
+            <!-- Lista preenchida via JS -->
+        </div>
+    </div>
+</div>

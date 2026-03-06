@@ -1,0 +1,84 @@
+<div class="page" data-name="relatorio">
+    <div class="navbar">
+        <div class="navbar-bg bg-color-green"></div>
+        <div class="navbar-inner sliding">
+            <div class="left">
+                <a href="#" class="link back text-color-white">
+                    <i class="icon icon-back"></i>
+                    <span class="if-not-md">Voltar</span>
+                </a>
+            </div>
+            <div class="title text-color-white">Relatório de Entregas</div>
+        </div>
+    </div>
+
+    <div class="toolbar tabbar toolbar-bottom bg-color-green">
+        <div class="toolbar-inner">
+            <a href="/" class="tab-link text-color-white">
+                <i class="icon f7-icons if-not-md">house</i>
+                <i class="icon material-icons if-md">home</i>
+            </a>
+            <a href="/cadastro/" class="tab-link text-color-white">
+                <i class="icon f7-icons if-not-md">building_2_fill</i>
+                <i class="icon material-icons if-md">business</i>
+            </a>
+            <a href="/relatorio/" class="tab-link tab-link-active text-color-white">
+                <i class="icon f7-icons if-not-md">doc_text_fill</i>
+                <i class="icon material-icons if-md">description</i>
+            </a>
+        </div>
+    </div>
+
+    <div class="page-content">
+        <div class="block-title">Filtro de Período</div>
+        <div class="list no-hairlines-md">
+            <ul>
+                <li class="item-content item-input">
+                    <div class="item-inner">
+                        <div class="item-title item-label">Data Início</div>
+                        <div class="item-input-wrap">
+                            <input type="date" id="dataInicio" placeholder="Data de início">
+                        </div>
+                    </div>
+                </li>
+                <li class="item-content item-input">
+                    <div class="item-inner">
+                        <div class="item-title item-label">Data Fim</div>
+                        <div class="item-input-wrap">
+                            <input type="date" id="dataFim" placeholder="Data de fim">
+                        </div>
+                    </div>
+                </li>
+            </ul>
+        </div>
+        <div class="block">
+            <button class="button button-fill button-large color-green" id="btnFiltrar">
+                <i class="icon f7-icons if-not-md margin-right">funnel_fill</i>
+                <i class="icon material-icons if-md margin-right">filter_alt</i>
+                Filtrar
+            </button>
+        </div>
+
+        <div class="block-title">Resultados</div>
+        <div id="relatorioDias">
+            <!-- Conteúdo inserido dinamicamente -->
+            <div class="block text-align-center text-color-gray">Selecione as datas e clique em Filtrar</div>
+        </div>
+
+        <div class="block block-strong margin-top">
+            <div class="display-flex justify-content-space-between align-items-center">
+                <strong>Total Geral:</strong>
+                <span class="text-color-green size-22">R$ <span id="totalRelatorio">0.00</span></span>
+            </div>
+        </div>
+
+        <div class="block">
+            <button class="button button-fill button-large color-blue" id="btnGerarPdf">
+                <i class="icon f7-icons if-not-md margin-right">doc_text</i>
+                <i class="icon material-icons if-md margin-right">picture_as_pdf</i>
+                Gerar PDF
+            </button>
+        </div>
+
+    </div>
+</div>
