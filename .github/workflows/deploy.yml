@@ -1,0 +1,43 @@
+name: Deploy Automatico VITE / Firebase
+
+on:
+  push:
+    branches: ["main", "master", "mobile-version-1.0"] # O deploy roda sozinho quando você envia código para cá
+  workflow_dispatch:
+
+permissions:
+  contents: write # Permissão para o robô empurrar os arquivos para a branch gh-pages
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: ⬇️ Baixando o repositório
+        uses: actions/checkout@v4
+
+      - name: ⚙️ Configurando Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: 📦 Instalando Dependências
+        run: npm install
+
+      - name: 🔨 Criando a versão de Produção (Build)
+        run: npm run build
+        env:
+          # O Github Actions vai ler os segredos que você configurar no painel do GitHub
+          VITE_FIREBASE_API_KEY: ${{ secrets.VITE_FIREBASE_API_KEY }}
+          VITE_FIREBASE_AUTH_DOMAIN: ${{ secrets.VITE_FIREBASE_AUTH_DOMAIN }}
+          VITE_FIREBASE_PROJECT_ID: ${{ secrets.VITE_FIREBASE_PROJECT_ID }}
+          VITE_FIREBASE_STORAGE_BUCKET: ${{ secrets.VITE_FIREBASE_STORAGE_BUCKET }}
+          VITE_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.VITE_FIREBASE_MESSAGING_SENDER_ID }}
+          VITE_FIREBASE_APP_ID: ${{ secrets.VITE_FIREBASE_APP_ID }}
+          VITE_FIREBASE_MEASUREMENT_ID: ${{ secrets.VITE_FIREBASE_MEASUREMENT_ID }}
+
+      - name: 🚀 Publicando no GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
