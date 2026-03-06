@@ -30,7 +30,10 @@
     </div>
 
     <div class="page-content">
-        <div class="block-title">Dados da Empresa</div>
+        <div class="block-title display-flex align-items-center">
+            <i class="icon f7-icons size-16 margin-right-half">building_2_fill</i>
+            Dados da Empresa
+        </div>
         <form class="list" id="formCadastro">
             <input type="hidden" id="empresaId">
             <ul>
@@ -44,8 +47,11 @@
                 </li>
             </ul>
 
-            <div class="block-title">Tipos de Entrega e Valores</div>
-            <div class="list">
+            <div class="block-title display-flex align-items-center margin-top">
+                <i class="icon f7-icons size-16 margin-right-half">list_number</i>
+                Tipos de Entrega e Valores
+            </div>
+            <div class="list no-margin-top">
                 <ul>
                     <!-- Almoço -->
                     <li>
@@ -141,8 +147,8 @@
                 </ul>
             </div>
 
-            <div class="block">
-                <button type="submit" class="button button-fill button-large color-green" id="btnSalvar">
+            <div class="padding-horizontal padding-bottom margin-top">
+                <button type="submit" class="button button-fill button-large color-green width-100" id="btnSalvar">
                     <i class="icon f7-icons if-not-md margin-right">floppy_disk</i>
                     <i class="icon material-icons if-md margin-right">save</i>
                     Salvar Empresa
@@ -150,7 +156,10 @@
             </div>
         </form>
 
-        <div class="block-title">Empresas Cadastradas</div>
+        <div class="block-title display-flex align-items-center">
+            <i class="icon f7-icons size-16 margin-right-half">building_2_fill</i>
+            Empresas Cadastradas
+        </div>
         <div class="list simple-list" id="listaEmpresas">
             <!-- Lista preenchida via JS -->
         </div>

@@ -30,7 +30,10 @@
     </div>
 
     <div class="page-content">
-        <div class="block-title">Filtro de Período</div>
+        <div class="block-title display-flex align-items-center">
+            <i class="icon f7-icons size-16 margin-right-half">calendar</i>
+            Filtro de Período
+        </div>
         <div class="list no-hairlines-md">
             <ul>
                 <li class="item-content item-input">
@@ -51,32 +54,40 @@
                 </li>
             </ul>
         </div>
-        <div class="block">
-            <button class="button button-fill button-large color-green" id="btnFiltrar">
+        <div class="padding-horizontal padding-bottom">
+            <button class="button button-fill button-large color-green width-100" id="btnFiltrar">
                 <i class="icon f7-icons if-not-md margin-right">funnel_fill</i>
                 <i class="icon material-icons if-md margin-right">filter_alt</i>
-                Filtrar
+                Filtrar Resultados
             </button>
         </div>
 
-        <div class="block-title">Resultados</div>
+        <div class="block-title display-flex align-items-center">
+            <i class="icon f7-icons size-16 margin-right-half">doc_text</i>
+            Resultados
+        </div>
         <div id="relatorioDias">
             <!-- Conteúdo inserido dinamicamente -->
             <div class="block text-align-center text-color-gray">Selecione as datas e clique em Filtrar</div>
         </div>
 
-        <div class="block block-strong margin-top">
-            <div class="display-flex justify-content-space-between align-items-center">
-                <strong>Total Geral:</strong>
-                <span class="text-color-green size-22">R$ <span id="totalRelatorio">0.00</span></span>
+        <div class="block block-strong card margin-top margin-bottom-lg padding">
+            <div class="display-flex flex-direction-column justify-content-center align-items-center">
+                <span class="text-color-gray uppercase"
+                    style="font-size: 13px; font-weight: 700; letter-spacing: 0.1em; margin-bottom: 4px;">Total Geral no
+                    Período</span>
+                <span class="text-color-green"
+                    style="font-size: 32px; font-weight: 800; font-family: 'Outfit', sans-serif;">R$ <span
+                        id="totalRelatorio">0.00</span></span>
             </div>
         </div>
 
-        <div class="block">
-            <button class="button button-fill button-large color-blue" id="btnGerarPdf">
-                <i class="icon f7-icons if-not-md margin-right">doc_text</i>
-                <i class="icon material-icons if-md margin-right">picture_as_pdf</i>
-                Gerar PDF
+        <div class="padding-horizontal padding-bottom">
+            <button class="button button-outline button-large width-100" id="btnGerarPdf"
+                style="border-color: #64748b; color: #64748b; box-shadow: none;">
+                <i class="icon f7-icons if-not-md margin-right">printer</i>
+                <i class="icon material-icons if-md margin-right">print</i>
+                Exportar Relatório PDF
             </button>
         </div>
 

@@ -27,19 +27,22 @@
 
   <!-- Scrollable Page Content -->
   <div class="page-content">
-    <div class="block-title">Entregas do Dia</div>
-    <div class="block block-strong card">
-      
+    <div class="block-title display-flex align-items-center">
+      <i class="icon f7-icons size-16 margin-right-half">calendar</i>
+      Entregas do Dia
+    </div>
+    <div class="block block-strong card padding-vertical">
+
       <!-- Navegação de Data -->
-      <div class="row display-flex justify-content-center align-items-center margin-bottom">
-        <button class="button button-small button-outline col" id="btnAnterior">
+      <div class="display-flex justify-content-space-between align-items-center margin-bottom-lg padding-horizontal">
+        <button class="button button-outline button-small" style="width: 48px; padding: 0;" id="btnAnterior">
           <i class="icon f7-icons if-not-md">chevron_left</i>
           <i class="icon material-icons if-md">chevron_left</i>
         </button>
-        <div class="col-auto text-align-center" style="min-width: 150px">
+        <div class="text-align-center flex-shrink-1 text-color-main">
           <h3 class="no-margin"><span id="dataHoje"></span></h3>
         </div>
-        <button class="button button-small button-outline col" id="btnProximo">
+        <button class="button button-outline button-small" style="width: 48px; padding: 0;" id="btnProximo">
           <i class="icon f7-icons if-not-md">chevron_right</i>
           <i class="icon material-icons if-md">chevron_right</i>
         </button>
@@ -58,13 +61,13 @@
               </div>
             </div>
           </li>
-          
+
           <li class="item-content item-input">
             <div class="item-inner">
               <div class="item-title item-label">Tipo de Entrega</div>
               <div class="item-input-wrap">
                 <select id="tipoEntregaSelect" disabled>
-                   <option value="">Selecione uma empresa primeiro</option>
+                  <option value="">Selecione uma empresa primeiro</option>
                 </select>
               </div>
             </div>
@@ -72,21 +75,27 @@
         </ul>
       </div>
 
-      <button class="button button-fill button-large button-raised color-green margin-bottom" id="btnRegistrar">
-        <i class="icon f7-icons if-not-md margin-right">truck</i>
-        <i class="icon material-icons if-md margin-right">local_shipping</i>
-        Registrar Frete
-      </button>
+      <div class="padding-horizontal padding-bottom">
+        <button class="button button-fill button-large width-100 color-green margin-top" id="btnRegistrar">
+          <i class="icon f7-icons if-not-md margin-right">truck_fill</i>
+          <i class="icon material-icons if-md margin-right">local_shipping</i>
+          Registrar Frete
+        </button>
+      </div>
 
-      <div class="list media-list inset">
+      <div class="list media-list inset no-margin-top">
         <ul id="relatorioList">
           <!-- Items inseridos via JS -->
         </ul>
       </div>
 
-      <div class="block-footer text-align-right margin-top">
-        <strong>Total do dia:</strong>
-        R$ <span id="totalHoje">0.00</span>
+      <div class="block-footer text-align-right margin-top-lg padding-horizontal"
+        style="padding-top: 24px; padding-bottom: 24px;">
+        <div class="display-flex justify-content-flex-end align-items-center">
+          <span class="margin-right text-color-gray uppercase"
+            style="font-size: 13px; font-weight: 700; letter-spacing: 0.1em;">Total do dia</span>
+          <span class="size-24">R$ <span id="totalHoje">0.00</span></span>
+        </div>
       </div>
 
     </div>

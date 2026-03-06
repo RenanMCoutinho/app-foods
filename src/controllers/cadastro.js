@@ -55,7 +55,7 @@ export function initCadastro(page, app) {
                 li.innerHTML = `
             <div class="item-content" style="padding-top: 6px; padding-bottom: 6px;">
                 <div class="item-inner">
-                    <div class="item-title" style="font-weight: 600; color: #1a1d20; font-size: 16px;">${e.nome}</div>
+                    <div class="item-title" style="font-weight: 600; color: var(--text-main); font-size: 16px;">${e.nome}</div>
                     <div class="item-after display-flex">
                         <button class="button button-small button-outline margin-right btn-edit" style="color: var(--f7-theme-color); border-color: var(--f7-theme-color);">Editar</button>
                         <button class="button button-small button-outline color-red btn-del" style="color: #ff3b30; border-color: #ff3b30;">Excluir</button>

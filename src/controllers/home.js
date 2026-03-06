@@ -159,11 +159,11 @@ export function initHome(page, app) {
             <div class="item-content" style="padding-top: 6px; padding-bottom: 6px;">
                 <div class="item-inner">
                     <div class="item-title-row">
-                        <div class="item-title" style="font-weight: 600; color: #1a1d20;">${e.nomeEmpresa}</div>
+                        <div class="item-title" style="font-weight: 600; color: var(--text-main);">${e.nomeEmpresa}</div>
                         <div class="item-after" style="font-weight: 700; color: var(--f7-theme-color);">R$ ${e.valorFrete.toFixed(2)}</div>
                     </div>
-                    <div class="item-subtitle" style="color: #6a7178; font-size: 13px; margin-top: 4px;">${nomeTipoEntrega}</div>
-                    <div class="item-text text-align-right delete-btn-container" style="margin-top: 8px;"></div>
+                    <div class="item-subtitle" style="color: var(--text-muted); font-size: 13px; margin-top: 4px;">${nomeTipoEntrega}</div>
+                    <div class="text-align-right delete-btn-container" style="margin-top: 8px;"></div>
                 </div>
             </div>
         `;
