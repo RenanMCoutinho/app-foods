@@ -263,17 +263,17 @@ This typically indicates that your device does not have a healthy Internet conne
             <div class="item-content" style="padding-top: 6px; padding-bottom: 6px;">
                 <div class="item-inner">
                     <div class="item-title-row">
-                        <div class="item-title" style="font-weight: 600; color: #1a1d20;">${P.nomeEmpresa}</div>
+                        <div class="item-title" style="font-weight: 600; color: var(--text-main);">${P.nomeEmpresa}</div>
                         <div class="item-after" style="font-weight: 700; color: var(--f7-theme-color);">R$ ${P.valorFrete.toFixed(2)}</div>
                     </div>
-                    <div class="item-subtitle" style="color: #6a7178; font-size: 13px; margin-top: 4px;">${w}</div>
-                    <div class="item-text text-align-right delete-btn-container" style="margin-top: 8px;"></div>
+                    <div class="item-subtitle" style="color: var(--text-muted); font-size: 13px; margin-top: 4px;">${w}</div>
+                    <div class="text-align-right delete-btn-container" style="margin-top: 8px;"></div>
                 </div>
             </div>
         `;const k=document.createElement("button");k.className="button button-small button-fill color-red display-inline-block",k.style.marginTop="5px",k.textContent="Excluir",k.onclick=async()=>{e.dialog.confirm("Deseja excluir essa entrega?",async()=>{try{e.dialog.preloader(),await Yh(gi(wr,"entregas",$.id)),e.dialog.close(),p()}catch(A){e.dialog.close(),e.dialog.alert("Erro: "+A.message)}})},I.querySelector(".delete-btn-container").appendChild(k),s.appendChild(I)}),a&&(a.textContent=E.toFixed(2))})}l&&l.addEventListener("click",f),o&&o.addEventListener("click",()=>{d.setDate(d.getDate()-1),p()}),c&&c.addEventListener("click",()=>{d.setDate(d.getDate()+1),p()}),h(),p()}function ck(n,e){const t=n.$el.find("#formCadastro")[0],r=n.$el.find("#btnSalvar")[0],s=n.$el.find("#empresaId")[0],a=n.$el.find("#nomeEmpresa")[0],i=n.$el.find("#listaEmpresas")[0],l={};n.$el.find('input[name="tiposEntrega"]').forEach(u=>{const d=u.dataset.tipo,h=n.$el.find(`#wrap-${d}`)[0],f=d.charAt(0).toUpperCase()+d.slice(1),p=n.$el.find(`#valor${f}`)[0];l[d]={chk:u,wrapper:h,input:p},u.addEventListener("change",()=>{u.checked?(h&&(h.style.display="block"),p&&(p.disabled=!1)):(h&&(h.style.display="none"),p&&(p.disabled=!0,p.value=""))})});function o(){if(!i)return;i.innerHTML='<div class="block text-align-center text-color-gray skeleton-text">Carregando empresas...</div>';const u=Wn(wr,"empresas"),d=cc(u,Kx("nome"));Xh(d,h=>{if(i.innerHTML="",h.empty){i.innerHTML='<div class="block text-align-center text-color-gray">Nenhuma empresa cadastrada.</div>';return}const f=document.createElement("ul");h.forEach(p=>{const g=p.data(),b=document.createElement("li");b.innerHTML=`
             <div class="item-content" style="padding-top: 6px; padding-bottom: 6px;">
                 <div class="item-inner">
-                    <div class="item-title" style="font-weight: 600; color: #1a1d20; font-size: 16px;">${g.nome}</div>
+                    <div class="item-title" style="font-weight: 600; color: var(--text-main); font-size: 16px;">${g.nome}</div>
                     <div class="item-after display-flex">
                         <button class="button button-small button-outline margin-right btn-edit" style="color: var(--f7-theme-color); border-color: var(--f7-theme-color);">Editar</button>
                         <button class="button button-small button-outline color-red btn-del" style="color: #ff3b30; border-color: #ff3b30;">Excluir</button>
