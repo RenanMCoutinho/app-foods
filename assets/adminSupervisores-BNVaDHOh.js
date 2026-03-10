@@ -1,0 +1,8 @@
+import{i as u,d as p,e as o,j as m,q as n,h as i,w as r,k as x}from"./firebase-MPfUmMKw.js";/* empty css              */import{i as l}from"./auth-guard-DjEyVMOS.js";async function y(){const t=document.querySelector("#lista-supervisores");t.innerHTML='<tr><td colspan="4" class="text-center p-10 text-slate-400">Carregando...</td></tr>';try{const s=await m(n(i(o,"usuarios"),r("role","==","supervisor")));if(s.empty){t.innerHTML='<tr><td colspan="4" class="text-center p-10 text-slate-400">Nenhum supervisor encontrado.</td></tr>';return}const c=await Promise.all(s.docs.map(async e=>{const a=e.data(),d=await x(n(i(o,"usuarios"),r("role","==","motorista"),r("supervisorId","==",e.id)));return`<tr>
+                <td class="px-6 py-4 font-semibold">${a.nome||"—"}</td>
+                <td class="px-6 py-4 text-slate-500 hidden md:table-cell">${a.email||"—"}</td>
+                <td class="px-6 py-4"><span class="bg-blue-50 text-blue-700 font-bold text-xs px-2 py-1 rounded-full">${d.data().count} motoristas</span></td>
+                <td class="px-6 py-4">
+                    <button onclick="excluirSupervisor('${e.id}')" class="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"><span class="material-symbols-outlined text-lg">delete</span></button>
+                </td>
+            </tr>`}));t.innerHTML=c.join("")}catch(s){t.innerHTML=`<tr><td colspan="4" class="text-center p-10 text-red-400">Erro: ${s.message}</td></tr>`}}window.excluirSupervisor=async t=>{confirm("Excluir este supervisor? Seus motoristas ficarão sem supervisor.")&&(await u(p(o,"usuarios",t)),y())};l(["admin"],()=>l());
