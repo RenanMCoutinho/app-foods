@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Supervisor - DriverLog</title>
+  <script type="module" crossorigin src="/app-foods/assets/supervisorDashboard-ee8M6lwx.js"></script>
+  <link rel="modulepreload" crossorigin href="/app-foods/assets/firebase-DXeuB9Ti.js">
+  <link rel="modulepreload" crossorigin href="/app-foods/assets/auth-guard-ahADkYB_.js">
+  <link rel="stylesheet" crossorigin href="/app-foods/assets/index-DAvgRigT.css">
+<link rel="manifest" href="/app-foods/manifest.webmanifest"><script id="vite-plugin-pwa:register-sw" src="/app-foods/registerSW.js"></script></head>
+
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 antialiased min-h-screen">
+    <div class="flex min-h-screen">
+        <!-- Sidebar -->
+        <aside class="hidden lg:flex w-64 flex-col bg-slate-900 text-white fixed inset-y-0 left-0 z-30">
+            <div class="flex items-center gap-3 px-6 h-16 border-b border-slate-700">
+                <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-500"><span
+                        class="material-symbols-outlined text-xl">local_shipping</span></div>
+                <div>
+                    <p class="font-black text-sm">DriverLog</p>
+                    <p class="text-xs text-slate-400">Supervisor</p>
+                </div>
+            </div>
+            <nav class="flex-1 px-4 py-6 space-y-1">
+                <a href="./dashboard.html"
+                    class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-blue-500/20 text-blue-400 font-semibold text-sm"><span
+                        class="material-symbols-outlined text-xl">dashboard</span> Dashboard</a>
+                <a href="./empresas.html"
+                    class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition-colors text-sm"><span
+                        class="material-symbols-outlined text-xl">business</span> Empresas</a>
+                <a href="./entregas.html"
+                    class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition-colors text-sm"><span
+                        class="material-symbols-outlined text-xl">inventory_2</span> Entregas</a>
+                <a href="./motoristas.html"
+                    class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition-colors text-sm"><span
+                        class="material-symbols-outlined text-xl">directions_car</span> Motoristas</a>
+                <a href="./locais.html"
+                    class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition-colors text-sm"><span
+                        class="material-symbols-outlined text-xl">location_on</span> Locais</a>
+            </nav>
+            <div class="px-4 py-4 border-t border-slate-700">
+                <button
+                    class="logout-btn flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400 hover:bg-red-500/20 hover:text-red-400 transition-colors text-sm w-full"><span
+                        class="material-symbols-outlined text-xl">logout</span> Sair</button>
+            </div>
+        </aside>
+
+        <div class="lg:ml-64 flex-1 flex flex-col">
+            <header
+                class="h-16 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex items-center justify-between px-6 sticky top-0 z-10">
+                <div>
+                    <h1 id="welcome-message" class="font-black text-lg">Olá, Supervisor!</h1>
+                    <p class="text-xs text-slate-500">Painel de Controle</p>
+                </div>
+            </header>
+
+            <main class="flex-1 p-6 space-y-6">
+                <!-- KPI Cards -->
+                <div class="grid grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div
+                        class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-xs font-black text-slate-500 uppercase tracking-widest">Motoristas</span>
+                            <span class="material-symbols-outlined text-blue-500 text-xl">directions_car</span>
+                        </div>
+                        <p id="kpi-motoristas" class="text-3xl font-black">—</p>
+                    </div>
+                    <div
+                        class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-xs font-black text-slate-500 uppercase tracking-widest">Entregas
+                                Hoje</span>
+                            <span class="material-symbols-outlined text-primary text-xl">inventory_2</span>
+                        </div>
+                        <p id="kpi-entregas-hoje" class="text-3xl font-black">—</p>
+                    </div>
+                    <div
+                        class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 col-span-2 lg:col-span-1 shadow-sm">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-xs font-black text-slate-500 uppercase tracking-widest">Pendentes</span>
+                            <span class="material-symbols-outlined text-orange-500 text-xl">pending_actions</span>
+                        </div>
+                        <p id="kpi-pendentes" class="text-3xl font-black">—</p>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <a href="./entregas.html"
+                        class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 hover:border-primary/50 hover:shadow-md transition-all group">
+                        <div
+                            class="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 group-hover:bg-primary group-hover:text-white text-primary transition-all mb-4">
+                            <span class="material-symbols-outlined text-2xl">add_box</span>
+                        </div>
+                        <h3 class="font-black mb-1">Criar Entrega</h3>
+                        <p class="text-sm text-slate-500">Criar e atribuir entregas</p>
+                    </a>
+                    <a href="./motoristas.html"
+                        class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 hover:border-blue-500/50 hover:shadow-md transition-all group">
+                        <div
+                            class="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 group-hover:bg-blue-500 group-hover:text-white text-blue-500 transition-all mb-4">
+                            <span class="material-symbols-outlined text-2xl">directions_car</span>
+                        </div>
+                        <h3 class="font-black mb-1">Meus Motoristas</h3>
+                        <p class="text-sm text-slate-500">Gerenciar equipe</p>
+                    </a>
+                    <a href="./locais.html"
+                        class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 hover:border-orange-500/50 hover:shadow-md transition-all group">
+                        <div
+                            class="flex h-12 w-12 items-center justify-center rounded-xl bg-orange-50 group-hover:bg-orange-500 group-hover:text-white text-orange-500 transition-all mb-4">
+                            <span class="material-symbols-outlined text-2xl">location_on</span>
+                        </div>
+                        <h3 class="font-black mb-1">Locais de Entrega</h3>
+                        <p class="text-sm text-slate-500">Gerenciar pontos de entrega</p>
+                    </a>
+                </div>
+
+                <!-- Recent Deliveries -->
+                <div
+                    class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+                    <div class="p-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+                        <h2 class="font-black">Entregas Recentes</h2>
+                        <a href="./entregas.html" class="text-sm font-semibold text-primary hover:underline">Ver
+                            todas</a>
+                    </div>
+                    <table class="w-full text-sm">
+                        <thead class="border-b border-slate-100 dark:border-slate-800">
+                            <tr class="text-left">
+                                <th class="px-6 py-3 font-black text-slate-500 uppercase text-xs tracking-widest">
+                                    Motorista</th>
+                                <th
+                                    class="px-6 py-3 font-black text-slate-500 uppercase text-xs tracking-widest hidden md:table-cell">
+                                    Local</th>
+                                <th class="px-6 py-3 font-black text-slate-500 uppercase text-xs tracking-widest">Status
+                                </th>
+                                <th class="px-6 py-3 font-black text-slate-500 uppercase text-xs tracking-widest">Valor
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody id="lista-entregas-recentes" class="divide-y divide-slate-100 dark:divide-slate-800">
+                            <tr>
+                                <td colspan="4" class="text-center p-8 text-slate-400">Carregando...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Mobile Bottom Nav -->
+    <nav
+        class="lg:hidden h-16 border-t border-slate-200 bg-white flex items-center justify-around px-4 fixed bottom-0 left-0 right-0 z-10">
+        <a href="./dashboard.html" class="flex flex-col items-center gap-1 text-blue-500"><span
+                class="material-symbols-outlined">dashboard</span></a>
+        <a href="./entregas.html" class="flex flex-col items-center gap-1 text-slate-400"><span
+                class="material-symbols-outlined">inventory_2</span></a>
+        <a href="./motoristas.html" class="flex flex-col items-center gap-1 text-slate-400"><span
+                class="material-symbols-outlined">directions_car</span></a>
+        <a href="./locais.html" class="flex flex-col items-center gap-1 text-slate-400"><span
+                class="material-symbols-outlined">location_on</span></a>
+    </nav>
+
+</body>
+
+</html>

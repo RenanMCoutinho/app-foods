@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Cadastro - DriverLog</title>
+  <script type="module" crossorigin src="/app-foods/assets/cadastro--zFqGcD1.js"></script>
+  <link rel="modulepreload" crossorigin href="/app-foods/assets/firebase-DXeuB9Ti.js">
+  <link rel="stylesheet" crossorigin href="/app-foods/assets/index-DAvgRigT.css">
+<link rel="manifest" href="/app-foods/manifest.webmanifest"><script id="vite-plugin-pwa:register-sw" src="/app-foods/registerSW.js"></script></head>
+
+<body
+    class="bg-slate-50 dark:bg-background-dark text-slate-900 dark:text-slate-100 antialiased min-h-screen flex items-center justify-center p-6">
+
+    <div class="w-full max-w-md">
+
+        <!-- Logo -->
+        <div class="text-center mb-8">
+            <div
+                class="inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-primary text-white shadow-xl shadow-primary/20 mb-4">
+                <span class="material-symbols-outlined text-4xl">local_shipping</span>
+            </div>
+            <h1 class="text-2xl font-black tracking-tight">Criar sua conta</h1>
+            <p class="text-slate-500 text-sm mt-1">Crie sua conta de motorista</p>
+        </div>
+
+        <!-- Form Card -->
+        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm p-8">
+
+            <!-- Error Message -->
+            <div id="cadastro-error"
+                class="hidden mb-5 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm font-medium">
+            </div>
+            <!-- Success Message -->
+            <div id="cadastro-success"
+                class="hidden mb-5 p-3 bg-primary/10 border border-primary/20 text-primary rounded-lg text-sm font-medium">
+            </div>
+
+            <form id="form-cadastro" class="space-y-4">
+                <input type="hidden" id="role-selecionado" value="motorista" />
+
+                <!-- Nome -->
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Nome Completo</label>
+                    <input id="cad-nome" type="text" required placeholder="Seu nome completo"
+                        class="w-full bg-slate-50 dark:bg-slate-800 border-none ring-1 ring-slate-200 dark:ring-slate-700 rounded-lg px-4 py-3 text-sm focus:ring-2 focus:ring-primary transition-all outline-none" />
+                </div>
+
+                <!-- E-mail -->
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">E-mail</label>
+                    <input id="cad-email" type="email" required placeholder="seu@email.com"
+                        class="w-full bg-slate-50 dark:bg-slate-800 border-none ring-1 ring-slate-200 dark:ring-slate-700 rounded-lg px-4 py-3 text-sm focus:ring-2 focus:ring-primary transition-all outline-none" />
+                </div>
+
+                <!-- Senha -->
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Senha</label>
+                    <div class="relative">
+                        <input id="cad-senha" type="password" required placeholder="Mínimo 6 caracteres"
+                            class="w-full bg-slate-50 dark:bg-slate-800 border-none ring-1 ring-slate-200 dark:ring-slate-700 rounded-lg px-4 py-3 pr-12 text-sm focus:ring-2 focus:ring-primary transition-all outline-none" />
+                        <button type="button" id="toggle-senha"
+                            class="absolute right-3 top-3 text-slate-400 hover:text-slate-600">
+                            <span class="material-symbols-outlined" id="olho-icone">visibility</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Confirmar Senha -->
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Confirmar
+                        Senha</label>
+                    <input id="cad-confirmar" type="password" required placeholder="Repita a senha"
+                        class="w-full bg-slate-50 dark:bg-slate-800 border-none ring-1 ring-slate-200 dark:ring-slate-700 rounded-lg px-4 py-3 text-sm focus:ring-2 focus:ring-primary transition-all outline-none" />
+                </div>
+
+                <!-- Badge motorista -->
+                <div class="flex items-center gap-2 p-3 bg-primary/10 border border-primary/20 rounded-lg">
+                    <span class="material-symbols-outlined text-primary text-lg">directions_car</span>
+                    <div>
+                        <p class="text-xs font-black text-primary">Cadastro como Motorista</p>
+                        <p class="text-xs text-slate-500">Você poderá registrar suas entregas diárias.</p>
+                    </div>
+                </div>
+
+                <!-- Submit -->
+                <button type="submit" id="btn-cadastrar"
+                    class="w-full bg-primary hover:bg-primary/90 text-white font-black py-4 rounded-lg shadow-xl shadow-primary/30 transition-all active:scale-95 flex items-center justify-center gap-2 mt-2">
+                    <span class="material-symbols-outlined">person_add</span>
+                    Criar Conta
+                </button>
+            </form>
+        </div>
+
+        <!-- Login link -->
+        <p class="text-center text-sm text-slate-500 mt-6">
+            Já tem uma conta?
+            <a href="./login.html" class="font-black text-primary hover:underline">Fazer login</a>
+        </p>
+
+    </div>
+
+</body>
+
+</html>
