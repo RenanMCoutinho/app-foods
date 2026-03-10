@@ -12,7 +12,7 @@ const ROLE_DASHBOARDS = {
     motorista: '/app-foods/pages/dashboard.html',
 };
 
-const LOGIN_PATH = '/app-foods/pages/login.html';
+const LOGIN_PATH = '/app-foods/index.html';
 
 /**
  * Auth Guard - protects pages and enforces role-based access.
@@ -21,7 +21,8 @@ const LOGIN_PATH = '/app-foods/pages/login.html';
 export async function initGuard(allowedRoles = [], onReady = null) {
     onAuthStateChanged(auth, async (user) => {
         if (!user) {
-            if (!window.location.pathname.includes('login.html')) {
+            const currentPath = window.location.pathname;
+            if (!currentPath.endsWith('index.html') && currentPath !== '/app-foods/' && !currentPath.includes('login.html')) {
                 window.location.href = LOGIN_PATH;
             }
             return;

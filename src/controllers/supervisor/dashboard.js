@@ -19,7 +19,7 @@ export async function initSupervisorDashboard() {
     document.querySelector('.logout-btn')?.addEventListener('click', async () => {
         if (confirm('Deseja sair?')) {
             await signOut(auth);
-            window.location.href = '/app-foods/pages/login.html';
+            window.location.href = '/app-foods/index.html';
         }
     });
 
