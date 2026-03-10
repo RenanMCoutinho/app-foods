@@ -128,7 +128,7 @@
     <script type="module">
         import { initGuard } from '../../src/services/auth-guard.js';
         import { initAdminMotoristas } from '../../src/controllers/admin/motoristas.js';
-        initGuard(['admin'], () => initGuard());
+        initGuard(['admin'], () => initAdminMotoristas());
     </script>
 </body>
 

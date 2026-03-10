@@ -27,7 +27,7 @@ export default defineConfig({
                 supervisorEmpresas: './pages/supervisor/empresas.html',
                 supervisorEntregas: './pages/supervisor/entregas.html',
                 supervisorMotoristas: './pages/supervisor/motoristas.html',
-                supervisorLocais: './pages/supervisor/locais.html',
+
             }
         }
     },
