@@ -36,8 +36,8 @@ export function initCadastro() {
         }
     }
 
-    tabMotorista.addEventListener('click', () => setTab('motorista'));
-    tabEmpresa.addEventListener('click', () => setTab('supervisor'));
+    tabMotorista?.addEventListener('click', () => setTab('motorista'));
+    tabEmpresa?.addEventListener('click', () => setTab('supervisor'));
 
     // --- Password toggle ---
     document.querySelector('#toggle-senha')?.addEventListener('click', () => {

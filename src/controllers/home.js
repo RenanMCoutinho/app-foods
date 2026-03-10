@@ -44,15 +44,34 @@ export async function initTelaDia() {
 
 async function loadEmpresas(supervisorId) {
     const select = document.querySelector('#select-empresa');
+    const myEmpresasIds = window.currentUserData?.empresasIds || [];
+
+    // Reset options
+    select.innerHTML = '<option value="" disabled selected>Escolha uma empresa</option>';
+
+    if (myEmpresasIds.length === 0) {
+        select.innerHTML = '<option value="" disabled selected>Nenhuma empresa vinculada</option>';
+        return;
+    }
+
     try {
         const q = supervisorId
             ? query(collection(db, 'empresas'), where('supervisorId', '==', supervisorId))
             : collection(db, 'empresas');
         const snapshot = await getDocs(q);
-        empresas = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
-        empresas.forEach(e => {
-            select.innerHTML += `<option value="${e.id}">${e.nome}</option>`;
-        });
+
+        // Filter by the IDs linked to this motorista
+        empresas = snapshot.docs
+            .map(d => ({ id: d.id, ...d.data() }))
+            .filter(emp => myEmpresasIds.includes(emp.id));
+
+        if (empresas.length === 0) {
+            select.innerHTML = '<option value="" disabled selected>Nenhuma empresa vinculada</option>';
+        } else {
+            empresas.forEach(e => {
+                select.innerHTML += `<option value="${e.id}">${e.nome}</option>`;
+            });
+        }
     } catch (err) {
         console.error('Erro ao carregar empresas', err);
     }
