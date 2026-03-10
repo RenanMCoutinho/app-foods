@@ -1,6 +1,6 @@
 import { auth } from '../services/firebase.js';
 import { redirectToRoleDashboard } from '../services/auth-guard.js';
-import { signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js";
+import { signInWithEmailAndPassword, onAuthStateChanged } from 'firebase/auth';
 
 export function initLogin() {
     // If already logged in, redirect to role dashboard

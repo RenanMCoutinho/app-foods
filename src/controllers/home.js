@@ -1,8 +1,8 @@
 import { db, auth } from './services/firebase.js';
 import {
     collection, getDocs, addDoc, deleteDoc, doc, query, where, orderBy, serverTimestamp, Timestamp
-} from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
-import { signOut } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js";
+} from 'firebase/firestore';
+import { signOut } from 'firebase/auth';
 
 let empresas = [];
 let entregasDia = [];

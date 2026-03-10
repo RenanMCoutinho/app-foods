@@ -1,4 +1,4 @@
-import { collection, query, where, getDocs, Timestamp, getDoc, doc } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
+import { collection, query, where, getDocs, Timestamp, getDoc, doc } from 'firebase/firestore';
 import { db, auth } from "../services/firebase.js";
 import { formatarData, criarInicioDoDiaLocal, criarFimDoDiaLocal, nomeDiaSemana } from "../utils/date.js";
 

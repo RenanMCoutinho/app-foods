@@ -25,11 +25,7 @@
   "auth": {
     "providers": {
       "anonymous": false,
-      "emailPassword": true,
-      "googleSignIn": {
-        "oAuthBrandDisplayName": "App Foods Web",
-        "supportEmail": "renan.coutinho.11@gmail.com"
-      }
+      "emailPassword": true
     }
   }
 }

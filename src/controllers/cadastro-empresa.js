@@ -1,10 +1,6 @@
 import { auth, db } from '../services/firebase.js';
-import {
-    createUserWithEmailAndPassword
-} from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js";
-import {
-    doc, setDoc, addDoc, collection, serverTimestamp
-} from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
+import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { doc, setDoc, addDoc, collection, serverTimestamp } from 'firebase/firestore';
 
 export function initCadastroEmpresa() {
     // Password visibility toggle
@@ -77,11 +73,14 @@ export function initCadastroEmpresa() {
             }, 2000);
 
         } catch (err) {
-            let msg = 'Erro ao criar conta.';
+            let msg = `Erro: ${err.code || err.message}`;
             if (err.code === 'auth/email-already-in-use') msg = 'Este e-mail já está em uso.';
             else if (err.code === 'auth/invalid-email') msg = 'E-mail inválido.';
+            else if (err.code === 'auth/weak-password') msg = 'Senha muito fraca (mínimo 6 caracteres).';
+            else if (err.code === 'auth/operation-not-allowed') msg = 'Login com e-mail/senha não está habilitado no Firebase. Ative em: Authentication → Sign-in method.';
             else if (err.code === 'auth/network-request-failed') msg = 'Sem conexão com a internet.';
             showError(msg);
+            console.error('[Firebase Error]', err.code, err.message);
         } finally {
             btn.disabled = false;
             btn.innerHTML = '<span class="material-symbols-outlined">business</span> Criar Conta de Empresa';

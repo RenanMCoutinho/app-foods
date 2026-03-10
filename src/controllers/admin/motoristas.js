@@ -1,10 +1,10 @@
 import { db, auth } from '../../services/firebase.js';
 import {
     collection, getDocs, doc, deleteDoc, query, where, serverTimestamp, setDoc, updateDoc
-} from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
+} from 'firebase/firestore';
 import {
     createUserWithEmailAndPassword, signOut
-} from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js";
+} from 'firebase/auth';
 
 let allSupervisores = [];
 

@@ -1,10 +1,6 @@
 import { auth, db } from '../services/firebase.js';
-import {
-    createUserWithEmailAndPassword
-} from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js";
-import {
-    doc, setDoc, addDoc, collection, serverTimestamp
-} from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
+import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { doc, setDoc, addDoc, collection, serverTimestamp } from 'firebase/firestore';
 
 export function initCadastro() {
     const tabMotorista = document.querySelector('#tab-motorista');

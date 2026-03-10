@@ -1,6 +1,6 @@
 import { db, auth } from '../../services/firebase.js';
-import { collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
-import { signOut } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js";
+import { collection, getDocs, query, where } from 'firebase/firestore';
+import { signOut } from 'firebase/auth';
 
 export async function initSupervisorMotoristas() {
     const user = auth.currentUser;

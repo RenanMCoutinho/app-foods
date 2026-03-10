@@ -1,10 +1,10 @@
 import { db, auth } from '../../services/firebase.js';
 import {
     collection, getDocs, doc, deleteDoc, query, where, getCountFromServer, serverTimestamp, setDoc
-} from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
+} from 'firebase/firestore';
 import {
     createUserWithEmailAndPassword, signOut
-} from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js";
+} from 'firebase/auth';
 
 export async function initSupervisores() {
     setupLogout();

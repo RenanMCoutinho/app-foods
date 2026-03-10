@@ -2,8 +2,8 @@ import { db, auth } from '../../services/firebase.js';
 import {
     collection, getDocs, addDoc, doc, updateDoc, deleteDoc,
     query, where, serverTimestamp
-} from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
-import { signOut } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js";
+} from 'firebase/firestore';
+import { signOut } from 'firebase/auth';
 
 export async function initSupervisorEmpresas() {
     const user = auth.currentUser;
