@@ -54,8 +54,7 @@
     <script type="module">
         import { initGuard } from '../../src/services/auth-guard.js';
         import { initSupervisorMotoristas } from '../../src/controllers/supervisor/motoristas.js';
-        initGuard(['supervisor']);
-        window.addEventListener('load', () => { initSupervisorMotoristas(); });
+        initGuard(['supervisor'], () => initGuard());
     </script>
 </body>
 

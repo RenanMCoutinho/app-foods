@@ -133,8 +133,7 @@
     <script type="module">
         import { initGuard } from '../../src/services/auth-guard.js';
         import { initEmpresas } from '../../src/controllers/admin/empresas.js';
-        initGuard(['admin']);
-        window.addEventListener('load', () => { initEmpresas(); });
+        initGuard(['admin'], () => initGuard());
     </script>
 </body>
 

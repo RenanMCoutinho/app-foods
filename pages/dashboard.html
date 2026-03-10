@@ -103,8 +103,7 @@
     <script type="module">
         import { initGuard } from '../src/services/auth-guard.js';
         import { initDashboard } from '../src/controllers/dashboard.js';
-        initGuard(['motorista']);
-        window.addEventListener('load', () => { initDashboard(); });
+        initGuard(['motorista'], () => initGuard());
     </script>
 </body>
 

@@ -81,10 +81,7 @@
         import { initGuard } from '../src/services/auth-guard.js';
         import { initRelatorio } from '../src/controllers/relatorio.js';
 
-        initGuard();
-        window.addEventListener('load', () => {
-            initRelatorio();
-        });
+        initGuard([], () => initGuard());
     </script>
 </body>
 

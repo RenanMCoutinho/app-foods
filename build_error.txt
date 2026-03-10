@@ -1,0 +1,28 @@
+
+> app-foods@1.0.0 build
+> vite build
+
+[36mvite v7.3.1 [32mbuilding client environment for production...[36m[39m
+transforming...
+[32m✓[39m 32 modules transformed.
+[31m✗[39m Build failed in 84ms
+[31merror during build:
+[31m[vite-plugin-pwa:build] There was an error during the build:
+  pages/admin/dashboard.html?html-proxy&index=0.js (5:18): Expression expected
+Additionally, handling the error in the 'buildEnd' hook caused the following error:
+  pages/admin/dashboard.html?html-proxy&index=0.js (5:18): Expression expected[31m
+file: [36mC:/app-foods/pages/admin/dashboard.html?html-proxy&index=0.js:5:18[31m
+[33m
+3:         import { initAdminDashboard } from '../../src/controllers/admin/dashboard.js';
+4: 
+5:         initGuard(, () => ());
+                     ^
+[31m
+    at getRollupError (file:///C:/app-foods/node_modules/rollup/dist/es/shared/parseAst.js:402:41)
+    at file:///C:/app-foods/node_modules/rollup/dist/es/shared/node-entry.js:23467:39
+    at async catchUnfinishedHookActions (file:///C:/app-foods/node_modules/rollup/dist/es/shared/node-entry.js:22925:16)
+    at async rollupInternal (file:///C:/app-foods/node_modules/rollup/dist/es/shared/node-entry.js:23450:5)
+    at async buildEnvironment (file:///C:/app-foods/node_modules/vite/dist/node/chunks/config.js:33541:12)
+    at async Object.build (file:///C:/app-foods/node_modules/vite/dist/node/chunks/config.js:33900:19)
+    at async Object.buildApp (file:///C:/app-foods/node_modules/vite/dist/node/chunks/config.js:33897:153)
+    at async CAC.<anonymous> (file:///C:/app-foods/node_modules/vite/dist/node/cli.js:629:3)[39m

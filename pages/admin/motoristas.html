@@ -128,8 +128,7 @@
     <script type="module">
         import { initGuard } from '../../src/services/auth-guard.js';
         import { initAdminMotoristas } from '../../src/controllers/admin/motoristas.js';
-        initGuard(['admin']);
-        window.addEventListener('load', () => { initAdminMotoristas(); });
+        initGuard(['admin'], () => initGuard());
     </script>
 </body>
 

@@ -163,8 +163,7 @@
     <script type="module">
         import { initGuard } from '../../src/services/auth-guard.js';
         import { initSupervisorDashboard } from '../../src/controllers/supervisor/dashboard.js';
-        initGuard(['supervisor']);
-        window.addEventListener('load', () => { initSupervisorDashboard(); });
+        initGuard(['supervisor'], () => initGuard());
     </script>
 </body>
 
