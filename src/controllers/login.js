@@ -1,37 +1,59 @@
 import { auth } from '../services/firebase.js';
-import { signInWithEmailAndPassword } from 'firebase/auth';
+import { redirectToRoleDashboard } from '../services/auth-guard.js';
+import { signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js";
 
-export function initLogin(page, app) {
-    const loginForm = page.$el.find('#login-form');
+export function initLogin() {
+    // If already logged in, redirect to role dashboard
+    onAuthStateChanged(auth, async (user) => {
+        if (user) {
+            await redirectToRoleDashboard(user);
+        }
+    });
 
-    loginForm.on('submit', async (e) => {
+    const loginForm = document.querySelector('#login-form');
+    if (!loginForm) return;
+
+    const errorEl = document.querySelector('#login-error');
+
+    loginForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        const email = page.$el.find('input[name="username"]').val();
-        const password = page.$el.find('input[name="password"]').val();
+        const email = loginForm.querySelector('input[name="username"]').value;
+        const password = loginForm.querySelector('input[name="password"]').value;
 
         if (!email || !password) {
-            app.dialog.alert('Preencha e-mail e senha.', 'DriverLog');
+            showError('Preencha e-mail e senha.');
             return;
         }
 
-        app.preloader.show();
+        const btn = loginForm.querySelector('button[type="submit"]');
+        btn.innerHTML = '<span class="material-symbols-outlined animate-spin">progress_activity</span> Acessando...';
+        btn.disabled = true;
 
         try {
-            await signInWithEmailAndPassword(auth, email, password);
-            app.preloader.hide();
-            // router will automatically catch the state change and redirect
+            const credential = await signInWithEmailAndPassword(auth, email, password);
+            await redirectToRoleDashboard(credential.user);
         } catch (error) {
-            app.preloader.hide();
-            let errorMessage = 'Erro ao fazer login.';
-            if (error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
-                errorMessage = 'E-mail ou senha incorretos.';
+            btn.innerHTML = 'Acessar Conta';
+            btn.disabled = false;
+            let msg = 'Erro ao fazer login.';
+            if (['auth/invalid-credential', 'auth/user-not-found', 'auth/wrong-password'].includes(error.code)) {
+                msg = 'E-mail ou senha incorretos.';
             } else if (error.code === 'auth/invalid-email') {
-                errorMessage = 'Formato de e-mail inválido.';
+                msg = 'Formato de e-mail inválido.';
             } else if (error.code === 'auth/network-request-failed') {
-                errorMessage = 'Sem conexão com a internet.';
+                msg = 'Sem conexão com a internet.';
             }
-            app.dialog.alert(errorMessage, 'DriverLog');
+            showError(msg);
             console.error('Login error:', error);
         }
     });
+
+    function showError(msg) {
+        if (errorEl) {
+            errorEl.textContent = msg;
+            errorEl.classList.remove('hidden');
+        } else {
+            alert(msg);
+        }
+    }
 }

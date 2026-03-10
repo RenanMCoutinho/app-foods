@@ -6,6 +6,31 @@ export default defineConfig({
     server: {
         open: true
     },
+    build: {
+        rollupOptions: {
+            input: {
+                main: './index.html',
+                login: './pages/login.html',
+                cadastro: './pages/cadastro.html',
+                cadastroEmpresa: './pages/cadastro-empresa.html',
+                // Motorista
+                dashboard: './pages/dashboard.html',
+                home: './pages/home.html',
+                relatorio: './pages/relatorio.html',
+                // Admin
+                adminDashboard: './pages/admin/dashboard.html',
+                adminEmpresas: './pages/admin/empresas.html',
+                adminSupervisores: './pages/admin/supervisores.html',
+                adminMotoristas: './pages/admin/motoristas.html',
+                // Supervisor
+                supervisorDashboard: './pages/supervisor/dashboard.html',
+                supervisorEmpresas: './pages/supervisor/empresas.html',
+                supervisorEntregas: './pages/supervisor/entregas.html',
+                supervisorMotoristas: './pages/supervisor/motoristas.html',
+                supervisorLocais: './pages/supervisor/locais.html',
+            }
+        }
+    },
     plugins: [
         VitePWA({
             registerType: 'autoUpdate',

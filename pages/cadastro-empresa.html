@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-    <title>Cadastro - DriverLog</title>
+    <title>Cadastro de Empresa - DriverLog</title>
     <link rel="stylesheet" href="../src/index.css" />
 </head>
 
@@ -19,36 +19,52 @@
                 class="inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-primary text-white shadow-xl shadow-primary/20 mb-4">
                 <span class="material-symbols-outlined text-4xl">local_shipping</span>
             </div>
-            <h1 class="text-2xl font-black tracking-tight">Criar sua conta</h1>
-            <p class="text-slate-500 text-sm mt-1">Crie sua conta de motorista</p>
+            <h1 class="text-2xl font-black tracking-tight">Cadastro de Empresa</h1>
+            <p class="text-slate-500 text-sm mt-1">Gerencie entregas e sua equipe de motoristas</p>
         </div>
 
         <!-- Form Card -->
         <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm p-8">
 
-            <!-- Error Message -->
+            <!-- Error / Success -->
             <div id="cadastro-error"
                 class="hidden mb-5 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm font-medium">
             </div>
-            <!-- Success Message -->
             <div id="cadastro-success"
                 class="hidden mb-5 p-3 bg-primary/10 border border-primary/20 text-primary rounded-lg text-sm font-medium">
             </div>
 
-            <form id="form-cadastro" class="space-y-4">
-                <input type="hidden" id="role-selecionado" value="motorista" />
+            <form id="form-cadastro-empresa" class="space-y-4">
 
-                <!-- Nome -->
+                <!-- Nome do responsável -->
                 <div>
-                    <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Nome Completo</label>
-                    <input id="cad-nome" type="text" required placeholder="Seu nome completo"
+                    <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Seu Nome
+                        (Responsável)</label>
+                    <input id="cad-nome" type="text" required placeholder="Nome completo do responsável"
+                        class="w-full bg-slate-50 dark:bg-slate-800 border-none ring-1 ring-slate-200 dark:ring-slate-700 rounded-lg px-4 py-3 text-sm focus:ring-2 focus:ring-primary transition-all outline-none" />
+                </div>
+
+                <!-- Nome da empresa -->
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Nome da
+                        Empresa</label>
+                    <input id="cad-empresa-nome" type="text" required placeholder="Ex: Mercado Central"
+                        class="w-full bg-slate-50 dark:bg-slate-800 border-none ring-1 ring-slate-200 dark:ring-slate-700 rounded-lg px-4 py-3 text-sm focus:ring-2 focus:ring-primary transition-all outline-none" />
+                </div>
+
+                <!-- CNPJ -->
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">CNPJ <span
+                            class="text-slate-400 font-normal">(opcional)</span></label>
+                    <input id="cad-cnpj" type="text" placeholder="00.000.000/0001-00"
                         class="w-full bg-slate-50 dark:bg-slate-800 border-none ring-1 ring-slate-200 dark:ring-slate-700 rounded-lg px-4 py-3 text-sm focus:ring-2 focus:ring-primary transition-all outline-none" />
                 </div>
 
                 <!-- E-mail -->
                 <div>
-                    <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">E-mail</label>
-                    <input id="cad-email" type="email" required placeholder="seu@email.com"
+                    <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">E-mail da
+                        Conta</label>
+                    <input id="cad-email" type="email" required placeholder="seu@empresa.com"
                         class="w-full bg-slate-50 dark:bg-slate-800 border-none ring-1 ring-slate-200 dark:ring-slate-700 rounded-lg px-4 py-3 text-sm focus:ring-2 focus:ring-primary transition-all outline-none" />
                 </div>
 
@@ -73,35 +89,36 @@
                         class="w-full bg-slate-50 dark:bg-slate-800 border-none ring-1 ring-slate-200 dark:ring-slate-700 rounded-lg px-4 py-3 text-sm focus:ring-2 focus:ring-primary transition-all outline-none" />
                 </div>
 
-                <!-- Badge motorista -->
-                <div class="flex items-center gap-2 p-3 bg-primary/10 border border-primary/20 rounded-lg">
-                    <span class="material-symbols-outlined text-primary text-lg">directions_car</span>
+                <!-- Badge empresa -->
+                <div class="flex items-center gap-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                    <span class="material-symbols-outlined text-blue-600 text-lg">business</span>
                     <div>
-                        <p class="text-xs font-black text-primary">Cadastro como Motorista</p>
-                        <p class="text-xs text-slate-500">Você poderá registrar suas entregas diárias.</p>
+                        <p class="text-xs font-black text-blue-700">Cadastro como Empresa / Supervisor</p>
+                        <p class="text-xs text-slate-500">Você poderá gerenciar entregas, motoristas e locais.</p>
                     </div>
                 </div>
 
                 <!-- Submit -->
                 <button type="submit" id="btn-cadastrar"
                     class="w-full bg-primary hover:bg-primary/90 text-white font-black py-4 rounded-lg shadow-xl shadow-primary/30 transition-all active:scale-95 flex items-center justify-center gap-2 mt-2">
-                    <span class="material-symbols-outlined">person_add</span>
-                    Criar Conta
+                    <span class="material-symbols-outlined">business</span>
+                    Criar Conta de Empresa
                 </button>
             </form>
         </div>
 
-        <!-- Login link -->
         <p class="text-center text-sm text-slate-500 mt-6">
             Já tem uma conta?
             <a href="./login.html" class="font-black text-primary hover:underline">Fazer login</a>
+            &nbsp;·&nbsp;
+            <a href="./cadastro.html" class="font-semibold text-slate-600 hover:underline">Cadastro de motorista</a>
         </p>
 
     </div>
 
     <script type="module">
-        import { initCadastro } from '../src/controllers/cadastro.js';
-        window.addEventListener('load', () => { initCadastro(); });
+        import { initCadastroEmpresa } from '../src/controllers/cadastro-empresa.js';
+        window.addEventListener('load', () => { initCadastroEmpresa(); });
     </script>
 </body>
 

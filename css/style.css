@@ -2,15 +2,15 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap');
 
 :root {
-    /* Brand Colors - Vibrant & Fresh */
-    --f7-theme-color: #00d26a;
-    --f7-theme-color-rgb: 0, 210, 106;
-    --f7-theme-color-shade: #00b35a;
-    --f7-theme-color-tint: #33db88;
+    /* Brand Colors - Stitch Sync */
+    --f7-theme-color: #21c45d;
+    --f7-theme-color-rgb: 33, 196, 93;
+    --f7-theme-color-shade: #1aad52;
+    --f7-theme-color-tint: #4ade80;
 
-    /* Gradients */
-    --bg-gradient: linear-gradient(135deg, #f6f9fc 0%, #eef2f7 100%);
-    --primary-gradient: linear-gradient(135deg, #00d26a 0%, #009e54 100%);
+    /* Gradients & Surfaces */
+    --bg-gradient: linear-gradient(135deg, #f6f8f7 0%, #edf1ef 100%);
+    --primary-gradient: linear-gradient(135deg, #21c45d 0%, #16a34a 100%);
 
     /* Surfaces */
     --surface-light: rgba(255, 255, 255, 0.85);
@@ -444,38 +444,82 @@ label.item-checkbox input:checked~.icon-checkbox {
 /* =======================================
    MEDIA QUERIES FOR DARK MODE SUPPORT
 ========================================= */
+/* =======================================
+   BENTO GRID & STITCH UTILITIES
+========================================= */
+.bento-grid {
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+    gap: 16px;
+    padding: 16px;
+}
+
+@media (min-width: 768px) {
+    .bento-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+.bento-card {
+    background: var(--surface-solid);
+    border-radius: var(--radius-lg);
+    padding: 24px;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    box-shadow: var(--shadow-soft);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.bento-card .icon-box {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: rgba(33, 196, 93, 0.1);
+    color: var(--f7-theme-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 16px;
+}
+
+.bento-card .value {
+    font-size: 28px;
+    font-weight: 800;
+    font-family: 'Outfit', sans-serif;
+}
+
+.bento-card .label {
+    font-size: 14px;
+    color: var(--text-muted);
+    font-weight: 600;
+}
+
 @media (prefers-color-scheme: dark) {
     :root {
-        --bg-gradient: linear-gradient(135deg, #0f172a 0%, #020617 100%);
-        --surface-light: rgba(30, 41, 59, 0.7);
-        --surface-solid: #1e293b;
-        --surface-glass: rgba(15, 23, 42, 0.75);
+        --bg-gradient: linear-gradient(135deg, #122017 0%, #09130d 100%);
+        --surface-light: rgba(18, 32, 23, 0.7);
+        --surface-solid: #1b2e21;
+        --surface-glass: rgba(18, 32, 23, 0.75);
         --text-main: #f8fafc;
         --text-muted: #94a3b8;
         --text-light: #64748b;
 
-        --shadow-soft: 0 8px 32px rgba(0, 0, 0, 0.4);
-        --shadow-hover: 0 16px 48px rgba(0, 0, 0, 0.6);
+        --shadow-soft: 0 8px 32px rgba(0, 0, 0, 0.5);
+        --shadow-hover: 0 16px 48px rgba(0, 0, 0, 0.7);
     }
 
-    .card {
+    .card,
+    .bento-card {
         border-color: rgba(255, 255, 255, 0.05);
-    }
-
-    .card::before {
-        background: linear-gradient(180deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0) 100%);
     }
 
     .item-input-wrap {
-        background-color: rgba(15, 23, 42, 0.6) !important;
-        border-color: rgba(51, 65, 85, 0.6);
+        background-color: rgba(9, 19, 13, 0.6) !important;
+        border-color: rgba(27, 46, 33, 0.6);
     }
 
     .item-input-focused .item-input-wrap {
-        background-color: #1e293b !important;
-    }
-
-    label.item-checkbox {
-        border-color: rgba(255, 255, 255, 0.05);
+        background-color: #1b2e21 !important;
     }
 }

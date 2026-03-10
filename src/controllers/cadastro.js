@@ -1,199 +1,136 @@
-import { collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc, orderBy, query } from "firebase/firestore";
-import { db, auth } from "../services/firebase.js";
-import { getDoc, doc as fetchDoc } from "firebase/firestore";
+import { auth, db } from '../services/firebase.js';
+import {
+    createUserWithEmailAndPassword
+} from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js";
+import {
+    doc, setDoc, addDoc, collection, serverTimestamp
+} from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
 
-export function initCadastro(page, app) {
-    const formCadastro = page.$el.find("#formCadastro")[0];
-    const btnSalvar = page.$el.find("#btnSalvar")[0];
-    const empresaId = page.$el.find("#empresaId")[0];
-    const nomeEmpresa = page.$el.find("#nomeEmpresa")[0];
-    const listaEmpresas = page.$el.find("#listaEmpresas")[0];
+export function initCadastro() {
+    const tabMotorista = document.querySelector('#tab-motorista');
+    const tabEmpresa = document.querySelector('#tab-empresa');
+    const camposEmpresa = document.querySelector('#campos-empresa');
+    const roleInput = document.querySelector('#role-selecionado');
+    const badgeTitulo = document.querySelector('#badge-titulo');
+    const badgeDesc = document.querySelector('#badge-desc');
+    const badgeIcone = document.querySelector('#badge-icone');
+    const form = document.querySelector('#form-cadastro');
 
-    // Inputs e Checkboxes
-    const inputsMap = {};
+    // --- Tab switching ---
+    function setTab(role) {
+        const isEmpresa = role === 'supervisor';
+        roleInput.value = role;
 
-    // Auth role check
-    const user = auth.currentUser;
-    if (!user) {
-        app.views.main.router.navigate('/login/');
-        return;
+        tabMotorista.className = `tab-btn flex-1 flex items-center justify-center gap-2 py-3 rounded-lg text-sm font-black transition-all ${!isEmpresa ? 'bg-primary text-white shadow-md' : 'text-slate-500 hover:text-slate-700'
+            }`;
+        tabEmpresa.className = `tab-btn flex-1 flex items-center justify-center gap-2 py-3 rounded-lg text-sm font-black transition-all ${isEmpresa ? 'bg-primary text-white shadow-md' : 'text-slate-500 hover:text-slate-700'
+            }`;
+
+        camposEmpresa.classList.toggle('hidden', !isEmpresa);
+
+        // Update badge
+        if (isEmpresa) {
+            badgeTitulo.textContent = 'Cadastro como Empresa / Supervisor';
+            badgeDesc.textContent = 'Você poderá gerenciar entregas e motoristas.';
+            badgeIcone.textContent = 'business';
+        } else {
+            badgeTitulo.textContent = 'Cadastro como Motorista';
+            badgeDesc.textContent = 'Você poderá registrar suas entregas diárias.';
+            badgeIcone.textContent = 'directions_car';
+        }
     }
 
-    app.preloader.show();
-    getDoc(fetchDoc(db, 'usuarios', user.uid)).then(userDoc => {
-        app.preloader.hide();
-        let role = 'motorista';
-        if (userDoc.exists()) {
-            role = userDoc.data().role || 'motorista';
+    tabMotorista.addEventListener('click', () => setTab('motorista'));
+    tabEmpresa.addEventListener('click', () => setTab('supervisor'));
+
+    // --- Password toggle ---
+    document.querySelector('#toggle-senha')?.addEventListener('click', () => {
+        const input = document.querySelector('#cad-senha');
+        const icone = document.querySelector('#olho-icone');
+        if (input.type === 'password') {
+            input.type = 'text';
+            icone.textContent = 'visibility_off';
+        } else {
+            input.type = 'password';
+            icone.textContent = 'visibility';
         }
-
-        if (role !== 'admin' && role !== 'supervisor') {
-            app.dialog.alert('Acesso negado. Apenas supervisores.', 'Erro');
-            app.views.main.router.navigate('/');
-            return;
-        }
-    }).catch(err => {
-        app.preloader.hide();
-        app.dialog.alert('Erro de permissão.', 'Erro');
-        app.views.main.router.navigate('/');
-    });
-    page.$el.find('input[name="tiposEntrega"]').forEach(chk => {
-        const tipo = chk.dataset.tipo;
-        const wrapper = page.$el.find(`#wrap-${tipo}`)[0];
-        const capitalized = tipo.charAt(0).toUpperCase() + tipo.slice(1);
-        const inputVal = page.$el.find(`#valor${capitalized}`)[0];
-
-        inputsMap[tipo] = { chk, wrapper, input: inputVal };
-
-        chk.addEventListener('change', () => {
-            if (chk.checked) {
-                if (wrapper) wrapper.style.display = 'block';
-                if (inputVal) inputVal.disabled = false;
-            } else {
-                if (wrapper) wrapper.style.display = 'none';
-                if (inputVal) {
-                    inputVal.disabled = true;
-                    inputVal.value = '';
-                }
-            }
-        });
     });
 
-    function carregarListaEmpresas() {
-        if (!listaEmpresas) return;
-        listaEmpresas.innerHTML = '<div class="block text-align-center text-color-gray skeleton-text">Carregando empresas...</div>';
-
-        const empresasRef = collection(db, "empresas");
-        const q = query(empresasRef, orderBy("nome"));
-
-        onSnapshot(q, (snapshot) => {
-            listaEmpresas.innerHTML = "";
-
-            if (snapshot.empty) {
-                listaEmpresas.innerHTML = '<div class="block text-align-center text-color-gray">Nenhuma empresa cadastrada.</div>';
-                return;
-            }
-
-            const ul = document.createElement('ul');
-            snapshot.forEach((d) => {
-                const e = d.data();
-                const li = document.createElement("li");
-
-                li.innerHTML = `
-            <div class="item-content" style="padding-top: 6px; padding-bottom: 6px;">
-                <div class="item-inner">
-                    <div class="item-title" style="font-weight: 600; color: var(--text-main); font-size: 16px;">${e.nome}</div>
-                    <div class="item-after display-flex">
-                        <button class="button button-small button-outline margin-right btn-edit" style="color: var(--f7-theme-color); border-color: var(--f7-theme-color);">Editar</button>
-                        <button class="button button-small button-outline color-red btn-del" style="color: #ff3b30; border-color: #ff3b30;">Excluir</button>
-                    </div>
-                </div>
-            </div>
-          `;
-
-                li.querySelector('.btn-edit').onclick = () => preencherFormulario(d.id, e);
-                li.querySelector('.btn-del').onclick = () => {
-                    app.dialog.confirm('Deseja excluir esta empresa?', async () => {
-                        try {
-                            app.dialog.preloader('Excluindo...');
-                            await deleteDoc(doc(db, "empresas", d.id));
-                            app.dialog.close();
-                            app.toast.create({ text: 'Empresa excluída!', closeTimeout: 2000, position: 'center' }).open();
-                        } catch (err) {
-                            app.dialog.close();
-                            app.dialog.alert("Erro ao excluir: " + err.message);
-                        }
-                    });
-                };
-
-                ul.appendChild(li);
-            });
-            listaEmpresas.appendChild(ul);
-        });
-    }
-
-    function preencherFormulario(id, dados) {
-        empresaId.value = id;
-        nomeEmpresa.value = dados.nome;
-
-        for (const key in inputsMap) {
-            const { chk, wrapper, input } = inputsMap[key];
-
-            if (dados.tiposEntrega && dados.tiposEntrega[key] !== undefined) {
-                chk.checked = true;
-                if (wrapper) wrapper.style.display = 'block';
-                if (input) {
-                    input.disabled = false;
-                    input.value = dados.tiposEntrega[key];
-                }
-            } else {
-                chk.checked = false;
-                if (wrapper) wrapper.style.display = 'none';
-                if (input) {
-                    input.disabled = true;
-                    input.value = '';
-                }
-            }
-        }
-
-        btnSalvar.innerHTML = '<i class="icon f7-icons if-not-md margin-right">floppy_disk</i><i class="icon material-icons if-md margin-right">save</i> Atualizar Empresa';
-        page.$el.find('.page-content')[0].scrollTo({ top: 0, behavior: 'smooth' });
-    }
-
-    formCadastro.addEventListener("submit", async (e) => {
+    // --- Form Submit ---
+    form?.addEventListener('submit', async (e) => {
         e.preventDefault();
-        const nome = nomeEmpresa.value.trim();
-        if (!nome) return app.dialog.alert("Informe o nome da empresa.");
 
-        const tiposEntrega = {};
-        let algumSelecionado = false;
+        const nome = document.querySelector('#cad-nome').value.trim();
+        const email = document.querySelector('#cad-email').value.trim();
+        const senha = document.querySelector('#cad-senha').value;
+        const confirmar = document.querySelector('#cad-confirmar').value;
+        const role = roleInput.value; // 'motorista' | 'supervisor'
+        const empresaNome = document.querySelector('#cad-empresa-nome')?.value.trim();
+        const cnpj = document.querySelector('#cad-cnpj')?.value.trim();
 
-        for (const key in inputsMap) {
-            const { chk, input } = inputsMap[key];
-            if (chk.checked) {
-                const valor = parseFloat(input.value);
-                if (isNaN(valor) || valor < 0) {
-                    app.dialog.alert(`Informe um valor válido para ${key}.`);
-                    return;
-                }
-                tiposEntrega[key] = valor;
-                algumSelecionado = true;
-            }
-        }
+        const errorEl = document.querySelector('#cadastro-error');
+        const successEl = document.querySelector('#cadastro-success');
 
-        if (!algumSelecionado) {
-            app.dialog.alert("Selecione pelo menos um tipo de entrega.");
-            return;
-        }
+        errorEl.classList.add('hidden');
+        successEl.classList.add('hidden');
 
-        const empresaData = { nome, tiposEntrega };
+        // Validations
+        if (!nome) return showError('Informe seu nome completo.');
+        if (!email) return showError('Informe um e-mail válido.');
+        if (senha.length < 6) return showError('A senha deve ter no mínimo 6 caracteres.');
+        if (senha !== confirmar) return showError('As senhas não coincidem.');
+
+        const btn = document.querySelector('#btn-cadastrar');
+        btn.disabled = true;
+        btn.innerHTML = '<span class="material-symbols-outlined animate-spin">progress_activity</span> Criando conta...';
 
         try {
-            app.dialog.preloader('Salvando...');
-            if (empresaId.value) {
-                await updateDoc(doc(db, "empresas", empresaId.value), empresaData);
-                app.dialog.close();
-                app.toast.create({ text: 'Empresa atualizada!', closeTimeout: 2000, position: 'center' }).open();
-            } else {
-                await addDoc(collection(db, "empresas"), empresaData);
-                app.dialog.close();
-                app.toast.create({ text: 'Empresa cadastrada!', closeTimeout: 2000, position: 'center' }).open();
+            // Create Firebase Auth user
+            const credential = await createUserWithEmailAndPassword(auth, email, senha);
+            const uid = credential.user.uid;
+
+            // Save user profile in Firestore
+            await setDoc(doc(db, 'usuarios', uid), {
+                nome,
+                email,
+                role,
+                createdAt: serverTimestamp(),
+            });
+
+            // If empresa, also save in empresas collection
+            if (role === 'supervisor' && empresaNome) {
+                await addDoc(collection(db, 'empresas'), {
+                    nome: empresaNome,
+                    cnpj: cnpj || '',
+                    supervisorId: uid,
+                    tipos: [],
+                    createdAt: serverTimestamp(),
+                });
             }
 
-            formCadastro.reset();
-            empresaId.value = "";
-            btnSalvar.innerHTML = '<i class="icon f7-icons if-not-md margin-right">floppy_disk</i><i class="icon material-icons if-md margin-right">save</i> Salvar Empresa';
-            for (const key in inputsMap) {
-                const { wrapper, input } = inputsMap[key];
-                if (wrapper) wrapper.style.display = 'none';
-                if (input) input.disabled = true;
-            }
+            // Show success
+            successEl.textContent = `Conta criada com sucesso! Redirecionando para o login...`;
+            successEl.classList.remove('hidden');
+            form.reset();
+
+            setTimeout(() => {
+                window.location.href = './login.html';
+            }, 2000);
 
         } catch (err) {
-            app.dialog.close();
-            app.dialog.alert("Erro ao salvar: " + err.message);
+            let msg = 'Erro ao criar conta.';
+            if (err.code === 'auth/email-already-in-use') msg = 'Este e-mail já está em uso.';
+            else if (err.code === 'auth/invalid-email') msg = 'E-mail inválido.';
+            else if (err.code === 'auth/network-request-failed') msg = 'Sem conexão com a internet.';
+            showError(msg);
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = '<span class="material-symbols-outlined">person_add</span> Criar Conta';
+        }
+
+        function showError(msg) {
+            errorEl.textContent = msg;
+            errorEl.classList.remove('hidden');
         }
     });
-
-    carregarListaEmpresas();
 }

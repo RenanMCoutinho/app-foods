@@ -1,13 +1,111 @@
-<div class="page" data-name="dashboard">
-    <div class="navbar">
-        <div class="navbar-bg"></div>
-        <div class="navbar-inner sliding">
-            <div class="title">Dashboard</div>
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Dashboard - DriverLog</title>
+    <link rel="stylesheet" href="../src/index.css" />
+</head>
+
+<body class="bg-slate-50 dark:bg-background-dark text-slate-900 dark:text-slate-100 antialiased min-h-screen pb-20">
+
+    <!-- Header -->
+    <header class="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 sticky top-0 z-20">
+        <div class="flex items-center justify-between px-5 h-14">
+            <div>
+                <p id="welcome-message" class="font-black text-base">Olá, Motorista!</p>
+                <p class="text-xs text-slate-500">Painel de Desempenho</p>
+            </div>
+            <div class="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center">
+                <span class="material-symbols-outlined text-primary">person</span>
+            </div>
         </div>
-    </div>
-    <div class="page-content">
-        <div class="role-based-content">
-            <!-- Conteúdo gerado via JS baseado no Papel Admin/Supervisor/Motorista -->
+    </header>
+
+    <main class="max-w-lg mx-auto p-5 space-y-5">
+
+        <!-- Month Selector -->
+        <div class="flex items-center justify-between">
+            <button id="btn-mes-anterior"
+                class="p-2 text-slate-400 hover:text-primary hover:bg-primary/10 rounded-lg transition-colors">
+                <span class="material-symbols-outlined">chevron_left</span>
+            </button>
+            <h2 id="mes-label" class="font-black text-base capitalize"></h2>
+            <button id="btn-mes-proximo"
+                class="p-2 text-slate-400 hover:text-primary hover:bg-primary/10 rounded-lg transition-colors">
+                <span class="material-symbols-outlined">chevron_right</span>
+            </button>
         </div>
-    </div>
-</div>
+
+        <!-- KPI Cards -->
+        <div class="grid grid-cols-3 gap-3">
+            <div
+                class="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm text-center">
+                <p class="text-xs font-black text-slate-500 uppercase tracking-widest mb-1">Entregas</p>
+                <p id="kpi-total" class="text-2xl font-black text-slate-900 dark:text-white">—</p>
+            </div>
+            <div
+                class="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm text-center">
+                <p class="text-xs font-black text-slate-500 uppercase tracking-widest mb-1">Ganhos</p>
+                <p id="kpi-ganhos" class="text-2xl font-black text-primary">—</p>
+            </div>
+            <div
+                class="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm text-center">
+                <p class="text-xs font-black text-slate-500 uppercase tracking-widest mb-1">Dias</p>
+                <p id="kpi-dias" class="text-2xl font-black text-slate-900 dark:text-white">—</p>
+            </div>
+        </div>
+
+        <!-- Shortcut to Tela do Dia -->
+        <a href="./home.html"
+            class="flex items-center justify-between bg-primary text-white p-5 rounded-2xl shadow-lg shadow-primary/20 hover:bg-primary/90 transition-all">
+            <div>
+                <p class="font-black text-lg">Registrar Entregas</p>
+                <p class="text-sm text-primary-foreground/80 opacity-80">Abrir Tela do Dia</p>
+            </div>
+            <span class="material-symbols-outlined text-4xl opacity-80">today</span>
+        </a>
+
+        <!-- Delivery History by Day -->
+        <div
+            class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+            <div class="px-5 py-4 border-b border-slate-100 dark:border-slate-800">
+                <h2 class="font-black">Histórico do Mês</h2>
+            </div>
+            <div id="historico-mes">
+                <div class="p-8 text-center">
+                    <span class="material-symbols-outlined text-4xl text-slate-200 dark:text-slate-700">bar_chart</span>
+                    <p class="text-sm text-slate-400 mt-2">Carregando histórico...</p>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Bottom Nav -->
+    <nav
+        class="h-16 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex items-center justify-around px-4 fixed bottom-0 left-0 right-0 z-10">
+        <a href="./dashboard.html" class="flex flex-col items-center gap-0.5 text-primary text-xs font-bold">
+            <span class="material-symbols-outlined">dashboard</span>Dashboard
+        </a>
+        <a href="./home.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-xs">
+            <span class="material-symbols-outlined">today</span>Hoje
+        </a>
+        <a href="./relatorio.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-xs">
+            <span class="material-symbols-outlined">bar_chart</span>Histórico
+        </a>
+        <button class="logout-btn flex flex-col items-center gap-0.5 text-slate-400 text-xs">
+            <span class="material-symbols-outlined">logout</span>Sair
+        </button>
+    </nav>
+
+    <script type="module">
+        import { initGuard } from '../src/services/auth-guard.js';
+        import { initDashboard } from '../src/controllers/dashboard.js';
+        initGuard(['motorista']);
+        window.addEventListener('load', () => { initDashboard(); });
+    </script>
+</body>
+
+</html>

@@ -1,103 +1,98 @@
-<div class="page" data-name="home">
-  <!-- Navbar Superior -->
-  <div class="navbar">
-    <div class="navbar-bg bg-color-green"></div>
-    <div class="navbar-inner sliding">
-      <div class="title text-color-white">DriverLog</div>
-    </div>
-  </div>
+<!DOCTYPE html>
+<html lang="pt-br">
 
-  <!-- Toolbar Inferior (Tabbar) -->
-  <div class="toolbar tabbar toolbar-bottom bg-color-green">
-    <div class="toolbar-inner">
-      <a href="/" class="tab-link tab-link-active text-color-white">
-        <i class="icon f7-icons if-not-md">house</i>
-        <i class="icon material-icons if-md">home</i>
-      </a>
-      <a href="/cadastro/" class="tab-link text-color-white">
-        <i class="icon f7-icons if-not-md">building_2_fill</i>
-        <i class="icon material-icons if-md">business</i>
-      </a>
-      <a href="/relatorio/" class="tab-link text-color-white">
-        <i class="icon f7-icons if-not-md">doc_text_fill</i>
-        <i class="icon material-icons if-md">description</i>
-      </a>
-    </div>
-  </div>
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <title>Tela do Dia - DriverLog</title>
+  <link rel="stylesheet" href="../src/index.css" />
+</head>
 
-  <!-- Scrollable Page Content -->
-  <div class="page-content">
-    <div class="block-title display-flex align-items-center">
-      <i class="icon f7-icons size-16 margin-right-half">calendar</i>
-      Entregas do Dia
-    </div>
-    <div class="block block-strong card padding-vertical">
+<body class="bg-slate-50 dark:bg-background-dark text-slate-900 dark:text-slate-100 antialiased min-h-screen pb-20">
 
-      <!-- Navegação de Data -->
-      <div class="display-flex justify-content-space-between align-items-center margin-bottom-lg padding-horizontal">
-        <button class="button button-outline button-small" style="width: 48px; padding: 0;" id="btnAnterior">
-          <i class="icon f7-icons if-not-md">chevron_left</i>
-          <i class="icon material-icons if-md">chevron_left</i>
-        </button>
-        <div class="text-align-center flex-shrink-1 text-color-main">
-          <h3 class="no-margin"><span id="dataHoje"></span></h3>
-        </div>
-        <button class="button button-outline button-small" style="width: 48px; padding: 0;" id="btnProximo">
-          <i class="icon f7-icons if-not-md">chevron_right</i>
-          <i class="icon material-icons if-md">chevron_right</i>
-        </button>
+  <!-- Header -->
+  <header class="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 sticky top-0 z-20">
+    <div class="flex items-center justify-between px-5 h-14">
+      <div>
+        <h1 class="font-black text-base">Tela do Dia</h1>
+        <p id="data-hoje" class="text-xs text-slate-500"></p>
       </div>
-
-      <!-- Select Empresa -->
-      <div class="list no-hairlines-md">
-        <ul>
-          <li class="item-content item-input">
-            <div class="item-inner">
-              <div class="item-title item-label">Selecione a Empresa</div>
-              <div class="item-input-wrap">
-                <select id="empresaSelect" placeholder="Selecione...">
-                  <option value="">Selecione...</option>
-                </select>
-              </div>
-            </div>
-          </li>
-
-          <li class="item-content item-input">
-            <div class="item-inner">
-              <div class="item-title item-label">Tipo de Entrega</div>
-              <div class="item-input-wrap">
-                <select id="tipoEntregaSelect" disabled>
-                  <option value="">Selecione uma empresa primeiro</option>
-                </select>
-              </div>
-            </div>
-          </li>
-        </ul>
-      </div>
-
-      <div class="padding-horizontal padding-bottom">
-        <button class="button button-fill button-large width-100 color-green margin-top" id="btnRegistrar">
-          <i class="icon f7-icons if-not-md margin-right">truck_fill</i>
-          <i class="icon material-icons if-md margin-right">local_shipping</i>
-          Registrar Frete
-        </button>
-      </div>
-
-      <div class="list media-list inset no-margin-top">
-        <ul id="relatorioList">
-          <!-- Items inseridos via JS -->
-        </ul>
-      </div>
-
-      <div class="block-footer text-align-right margin-top-lg padding-horizontal"
-        style="padding-top: 24px; padding-bottom: 24px;">
-        <div class="display-flex justify-content-flex-end align-items-center">
-          <span class="margin-right text-color-gray uppercase"
-            style="font-size: 13px; font-weight: 700; letter-spacing: 0.1em;">Total do dia</span>
-          <span class="size-24">R$ <span id="totalHoje">0.00</span></span>
+      <div class="flex items-center gap-3">
+        <div class="text-right">
+          <p class="text-xs text-slate-500">Total hoje</p>
+          <p id="total-dia" class="font-black text-primary text-base">R$ 0,00</p>
         </div>
       </div>
-
     </div>
-  </div>
-</div>
+  </header>
+
+  <main class="max-w-lg mx-auto p-5 space-y-5">
+
+    <!-- Selecionar Empresa -->
+    <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm">
+      <h2 class="font-black mb-3 flex items-center gap-2">
+        <span class="material-symbols-outlined text-primary">business</span>
+        Selecionar Empresa
+      </h2>
+      <select id="select-empresa"
+        class="w-full bg-slate-50 dark:bg-slate-800 border-none ring-1 ring-slate-200 dark:ring-slate-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary outline-none font-medium">
+        <option value="">— Escolha uma empresa —</option>
+      </select>
+    </div>
+
+    <!-- Tipos de Entrega -->
+    <div id="card-tipos"
+      class="hidden bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm">
+      <h2 class="font-black mb-3 flex items-center gap-2">
+        <span class="material-symbols-outlined text-primary">inventory_2</span>
+        Tipos de Entrega
+      </h2>
+      <div id="lista-tipos" class="space-y-2"></div>
+    </div>
+
+    <!-- Entregas do Dia -->
+    <div
+      class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+      <div class="px-5 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+        <h2 class="font-black flex items-center gap-2">
+          <span class="material-symbols-outlined text-primary">checklist</span>
+          Entregas Registradas
+        </h2>
+        <span id="contagem-dia" class="bg-primary/10 text-primary text-xs font-black px-2 py-1 rounded-full">0</span>
+      </div>
+      <div id="lista-entregas-dia" class="divide-y divide-slate-100 dark:divide-slate-800">
+        <div class="p-8 text-center">
+          <span class="material-symbols-outlined text-4xl text-slate-200 dark:text-slate-700">inbox</span>
+          <p class="text-sm text-slate-400 mt-2">Nenhuma entrega registrada hoje.<br>Selecione uma empresa e adicione!
+          </p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Bottom Nav -->
+  <nav
+    class="h-16 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex items-center justify-around px-4 fixed bottom-0 left-0 right-0 z-10">
+    <a href="./dashboard.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-xs">
+      <span class="material-symbols-outlined">dashboard</span>Dashboard
+    </a>
+    <a href="./home.html" class="flex flex-col items-center gap-0.5 text-primary text-xs font-bold">
+      <span class="material-symbols-outlined">today</span>Hoje
+    </a>
+    <a href="./relatorio.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-xs">
+      <span class="material-symbols-outlined">bar_chart</span>Histórico
+    </a>
+    <button class="logout-btn flex flex-col items-center gap-0.5 text-slate-400 text-xs">
+      <span class="material-symbols-outlined">logout</span>Sair
+    </button>
+  </nav>
+
+  <script type="module">
+    import { initGuard } from '../src/services/auth-guard.js';
+    import { initTelaDia } from '../src/controllers/home.js';
+    initGuard(['motorista']);
+    window.addEventListener('load', () => { initTelaDia(); });
+  </script>
+</body>
+
+</html>

@@ -1,223 +1,193 @@
-import { collection, onSnapshot, addDoc, getDocs, deleteDoc, doc, query, where, Timestamp, orderBy } from "firebase/firestore";
-import { db, auth } from "../services/firebase.js";
-import { formatarData, dataFormatadaParaConsulta } from "../utils/date.js";
+import { db, auth } from './services/firebase.js';
+import {
+    collection, getDocs, addDoc, deleteDoc, doc, query, where, orderBy, serverTimestamp, Timestamp
+} from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
+import { signOut } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js";
 
-export function initHome(page, app) {
-    const empresaSelect = page.$el.find("#empresaSelect")[0];
-    const tipoEntregaSelect = page.$el.find("#tipoEntregaSelect")[0];
-    const relatorioList = page.$el.find("#relatorioList")[0];
-    const totalHoje = page.$el.find("#totalHoje")[0];
-    const dataHoje = page.$el.find("#dataHoje")[0];
-    const btnRegistrar = page.$el.find("#btnRegistrar")[0];
-    const btnAnterior = page.$el.find("#btnAnterior")[0];
-    const btnProximo = page.$el.find("#btnProximo")[0];
+let empresas = [];
+let entregasDia = [];
 
-    // Variáveis locais para controlar estado
-    let empresas = [];
-    let dataSelecionada = new Date();
+export async function initTelaDia() {
+    const user = auth.currentUser;
+    if (!user) return;
 
-    function carregarEmpresas() {
-        const empresasRef = collection(db, "empresas");
+    // Date display
+    const hoje = new Date();
+    const dataHojeEl = document.querySelector('#data-hoje');
+    if (dataHojeEl) {
+        dataHojeEl.textContent = hoje.toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'long' });
+    }
 
-        onSnapshot(empresasRef, (snapshot) => {
-            empresas = snapshot.docs.map((doc) => ({
-                id: doc.id,
-                ...doc.data(),
-            })).sort((a, b) => a.nome.localeCompare(b.nome));
+    // Logout
+    document.querySelector('.logout-btn')?.addEventListener('click', async () => {
+        if (confirm('Deseja sair?')) {
+            await signOut(auth);
+            window.location.href = '/app-foods/pages/login.html';
+        }
+    });
 
-            if (empresaSelect) {
-                empresaSelect.innerHTML = '<option value="">Selecione...</option>';
-                empresas.forEach((emp) => {
-                    const option = document.createElement("option");
-                    option.value = emp.id;
-                    option.textContent = emp.nome;
-                    empresaSelect.appendChild(option);
-                });
-            }
+    // Get supervisor of this motorista
+    const supervisorId = window.currentUserData?.supervisorId;
 
-            if (tipoEntregaSelect) {
-                tipoEntregaSelect.innerHTML = '<option value="">Selecione uma empresa primeiro</option>';
-                tipoEntregaSelect.disabled = true;
-            }
+    // Load empresas from supervisor
+    await loadEmpresas(supervisorId);
+
+    // Load today's deliveries
+    await loadEntregasDia(user.uid);
+
+    // Empresa select change handler
+    document.querySelector('#select-empresa')?.addEventListener('change', (e) => {
+        const empresaId = e.target.value;
+        renderTipos(empresaId);
+    });
+}
+
+async function loadEmpresas(supervisorId) {
+    const select = document.querySelector('#select-empresa');
+    try {
+        const q = supervisorId
+            ? query(collection(db, 'empresas'), where('supervisorId', '==', supervisorId))
+            : collection(db, 'empresas');
+        const snapshot = await getDocs(q);
+        empresas = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+        empresas.forEach(e => {
+            select.innerHTML += `<option value="${e.id}">${e.nome}</option>`;
         });
+    } catch (err) {
+        console.error('Erro ao carregar empresas', err);
+    }
+}
+
+function renderTipos(empresaId) {
+    const cardTipos = document.querySelector('#card-tipos');
+    const listaTipos = document.querySelector('#lista-tipos');
+    if (!empresaId) {
+        cardTipos.classList.add('hidden');
+        return;
+    }
+    const empresa = empresas.find(e => e.id === empresaId);
+    if (!empresa || !empresa.tipos?.length) {
+        listaTipos.innerHTML = '<p class="text-sm text-slate-400 italic">Esta empresa não tem tipos de entrega cadastrados.</p>';
+        cardTipos.classList.remove('hidden');
+        return;
     }
 
-    // Eventos
-    if (empresaSelect) {
-        empresaSelect.addEventListener("change", () => {
-            const nomesTipoEntrega = {
-                almoco: "Almoço",
-                janta: "Jantar",
-                ceia: "Ceia/Granel",
-                desjejum: "Desjejum",
-                recolha: "Recolha",
-                ceiaMtx: "Ceia/MTX",
-                bo: "B.O"
-            };
-            const empresaId = empresaSelect.value;
-            const empresa = empresas.find(e => e.id === empresaId);
-            if (!empresa) return;
-
-            tipoEntregaSelect.innerHTML = '<option value="">Selecione o tipo de entrega</option>';
-            for (const [tipo, valor] of Object.entries(empresa.tiposEntrega || {})) {
-                const option = document.createElement("option");
-                option.value = tipo;
-                option.textContent = `${nomesTipoEntrega[tipo] || tipo} — R$ ${valor.toFixed(2)}`;
-                tipoEntregaSelect.appendChild(option);
-            }
-
-            tipoEntregaSelect.disabled = false;
-        });
-    }
-
-    async function registrarEntrega() {
-        const empresaId = empresaSelect.value;
-        const tipoEntrega = tipoEntregaSelect.value;
-        if (!empresaId || !tipoEntrega) {
-            app.dialog.alert("Selecione a empresa e o tipo de entrega.");
-            return;
-        }
-
-        const empresa = empresas.find(e => e.id === empresaId);
-        if (!empresa) {
-            app.dialog.alert("Empresa inválida.");
-            return;
-        }
-
-        const valorFrete = empresa.tiposEntrega[tipoEntrega];
-        if (valorFrete === undefined) {
-            app.dialog.alert("Valor do frete inválido.");
-            return;
-        }
-
-        try {
-            app.dialog.preloader('Registrando...');
-            const user = auth.currentUser;
-            const entregasRef = collection(db, "entregas");
-            await addDoc(entregasRef, {
-                motoristaId: user.uid,
-                motoristaNome: user.email,
-                empresaId: empresa.id,
-                nomeEmpresa: empresa.nome,
-                tipoEntrega,
-                valorFrete,
-                data: dataFormatadaParaConsulta(dataSelecionada),
-                timestamp: Timestamp.fromDate(dataSelecionada),
-            });
-            app.dialog.close();
-
-            app.toast.create({
-                text: 'Entrega registrada com sucesso!',
-                closeTimeout: 2000,
-                position: 'center',
-                cssClass: 'toast-success'
-            }).open();
-
-            atualizarRelatorio();
-        } catch (error) {
-            app.dialog.close();
-            app.dialog.alert("Erro ao registrar entrega: " + error.message);
-        }
-    }
-
-    function atualizarRelatorio() {
-        const dataStr = dataFormatadaParaConsulta(dataSelecionada);
-        if (dataHoje) dataHoje.textContent = formatarData(dataSelecionada);
-
-        if (relatorioList) {
-            relatorioList.innerHTML = '<li class="item-content"><div class="item-inner"><div class="item-title text-color-gray skeleton-text">Carregando as entregas de hoje...</div></div></li>';
-        }
-
-        const entregasRef = collection(db, "entregas");
-        const user = auth.currentUser;
-
-        // Se ainda não houver user por causa da inicialização, aguarda.
-        if (!user) return;
-
-        const q = query(
-            entregasRef,
-            where("data", "==", dataStr),
-            where("motoristaId", "==", user.uid)
-        );
-
-        getDocs(q).then((snapshot) => {
-            if (!relatorioList) return;
-            relatorioList.innerHTML = "";
-            let total = 0;
-
-            if (snapshot.empty) {
-                relatorioList.innerHTML = '<li class="item-content"><div class="item-inner"><div class="item-title text-color-gray">Nenhuma entrega hoje.</div></div></li>';
-            }
-
-            snapshot.forEach((d) => {
-                const e = d.data();
-                total += e.valorFrete;
-
-                const li = document.createElement("li");
-
-                const nomesTipoEntrega = {
-                    almoco: "Almoço",
-                    janta: "Jantar",
-                    ceia: "Ceia/Granel",
-                    desjejum: "Desjejum",
-                    recolha: "Recolha",
-                    ceiaMtx: "Ceia/MTX",
-                    bo: "B.O"
-                };
-
-                const nomeTipoEntrega = nomesTipoEntrega[e.tipoEntrega] || e.tipoEntrega;
-
-                li.innerHTML = `
-            <div class="item-content" style="padding-top: 6px; padding-bottom: 6px;">
-                <div class="item-inner">
-                    <div class="item-title-row">
-                        <div class="item-title" style="font-weight: 600; color: var(--text-main);">${e.nomeEmpresa}</div>
-                        <div class="item-after" style="font-weight: 700; color: var(--f7-theme-color);">R$ ${e.valorFrete.toFixed(2)}</div>
-                    </div>
-                    <div class="item-subtitle" style="color: var(--text-muted); font-size: 13px; margin-top: 4px;">${nomeTipoEntrega}</div>
-                    <div class="text-align-right delete-btn-container" style="margin-top: 8px;"></div>
+    listaTipos.innerHTML = empresa.tipos.map((t, idx) => `
+        <button class="btn-add-entrega w-full flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800 hover:bg-primary/10 hover:border-primary/30 border border-slate-200 dark:border-slate-700 rounded-xl transition-all group"
+            data-empresa-id="${empresa.id}" data-empresa-nome="${empresa.nome}" data-tipo-nome="${t.nome}" data-valor="${t.valor}">
+            <div class="text-left">
+                <p class="font-bold text-sm group-hover:text-primary">${t.nome}</p>
+                <p class="text-xs text-slate-500">Toque para registrar</p>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="font-black text-primary text-base">R$ ${(t.valor || 0).toFixed(2).replace('.', ',')}</span>
+                <div class="h-8 w-8 rounded-full bg-primary/10 group-hover:bg-primary flex items-center justify-center transition-all">
+                    <span class="material-symbols-outlined text-primary group-hover:text-white text-lg">add</span>
                 </div>
             </div>
-        `;
+        </button>
+    `).join('');
 
-                const delBtn = document.createElement('button');
-                delBtn.className = "button button-small button-fill color-red display-inline-block";
-                delBtn.style.marginTop = "5px";
-                delBtn.textContent = "Excluir";
-                delBtn.onclick = async () => {
-                    app.dialog.confirm("Deseja excluir essa entrega?", async () => {
-                        try {
-                            app.dialog.preloader();
-                            await deleteDoc(doc(db, "entregas", d.id));
-                            app.dialog.close();
-                            atualizarRelatorio();
-                        } catch (err) {
-                            app.dialog.close();
-                            app.dialog.alert("Erro: " + err.message);
-                        }
-                    });
-                };
+    // Attach click handlers
+    listaTipos.querySelectorAll('.btn-add-entrega').forEach(btn => {
+        btn.addEventListener('click', () => registrarEntrega(btn.dataset));
+    });
 
-                li.querySelector('.delete-btn-container').appendChild(delBtn);
-                relatorioList.appendChild(li);
-            });
+    cardTipos.classList.remove('hidden');
+}
 
-            if (totalHoje) totalHoje.textContent = total.toFixed(2);
-        });
+async function registrarEntrega({ empresaId, empresaNome, tipoNome, valor }) {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    const btn = document.querySelector(`.btn-add-entrega[data-tipo-nome="${tipoNome}"][data-empresa-id="${empresaId}"]`);
+    if (btn) {
+        btn.disabled = true;
+        btn.classList.add('opacity-50');
     }
 
-    if (btnRegistrar) btnRegistrar.addEventListener("click", registrarEntrega);
+    try {
+        const hoje = new Date();
+        const dataStr = hoje.toISOString().split('T')[0]; // YYYY-MM-DD
+        const docRef = await addDoc(collection(db, 'entregas'), {
+            motoristaId: user.uid,
+            supervisorId: window.currentUserData?.supervisorId || '',
+            empresaId,
+            empresaNome,
+            tipoNome,
+            valor: parseFloat(valor),
+            data: dataStr,
+            status: 'concluida',
+            createdAt: serverTimestamp(),
+        });
 
-    if (btnAnterior) btnAnterior.addEventListener("click", () => {
-        dataSelecionada.setDate(dataSelecionada.getDate() - 1);
-        atualizarRelatorio();
-    });
-
-    if (btnProximo) btnProximo.addEventListener("click", () => {
-        dataSelecionada.setDate(dataSelecionada.getDate() + 1);
-        atualizarRelatorio();
-    });
-
-    carregarEmpresas();
-    atualizarRelatorio();
+        // Add to local list
+        entregasDia.push({ id: docRef.id, empresaNome, tipoNome, valor: parseFloat(valor), data: dataStr });
+        renderEntregasDia();
+    } catch (err) {
+        alert('Erro ao registrar entrega: ' + err.message);
+    } finally {
+        if (btn) {
+            btn.disabled = false;
+            btn.classList.remove('opacity-50');
+        }
+    }
 }
+
+async function loadEntregasDia(motoristaId) {
+    const hoje = new Date();
+    const dataStr = hoje.toISOString().split('T')[0];
+    try {
+        const snapshot = await getDocs(
+            query(collection(db, 'entregas'),
+                where('motoristaId', '==', motoristaId),
+                where('data', '==', dataStr),
+                orderBy('createdAt', 'desc')
+            )
+        );
+        entregasDia = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+        renderEntregasDia();
+    } catch (err) {
+        console.error('Erro ao carregar entregas do dia', err);
+    }
+}
+
+function renderEntregasDia() {
+    const container = document.querySelector('#lista-entregas-dia');
+    const contagemEl = document.querySelector('#contagem-dia');
+    const totalEl = document.querySelector('#total-dia');
+
+    const total = entregasDia.reduce((acc, e) => acc + (e.valor || 0), 0);
+    if (totalEl) totalEl.textContent = `R$ ${total.toFixed(2).replace('.', ',')}`;
+    if (contagemEl) contagemEl.textContent = entregasDia.length;
+
+    if (!entregasDia.length) {
+        container.innerHTML = `<div class="p-8 text-center">
+            <span class="material-symbols-outlined text-4xl text-slate-200 dark:text-slate-700">inbox</span>
+            <p class="text-sm text-slate-400 mt-2">Nenhuma entrega registrada hoje.<br>Selecione uma empresa e adicione!</p>
+        </div>`;
+        return;
+    }
+
+    container.innerHTML = entregasDia.map(e => `
+        <div class="flex items-center justify-between px-5 py-4" id="entrega-item-${e.id}">
+            <div>
+                <p class="font-bold text-sm">${e.tipoNome}</p>
+                <p class="text-xs text-slate-500">${e.empresaNome}</p>
+            </div>
+            <div class="flex items-center gap-3">
+                <span class="font-black text-primary">R$ ${(e.valor || 0).toFixed(2).replace('.', ',')}</span>
+                <button onclick="removerEntrega('${e.id}')" class="p-1.5 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors">
+                    <span class="material-symbols-outlined text-base">remove_circle</span>
+                </button>
+            </div>
+        </div>
+    `).join('');
+}
+
+window.removerEntrega = async (id) => {
+    if (!confirm('Remover esta entrega do dia?')) return;
+    await deleteDoc(doc(db, 'entregas', id));
+    entregasDia = entregasDia.filter(e => e.id !== id);
+    renderEntregasDia();
+};

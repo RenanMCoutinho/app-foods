@@ -1,95 +1,91 @@
-<div class="page" data-name="relatorio">
-    <div class="navbar">
-        <div class="navbar-bg bg-color-green"></div>
-        <div class="navbar-inner sliding">
-            <div class="left">
-                <a href="#" class="link back text-color-white">
-                    <i class="icon icon-back"></i>
-                    <span class="if-not-md">Voltar</span>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <link rel="stylesheet" href="../src/index.css" />
+    <title>Histórico de Entregas - DriverLog</title>
+</head>
+
+<body
+    class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 antialiased min-h-screen">
+    <div class="flex flex-col min-h-screen">
+        <!-- Header -->
+        <header
+            class="h-16 border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md flex items-center justify-between px-6 sticky top-0 z-10">
+            <div class="flex items-center gap-3">
+                <a href="./dashboard.html"
+                    class="p-2 -ml-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors">
+                    <span class="material-symbols-outlined">arrow_back</span>
                 </a>
+                <h1 class="text-lg font-bold tracking-tight">Histórico</h1>
             </div>
-            <div class="title text-color-white">Relatório de Entregas</div>
-        </div>
-    </div>
-
-    <div class="toolbar tabbar toolbar-bottom bg-color-green">
-        <div class="toolbar-inner">
-            <a href="/" class="tab-link text-color-white">
-                <i class="icon f7-icons if-not-md">house</i>
-                <i class="icon material-icons if-md">home</i>
-            </a>
-            <a href="/cadastro/" class="tab-link text-color-white">
-                <i class="icon f7-icons if-not-md">building_2_fill</i>
-                <i class="icon material-icons if-md">business</i>
-            </a>
-            <a href="/relatorio/" class="tab-link tab-link-active text-color-white">
-                <i class="icon f7-icons if-not-md">doc_text_fill</i>
-                <i class="icon material-icons if-md">description</i>
-            </a>
-        </div>
-    </div>
-
-    <div class="page-content">
-        <div class="block-title display-flex align-items-center">
-            <i class="icon f7-icons size-16 margin-right-half">calendar</i>
-            Filtro de Período
-        </div>
-        <div class="list no-hairlines-md">
-            <ul>
-                <li class="item-content item-input">
-                    <div class="item-inner">
-                        <div class="item-title item-label">Data Início</div>
-                        <div class="item-input-wrap">
-                            <input type="date" id="dataInicio" placeholder="Data de início">
-                        </div>
-                    </div>
-                </li>
-                <li class="item-content item-input">
-                    <div class="item-inner">
-                        <div class="item-title item-label">Data Fim</div>
-                        <div class="item-input-wrap">
-                            <input type="date" id="dataFim" placeholder="Data de fim">
-                        </div>
-                    </div>
-                </li>
-            </ul>
-        </div>
-        <div class="padding-horizontal padding-bottom">
-            <button class="button button-fill button-large color-green width-100" id="btnFiltrar">
-                <i class="icon f7-icons if-not-md margin-right">funnel_fill</i>
-                <i class="icon material-icons if-md margin-right">filter_alt</i>
-                Filtrar Resultados
-            </button>
-        </div>
-
-        <div class="block-title display-flex align-items-center">
-            <i class="icon f7-icons size-16 margin-right-half">doc_text</i>
-            Resultados
-        </div>
-        <div id="relatorioDias">
-            <!-- Conteúdo inserido dinamicamente -->
-            <div class="block text-align-center text-color-gray">Selecione as datas e clique em Filtrar</div>
-        </div>
-
-        <div class="block block-strong card margin-top margin-bottom-lg padding">
-            <div class="display-flex flex-direction-column justify-content-center align-items-center">
-                <span class="text-color-gray uppercase"
-                    style="font-size: 13px; font-weight: 700; letter-spacing: 0.1em; margin-bottom: 4px;">Total Geral no
-                    Período</span>
-                <span class="text-color-green"
-                    style="font-size: 32px; font-weight: 800; font-family: 'Outfit', sans-serif;">R$ <span
-                        id="totalRelatorio">0.00</span></span>
+            <div class="flex items-center gap-2">
+                <span class="text-xs font-black text-slate-400 uppercase tracking-widest">Total:</span>
+                <span id="totalRelatorio" class="text-sm font-black text-primary">0,00</span>
             </div>
-        </div>
+        </header>
 
-        <div class="padding-horizontal padding-bottom">
-            <button class="button button-outline button-large width-100" id="btnGerarPdf"
-                style="border-color: #64748b; color: #64748b; box-shadow: none;">
-                <i class="icon f7-icons if-not-md margin-right">printer</i>
-                <i class="icon material-icons if-md margin-right">print</i>
-                Exportar Relatório PDF
-            </button>
-        </div>
+        <main class="flex-1 p-6 space-y-8 max-w-2xl mx-auto w-full">
+            <!-- Filter Section -->
+            <section
+                class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xl space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5">Data
+                            Início</label>
+                        <input id="dataInicio" type="date"
+                            class="w-full bg-slate-50 dark:bg-slate-800 border-none ring-1 ring-slate-200 dark:ring-slate-700 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary outline-none transition-all" />
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5">Data
+                            Fim</label>
+                        <input id="dataFim" type="date"
+                            class="w-full bg-slate-50 dark:bg-slate-800 border-none ring-1 ring-slate-200 dark:ring-slate-700 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary outline-none transition-all" />
+                    </div>
+                </div>
+                <button id="btnFiltrar"
+                    class="w-full bg-slate-900 dark:bg-white dark:text-slate-900 text-white font-black py-3 rounded-xl shadow-lg transition-all active:scale-[0.98] flex items-center justify-center gap-2 text-sm uppercase">
+                    <span class="material-symbols-outlined text-lg">filter_list</span>
+                    Filtrar Período
+                </button>
+            </section>
 
+            <!-- Results Section -->
+            <div id="relatorioDias" class="space-y-6">
+                <!-- JS injected cards -->
+                <div class="p-12 text-center text-slate-400">
+                    <span class="material-symbols-outlined text-4xl mb-2 opacity-20">date_range</span>
+                    <p class="text-sm">Selecione um período para visualizar o histórico.</p>
+                </div>
+            </div>
+        </main>
+
+        <!-- Dynamic Nav (Mobile) -->
+        <nav
+            class="h-16 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex items-center justify-around px-4 sticky bottom-0 z-10 lg:hidden">
+            <a href="./dashboard.html" class="flex flex-col items-center gap-1 text-slate-400">
+                <span class="material-symbols-outlined">home</span>
+            </a>
+            <a href="./home.html" class="flex flex-col items-center gap-1 text-slate-400">
+                <span class="material-symbols-outlined">add_circle</span>
+            </a>
+            <a href="./relatorio.html" class="flex flex-col items-center gap-1 text-primary">
+                <span class="material-symbols-outlined">analytics</span>
+            </a>
+        </nav>
     </div>
-</div>
+
+    <script type="module">
+        import { initGuard } from '../src/services/auth-guard.js';
+        import { initRelatorio } from '../src/controllers/relatorio.js';
+
+        initGuard();
+        window.addEventListener('load', () => {
+            initRelatorio();
+        });
+    </script>
+</body>
+
+</html>
