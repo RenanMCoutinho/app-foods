@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>DriverLog - Delivery History</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#21c45d",
+                        "background-light": "#f6f8f7",
+                        "background-dark": "#122017",
+                    },
+                    fontFamily: {
+                        "display": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100">
+<div class="relative flex min-h-screen w-full flex-col overflow-x-hidden">
+<!-- Header/Top Navigation -->
+<header class="sticky top-0 z-50 flex items-center justify-between border-b border-primary/10 bg-background-light/80 dark:bg-background-dark/80 px-6 py-4 backdrop-blur-md lg:px-20">
+<div class="flex items-center gap-4">
+<div class="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-white">
+<span class="material-symbols-outlined">local_shipping</span>
+</div>
+<h1 class="text-xl font-bold tracking-tight">DriverLog</h1>
+</div>
+<div class="flex items-center gap-4 lg:gap-8">
+<div class="hidden md:flex">
+<label class="relative block">
+<span class="absolute inset-y-0 left-0 flex items-center pl-3 text-primary">
+<span class="material-symbols-outlined text-xl">search</span>
+</span>
+<input class="block w-full rounded-lg border-none bg-primary/10 py-2 pl-10 pr-3 text-sm placeholder:text-primary/60 focus:ring-2 focus:ring-primary dark:bg-primary/5" placeholder="Search orders..." type="text"/>
+</label>
+</div>
+<button class="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary hover:bg-primary/20">
+<span class="material-symbols-outlined">calendar_month</span>
+</button>
+<div class="h-10 w-10 rounded-full bg-cover bg-center border-2 border-primary" data-alt="Portrait of a professional delivery driver profile" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBs19U_vomdDxnylJAS8bLSr3VKq4SdGkDhLiYcBbj5OuCp-b6DfHYwwhA_Ob_0_VaAg3KWmNv5DEFSFl2syXMKpsw5nys9KryrrqfxIc4u-YK_4jvVVCwdE6Im0aFLOEwUK-Lvt3ia8FcgC8BQ_1Renafzt4BD3qgBRA8_2Cn_3ayeUvg3Foy_IGAQ-0KZUX3dz7RzBS5lFxdJeGpU8T13lSmq_na7zLABYC_7wET-u4U1eZvjcyS23PQJFFnJpjQ4l6bp9LTqDTAk')"></div>
+</div>
+</header>
+<main class="flex-1 px-6 py-8 lg:px-20">
+<div class="mx-auto max-w-6xl space-y-8">
+<!-- Welcome and Quick Summary Section -->
+<div class="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+<div>
+<h2 class="text-2xl font-bold">Delivery History</h2>
+<p class="text-slate-500 dark:text-slate-400">View and manage your past delivery performance</p>
+</div>
+<div class="flex flex-wrap gap-4">
+<div class="flex min-w-[180px] flex-1 flex-col gap-1 rounded-xl border border-primary/20 bg-white p-4 shadow-sm dark:bg-slate-900/50">
+<span class="text-xs font-semibold uppercase tracking-wider text-slate-400">Total Deliveries (Month)</span>
+<div class="flex items-baseline gap-2">
+<span class="text-2xl font-bold">142</span>
+<span class="text-sm font-medium text-primary">+12%</span>
+</div>
+</div>
+<div class="flex min-w-[180px] flex-1 flex-col gap-1 rounded-xl border border-primary/20 bg-white p-4 shadow-sm dark:bg-slate-900/50">
+<span class="text-xs font-semibold uppercase tracking-wider text-slate-400">Total Earnings</span>
+<div class="flex items-baseline gap-2">
+<span class="text-2xl font-bold">$3,240.50</span>
+<span class="text-sm font-medium text-primary">+8%</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Filters Section -->
+<div class="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-hide">
+<button class="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white shadow-lg shadow-primary/20">
+<span class="material-symbols-outlined text-lg">apps</span>
+                    All Orders
+                </button>
+<button class="flex items-center gap-2 rounded-lg bg-white px-4 py-2 text-sm font-medium text-slate-600 border border-slate-200 hover:bg-slate-50 dark:bg-slate-900/50 dark:border-slate-800 dark:text-slate-300">
+<span class="material-symbols-outlined text-lg">check_circle</span>
+                    Completed
+                </button>
+<button class="flex items-center gap-2 rounded-lg bg-white px-4 py-2 text-sm font-medium text-slate-600 border border-slate-200 hover:bg-slate-50 dark:bg-slate-900/50 dark:border-slate-800 dark:text-slate-300">
+<span class="material-symbols-outlined text-lg">distance</span>
+                    In Route
+                </button>
+<button class="flex items-center gap-2 rounded-lg bg-white px-4 py-2 text-sm font-medium text-slate-600 border border-slate-200 hover:bg-slate-50 dark:bg-slate-900/50 dark:border-slate-800 dark:text-slate-300">
+<span class="material-symbols-outlined text-lg">cancel</span>
+                    Cancelled
+                </button>
+<div class="ml-auto">
+<button class="flex items-center gap-2 rounded-lg bg-primary/10 px-4 py-2 text-sm font-bold text-primary">
+<span class="material-symbols-outlined text-lg">filter_list</span>
+                        Sort by: Newest
+                    </button>
+</div>
+</div>
+<!-- History Table Section -->
+<div class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900/50">
+<div class="overflow-x-auto @container">
+<table class="w-full text-left">
+<thead>
+<tr class="bg-slate-50 dark:bg-slate-800/50">
+<th class="px-6 py-4 text-sm font-semibold text-slate-600 dark:text-slate-400">Order ID</th>
+<th class="px-6 py-4 text-sm font-semibold text-slate-600 dark:text-slate-400">Company</th>
+<th class="px-6 py-4 text-sm font-semibold text-slate-600 dark:text-slate-400">Date/Time</th>
+<th class="px-6 py-4 text-sm font-semibold text-slate-600 dark:text-slate-400 text-center">Status</th>
+<th class="px-6 py-4 text-sm font-semibold text-slate-600 dark:text-slate-400 text-right">Amount</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+<!-- Row 1 -->
+<tr class="hover:bg-slate-50/80 dark:hover:bg-slate-800/30 transition-colors">
+<td class="px-6 py-4 text-sm font-medium text-slate-900 dark:text-slate-100">#8821</td>
+<td class="px-6 py-4 text-sm text-primary font-medium">Global Logistics</td>
+<td class="px-6 py-4 text-sm text-slate-500 dark:text-slate-400">Oct 24, 14:30</td>
+<td class="px-6 py-4 text-center">
+<span class="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">
+                                        Completed
+                                    </span>
+</td>
+<td class="px-6 py-4 text-right text-sm font-bold text-slate-900 dark:text-slate-100">$45.00</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-slate-50/80 dark:hover:bg-slate-800/30 transition-colors">
+<td class="px-6 py-4 text-sm font-medium text-slate-900 dark:text-slate-100">#8819</td>
+<td class="px-6 py-4 text-sm text-primary font-medium">Swift Delivery</td>
+<td class="px-6 py-4 text-sm text-slate-500 dark:text-slate-400">Oct 24, 11:15</td>
+<td class="px-6 py-4 text-center">
+<span class="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
+                                        In Route
+                                    </span>
+</td>
+<td class="px-6 py-4 text-right text-sm font-bold text-slate-900 dark:text-slate-100">$32.50</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-slate-50/80 dark:hover:bg-slate-800/30 transition-colors">
+<td class="px-6 py-4 text-sm font-medium text-slate-900 dark:text-slate-100">#8815</td>
+<td class="px-6 py-4 text-sm text-primary font-medium">Apex Goods</td>
+<td class="px-6 py-4 text-sm text-slate-500 dark:text-slate-400">Oct 23, 16:45</td>
+<td class="px-6 py-4 text-center">
+<span class="inline-flex items-center rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-700 dark:bg-red-900/30 dark:text-red-400">
+                                        Cancelled
+                                    </span>
+</td>
+<td class="px-6 py-4 text-right text-sm font-bold text-slate-400">$0.00</td>
+</tr>
+<!-- Row 4 -->
+<tr class="hover:bg-slate-50/80 dark:hover:bg-slate-800/30 transition-colors">
+<td class="px-6 py-4 text-sm font-medium text-slate-900 dark:text-slate-100">#8810</td>
+<td class="px-6 py-4 text-sm text-primary font-medium">Metro Express</td>
+<td class="px-6 py-4 text-sm text-slate-500 dark:text-slate-400">Oct 23, 09:00</td>
+<td class="px-6 py-4 text-center">
+<span class="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">
+                                        Completed
+                                    </span>
+</td>
+<td class="px-6 py-4 text-right text-sm font-bold text-slate-900 dark:text-slate-100">$55.20</td>
+</tr>
+<!-- Row 5 -->
+<tr class="hover:bg-slate-50/80 dark:hover:bg-slate-800/30 transition-colors">
+<td class="px-6 py-4 text-sm font-medium text-slate-900 dark:text-slate-100">#8804</td>
+<td class="px-6 py-4 text-sm text-primary font-medium">City Pantry</td>
+<td class="px-6 py-4 text-sm text-slate-500 dark:text-slate-400">Oct 22, 13:20</td>
+<td class="px-6 py-4 text-center">
+<span class="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">
+                                        Completed
+                                    </span>
+</td>
+<td class="px-6 py-4 text-right text-sm font-bold text-slate-900 dark:text-slate-100">$28.75</td>
+</tr>
+<!-- Row 6 -->
+<tr class="hover:bg-slate-50/80 dark:hover:bg-slate-800/30 transition-colors">
+<td class="px-6 py-4 text-sm font-medium text-slate-900 dark:text-slate-100">#8801</td>
+<td class="px-6 py-4 text-sm text-primary font-medium">Warehouse Solutions</td>
+<td class="px-6 py-4 text-sm text-slate-500 dark:text-slate-400">Oct 22, 10:45</td>
+<td class="px-6 py-4 text-center">
+<span class="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">
+                                        Completed
+                                    </span>
+</td>
+<td class="px-6 py-4 text-right text-sm font-bold text-slate-900 dark:text-slate-100">$112.40</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Pagination Footer -->
+<div class="flex items-center justify-between border-t border-slate-100 bg-slate-50/50 px-6 py-3 dark:border-slate-800 dark:bg-slate-800/30">
+<p class="text-xs text-slate-500 dark:text-slate-400">Showing 1 to 6 of 142 entries</p>
+<div class="flex gap-2">
+<button class="flex h-8 w-8 items-center justify-center rounded border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400">
+<span class="material-symbols-outlined text-sm">chevron_left</span>
+</button>
+<button class="flex h-8 w-8 items-center justify-center rounded bg-primary text-sm font-bold text-white">1</button>
+<button class="flex h-8 w-8 items-center justify-center rounded border border-slate-200 bg-white text-sm font-bold text-slate-600 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400">2</button>
+<button class="flex h-8 w-8 items-center justify-center rounded border border-slate-200 bg-white text-sm font-bold text-slate-600 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400">3</button>
+<button class="flex h-8 w-8 items-center justify-center rounded border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400">
+<span class="material-symbols-outlined text-sm">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Dashboard Shortcuts Navigation (Mobile optimized) -->
+<div class="flex justify-center gap-6 py-6 lg:hidden">
+<div class="flex flex-col items-center gap-1 text-slate-400">
+<span class="material-symbols-outlined text-2xl">grid_view</span>
+<span class="text-[10px] font-medium">Dashboard</span>
+</div>
+<div class="flex flex-col items-center gap-1 text-primary">
+<span class="material-symbols-outlined text-2xl">history</span>
+<span class="text-[10px] font-bold">History</span>
+</div>
+<div class="flex flex-col items-center gap-1 text-slate-400">
+<span class="material-symbols-outlined text-2xl">payments</span>
+<span class="text-[10px] font-medium">Earnings</span>
+</div>
+<div class="flex flex-col items-center gap-1 text-slate-400">
+<span class="material-symbols-outlined text-2xl">person</span>
+<span class="text-[10px] font-medium">Profile</span>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>

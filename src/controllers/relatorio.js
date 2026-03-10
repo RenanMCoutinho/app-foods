@@ -1,5 +1,6 @@
 import { collection, query, where, getDocs, Timestamp } from "firebase/firestore";
-import { db } from "../services/firebase.js";
+import { db, auth } from "../services/firebase.js";
+import { getDoc, doc } from "firebase/firestore";
 import { formatarData, criarInicioDoDiaLocal, criarFimDoDiaLocal, nomeDiaSemana } from "../utils/date.js";
 
 export function initRelatorio(page, app) {
@@ -23,12 +24,28 @@ export function initRelatorio(page, app) {
     async function buscarEntregasPorPeriodo(inicioUTC, fimUTC) {
         try {
             app.dialog.preloader('Buscando...');
+
+            const user = auth.currentUser;
+            if (!user) return [];
+
+            let role = 'motorista';
+            const userDoc = await getDoc(doc(db, 'usuarios', user.uid));
+            if (userDoc.exists()) {
+                role = userDoc.data().role || 'motorista';
+            }
+
             const entregasRef = collection(db, "entregas");
-            const q = query(
-                entregasRef,
+
+            let queryConditions = [
                 where("timestamp", ">=", Timestamp.fromDate(inicioUTC)),
                 where("timestamp", "<=", Timestamp.fromDate(fimUTC))
-            );
+            ];
+
+            if (role === 'motorista') {
+                queryConditions.push(where("motoristaId", "==", user.uid));
+            }
+
+            const q = query(entregasRef, ...queryConditions);
 
             const snapshot = await getDocs(q);
             app.dialog.close();

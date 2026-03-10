@@ -1,5 +1,5 @@
 import { collection, onSnapshot, addDoc, getDocs, deleteDoc, doc, query, where, Timestamp, orderBy } from "firebase/firestore";
-import { db } from "../services/firebase.js";
+import { db, auth } from "../services/firebase.js";
 import { formatarData, dataFormatadaParaConsulta } from "../utils/date.js";
 
 export function initHome(page, app) {
@@ -92,8 +92,11 @@ export function initHome(page, app) {
 
         try {
             app.dialog.preloader('Registrando...');
+            const user = auth.currentUser;
             const entregasRef = collection(db, "entregas");
             await addDoc(entregasRef, {
+                motoristaId: user.uid,
+                motoristaNome: user.email,
                 empresaId: empresa.id,
                 nomeEmpresa: empresa.nome,
                 tipoEntrega,
@@ -126,7 +129,16 @@ export function initHome(page, app) {
         }
 
         const entregasRef = collection(db, "entregas");
-        const q = query(entregasRef, where("data", "==", dataStr));
+        const user = auth.currentUser;
+
+        // Se ainda não houver user por causa da inicialização, aguarda.
+        if (!user) return;
+
+        const q = query(
+            entregasRef,
+            where("data", "==", dataStr),
+            where("motoristaId", "==", user.uid)
+        );
 
         getDocs(q).then((snapshot) => {
             if (!relatorioList) return;

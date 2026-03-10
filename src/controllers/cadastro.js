@@ -1,5 +1,6 @@
 import { collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc, orderBy, query } from "firebase/firestore";
-import { db } from "../services/firebase.js";
+import { db, auth } from "../services/firebase.js";
+import { getDoc, doc as fetchDoc } from "firebase/firestore";
 
 export function initCadastro(page, app) {
     const formCadastro = page.$el.find("#formCadastro")[0];
@@ -10,6 +11,32 @@ export function initCadastro(page, app) {
 
     // Inputs e Checkboxes
     const inputsMap = {};
+
+    // Auth role check
+    const user = auth.currentUser;
+    if (!user) {
+        app.views.main.router.navigate('/login/');
+        return;
+    }
+
+    app.preloader.show();
+    getDoc(fetchDoc(db, 'usuarios', user.uid)).then(userDoc => {
+        app.preloader.hide();
+        let role = 'motorista';
+        if (userDoc.exists()) {
+            role = userDoc.data().role || 'motorista';
+        }
+
+        if (role !== 'admin' && role !== 'supervisor') {
+            app.dialog.alert('Acesso negado. Apenas supervisores.', 'Erro');
+            app.views.main.router.navigate('/');
+            return;
+        }
+    }).catch(err => {
+        app.preloader.hide();
+        app.dialog.alert('Erro de permissão.', 'Erro');
+        app.views.main.router.navigate('/');
+    });
     page.$el.find('input[name="tiposEntrega"]').forEach(chk => {
         const tipo = chk.dataset.tipo;
         const wrapper = page.$el.find(`#wrap-${tipo}`)[0];
