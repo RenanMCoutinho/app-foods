@@ -14,7 +14,8 @@ service cloud.firestore {
     match /usuarios/{uid} {
       allow read: if isAuth() && (request.auth.uid == uid || isAdmin() || isSupervisor());
       allow create: if true; // criação pública no cadastro
-      allow update, delete: if isAdmin() || request.auth.uid == uid;
+      allow update: if isAdmin() || request.auth.uid == uid || (isSupervisor() && resource.data.role == 'motorista');
+      allow delete: if isAdmin() || request.auth.uid == uid;
     }
 
     // Empresas: supervisor cria e gerencia as suas. Motoristas leem.

@@ -26,11 +26,8 @@ export async function initTelaDia() {
         }
     });
 
-    // Get supervisor of this motorista
-    const supervisorId = window.currentUserData?.supervisorId;
-
     // Load empresas from supervisor
-    await loadEmpresas(supervisorId);
+    await loadEmpresas();
 
     // Load today's deliveries
     await loadEntregasDia(user.uid);
@@ -42,32 +39,50 @@ export async function initTelaDia() {
     });
 }
 
-async function loadEmpresas(supervisorId) {
+async function loadEmpresas() {
     const select = document.querySelector('#select-empresa');
-    const myEmpresasIds = window.currentUserData?.empresasIds || [];
+    const myMatrizes = window.currentUserData?.matrizesVinculadas || [];
+    const legacySupervisorId = window.currentUserData?.supervisorId || null;
+
+    // Backward comp: if no array but has single supervisor
+    if (myMatrizes.length === 0 && legacySupervisorId) {
+        myMatrizes.push(legacySupervisorId);
+    }
 
     // Reset options
-    select.innerHTML = '<option value="" disabled selected>Escolha uma empresa</option>';
+    if (select) select.innerHTML = '<option value="" disabled selected>Escolha uma empresa</option>';
 
-    if (myEmpresasIds.length === 0) {
-        select.innerHTML = '<option value="" disabled selected>Nenhuma empresa vinculada</option>';
+    if (myMatrizes.length === 0) {
+        if (select) select.innerHTML = '<option value="" disabled selected>Nenhuma matriz vinculada a você</option>';
         return;
     }
 
     try {
-        const q = supervisorId
-            ? query(collection(db, 'empresas'), where('supervisorId', '==', supervisorId))
-            : collection(db, 'empresas');
-        const snapshot = await getDocs(q);
+        let snapshotDocs = [];
+        const chunks = [];
 
-        // Filter by the IDs linked to this motorista
-        empresas = snapshot.docs
-            .map(d => ({ id: d.id, ...d.data() }))
-            .filter(emp => myEmpresasIds.includes(emp.id));
+        // Firestore 'in' limitation is 10 items
+        for (let i = 0; i < myMatrizes.length; i += 10) {
+            chunks.push(myMatrizes.slice(i, i + 10));
+        }
+
+        for (const chunk of chunks) {
+            const q = query(collection(db, 'empresas'), where('supervisorId', 'in', chunk));
+            const snap = await getDocs(q);
+            snapshotDocs.push(...snap.docs);
+        }
+
+        empresas = snapshotDocs.map(d => ({ id: d.id, ...d.data() }));
+
+        // Sort alphabetically to be nice
+        empresas.sort((a, b) => (a.nome || '').localeCompare(b.nome || ''));
+
+        if (!select) return;
 
         if (empresas.length === 0) {
-            select.innerHTML = '<option value="" disabled selected>Nenhuma empresa vinculada</option>';
+            select.innerHTML = '<option value="" disabled selected>Nenhuma empresa disponível</option>';
         } else {
+            select.innerHTML = '<option value="" disabled selected>Escolha uma empresa</option>';
             empresas.forEach(e => {
                 select.innerHTML += `<option value="${e.id}">${e.nome}</option>`;
             });
@@ -128,9 +143,14 @@ async function registrarEntrega({ empresaId, empresaNome, tipoNome, valor }) {
     try {
         const hoje = new Date();
         const dataStr = hoje.toISOString().split('T')[0]; // YYYY-MM-DD
+
+        // Look up the specific supervisor for this empresa
+        const empresaReal = empresas.find(e => e.id === empresaId);
+        const refSupervisorId = empresaReal?.supervisorId || window.currentUserData?.supervisorId || '';
+
         const docRef = await addDoc(collection(db, 'entregas'), {
             motoristaId: user.uid,
-            supervisorId: window.currentUserData?.supervisorId || '',
+            supervisorId: refSupervisorId,
             empresaId,
             empresaNome,
             tipoNome,

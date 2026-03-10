@@ -16,7 +16,7 @@ export async function initSupervisorEntregas() {
 
     // Pre-fetch selects data
     const [motSnap, empSnap, locSnap] = await Promise.all([
-        getDocs(query(collection(db, 'usuarios'), where('role', '==', 'motorista'), where('supervisorId', '==', user.uid))),
+        getDocs(query(collection(db, 'usuarios'), where('role', '==', 'motorista'))),
         getDocs(collection(db, 'empresas')),
         getDocs(query(collection(db, 'locais'), where('supervisorId', '==', user.uid))),
     ]);

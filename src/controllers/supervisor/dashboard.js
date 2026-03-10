@@ -8,9 +8,12 @@ export async function initSupervisorDashboard() {
     const user = auth.currentUser;
     if (!user) return;
 
-    // Set welcome message
+    // Set welcome message to show Parent Company
     const welcomeEl = document.querySelector('#welcome-message');
-    if (welcomeEl) welcomeEl.textContent = `Olá, ${window.currentUserData?.nome || user.email}!`;
+    if (welcomeEl) {
+        const nomeEmpresaPai = window.currentUserData?.empresaNome || 'Empresa';
+        welcomeEl.textContent = `Olá, ${nomeEmpresaPai}!`;
+    }
 
     // Logout
     document.querySelector('.logout-btn')?.addEventListener('click', async () => {
@@ -51,8 +54,9 @@ export async function initSupervisorDashboard() {
             return;
         }
 
-        // Load motoristas names
-        const motoristasSnap = await getDocs(query(collection(db, 'usuarios'), where('supervisorId', '==', user.uid)));
+        // Load motoristas names (bring all motoristas or a batch of those whose deliveries exist)
+        // Since we only query the 5 most recent, we can fetch all motoristas or batch them. Let's just fetch those that are 'motorista'
+        const motoristasSnap = await getDocs(query(collection(db, 'usuarios'), where('role', '==', 'motorista')));
         const motoristasMap = {};
         motoristasSnap.forEach(d => { motoristasMap[d.id] = d.data().nome; });
 
