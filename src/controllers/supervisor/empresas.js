@@ -9,42 +9,42 @@ export async function initSupervisorEmpresas() {
     const user = auth.currentUser;
     if (!user) return;
     setupLogout();
+    setupCheckboxes();
     loadEmpresas(user.uid);
 
     const modal = document.querySelector('#modal-empresa');
     const form = document.querySelector('#form-empresa');
-    const listaTipos = document.querySelector('#lista-tipos');
 
     document.querySelector('#btn-nova-empresa')?.addEventListener('click', () => {
         document.querySelector('#empresa-id').value = '';
         document.querySelector('#modal-titulo').textContent = 'Nova Empresa';
         form.reset();
-        listaTipos.innerHTML = '';
-        addTipoRow(); // Start with one row
+        // Reset all checkboxes and hide value fields
+        document.querySelectorAll('.tipo-check').forEach(cb => {
+            cb.checked = false;
+            const valorField = cb.closest('.tipo-item').querySelector('.valor-field');
+            valorField.classList.add('hidden');
+        });
         modal.classList.remove('hidden');
     });
 
     document.querySelector('#btn-fechar-modal')?.addEventListener('click', () => modal.classList.add('hidden'));
     modal?.addEventListener('click', (e) => { if (e.target === modal) modal.classList.add('hidden'); });
 
-    document.querySelector('#btn-add-tipo')?.addEventListener('click', () => addTipoRow());
-
     form?.addEventListener('submit', async (e) => {
         e.preventDefault();
-        const id = document.querySelector('#empresa-id').value;
 
-        // Collect tipos from dynamic rows
+        // Collect selected tipos
         const tipos = [];
-        listaTipos.querySelectorAll('.tipo-row').forEach(row => {
-            const nome = row.querySelector('.tipo-nome').value.trim();
-            const valor = parseFloat(row.querySelector('.tipo-valor').value);
-            if (nome && !isNaN(valor)) {
-                tipos.push({ nome, valor });
-            }
+        document.querySelectorAll('.tipo-check:checked').forEach(cb => {
+            const item = cb.closest('.tipo-item');
+            const valor = parseFloat(item.querySelector('.tipo-valor')?.value || '0');
+            tipos.push({ nome: cb.dataset.tipo, valor: isNaN(valor) ? 0 : valor });
         });
 
         const data = {
             nome: document.querySelector('#empresa-nome').value.trim(),
+            endereco: document.querySelector('#empresa-endereco').value.trim(),
             cnpj: document.querySelector('#empresa-cnpj').value.trim(),
             tipos,
             supervisorId: user.uid,
@@ -53,9 +53,10 @@ export async function initSupervisorEmpresas() {
 
         const btn = form.querySelector('button[type="submit"]');
         btn.disabled = true;
-        btn.textContent = 'Salvando...';
+        btn.innerHTML = '<span class="material-symbols-outlined">progress_activity</span> Salvando...';
 
         try {
+            const id = document.querySelector('#empresa-id').value;
             if (id) {
                 await updateDoc(doc(db, 'empresas', id), data);
             } else {
@@ -64,30 +65,30 @@ export async function initSupervisorEmpresas() {
             modal.classList.add('hidden');
             loadEmpresas(user.uid);
         } catch (err) {
-            alert('Erro ao salvar empresa: ' + err.message);
+            alert('Erro ao salvar: ' + err.message);
         } finally {
             btn.disabled = false;
-            btn.textContent = 'Salvar Empresa';
+            btn.innerHTML = '<span class="material-symbols-outlined">save</span> Salvar Empresa';
         }
     });
 }
 
-function addTipoRow(nome = '', valor = '') {
-    const listaTipos = document.querySelector('#lista-tipos');
-    const div = document.createElement('div');
-    div.className = 'tipo-row flex gap-2 items-center';
-    div.innerHTML = `
-        <input type="text" class="tipo-nome flex-1 bg-slate-50 dark:bg-slate-800 border-none ring-1 ring-slate-200 dark:ring-slate-700 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary outline-none" placeholder="Nome (ex: Entrega Normal)" value="${nome}" />
-        <div class="relative">
-            <span class="absolute left-2 top-2.5 text-slate-400 text-xs font-bold">R$</span>
-            <input type="number" class="tipo-valor w-24 bg-slate-50 dark:bg-slate-800 border-none ring-1 ring-slate-200 dark:ring-slate-700 rounded-lg pl-6 pr-2 py-2 text-sm focus:ring-2 focus:ring-primary outline-none" placeholder="0,00" step="0.01" value="${valor}" />
-        </div>
-        <button type="button" class="btn-rm-tipo p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors">
-            <span class="material-symbols-outlined text-lg">remove_circle</span>
-        </button>
-    `;
-    div.querySelector('.btn-rm-tipo').addEventListener('click', () => div.remove());
-    listaTipos.appendChild(div);
+function setupCheckboxes() {
+    document.querySelectorAll('.tipo-check').forEach(cb => {
+        cb.addEventListener('change', () => {
+            const valorField = cb.closest('.tipo-item').querySelector('.valor-field');
+            const hint = cb.closest('label').querySelector('.text-xs.text-slate-400');
+            if (cb.checked) {
+                valorField.classList.remove('hidden');
+                if (hint) hint.textContent = 'Ativo';
+                cb.closest('.tipo-item').classList.add('ring-2', 'ring-primary');
+            } else {
+                valorField.classList.add('hidden');
+                if (hint) hint.textContent = 'Clique para ativar';
+                cb.closest('.tipo-item').classList.remove('ring-2', 'ring-primary');
+            }
+        });
+    });
 }
 
 async function loadEmpresas(supervisorId) {
@@ -96,37 +97,57 @@ async function loadEmpresas(supervisorId) {
     try {
         const snapshot = await getDocs(query(collection(db, 'empresas'), where('supervisorId', '==', supervisorId)));
         if (snapshot.empty) {
-            container.innerHTML = `<div class="text-center p-12 text-slate-400">
-                <span class="material-symbols-outlined text-5xl opacity-20 mb-2">business</span>
-                <p class="text-sm">Nenhuma empresa cadastrada. Clique em "Nova Empresa" para começar.</p>
+            container.innerHTML = `<div class="text-center p-16 text-slate-400">
+                <span class="material-symbols-outlined text-6xl opacity-20 block mb-3">business</span>
+                <p class="text-sm font-medium">Nenhuma empresa cadastrada.</p>
+                <p class="text-xs mt-1">Clique em "Nova Empresa" para começar.</p>
             </div>`;
             return;
         }
+
+        const tipoIcons = {
+            'Desjejum': { icon: 'wb_sunny', color: 'text-amber-500 bg-amber-50' },
+            'Almoço': { icon: 'restaurant', color: 'text-orange-500 bg-orange-50' },
+            'Janta': { icon: 'dinner_dining', color: 'text-indigo-500 bg-indigo-50' },
+            'Ceia': { icon: 'nightlight', color: 'text-purple-500 bg-purple-50' },
+            'B.O': { icon: 'package_2', color: 'text-red-500 bg-red-50' },
+        };
+
         container.innerHTML = snapshot.docs.map(d => {
             const e = d.data();
-            const tiposHtml = (e.tipos || []).map(t =>
-                `<span class="inline-flex items-center gap-1 bg-primary/10 text-primary text-xs font-bold px-2 py-1 rounded-full">
-                    ${t.nome} — R$ ${(t.valor || 0).toFixed(2).replace('.', ',')}
-                </span>`
-            ).join('');
+            const tiposHtml = (e.tipos || []).map(t => {
+                const icon = tipoIcons[t.nome] || { icon: 'local_shipping', color: 'text-primary bg-primary/10' };
+                return `<div class="flex items-center justify-between p-3 rounded-xl border border-slate-100 dark:border-slate-800">
+                    <div class="flex items-center gap-2">
+                        <span class="${icon.color} p-1.5 rounded-lg">
+                            <span class="material-symbols-outlined text-base">${icon.icon}</span>
+                        </span>
+                        <span class="text-sm font-semibold">${t.nome}</span>
+                    </div>
+                    <span class="font-black text-primary text-sm">R$ ${(t.valor || 0).toFixed(2).replace('.', ',')}</span>
+                </div>`;
+            }).join('');
+
             return `<div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
                 <div class="flex items-start justify-between mb-4">
                     <div>
-                        <h3 class="font-black text-lg">${e.nome || '—'}</h3>
-                        ${e.cnpj ? `<p class="text-sm text-slate-500">${e.cnpj}</p>` : ''}
+                        <h3 class="font-black text-lg leading-tight">${e.nome || '—'}</h3>
+                        ${e.endereco ? `<p class="text-sm text-slate-500 flex items-center gap-1 mt-0.5"><span class="material-symbols-outlined text-sm">pin_drop</span>${e.endereco}</p>` : ''}
+                        ${e.cnpj ? `<p class="text-xs text-slate-400 mt-0.5">${e.cnpj}</p>` : ''}
                     </div>
-                    <div class="flex gap-2">
+                    <div class="flex gap-2 shrink-0 ml-4">
                         <button onclick="editarEmpresa('${d.id}')" class="p-2 text-slate-400 hover:text-primary hover:bg-primary/10 rounded-lg transition-colors">
-                            <span class="material-symbols-outlined">edit</span>
+                            <span class="material-symbols-outlined text-lg">edit</span>
                         </button>
                         <button onclick="excluirEmpresa('${d.id}')" class="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors">
-                            <span class="material-symbols-outlined">delete</span>
+                            <span class="material-symbols-outlined text-lg">delete</span>
                         </button>
                     </div>
                 </div>
-                <div class="flex flex-wrap gap-2">
-                    ${tiposHtml || '<span class="text-xs text-slate-400 italic">Nenhum tipo de entrega cadastrado</span>'}
-                </div>
+                ${tiposHtml
+                    ? `<div class="space-y-2">${tiposHtml}</div>`
+                    : `<p class="text-xs text-slate-400 italic">Nenhum tipo de entrega configurado.</p>`
+                }
             </div>`;
         }).join('');
     } catch (err) {
@@ -140,15 +161,33 @@ window.editarEmpresa = async (id) => {
     const d = snapshot.docs.find(d => d.id === id);
     if (!d) return;
     const e = d.data();
+
     document.querySelector('#empresa-id').value = id;
     document.querySelector('#empresa-nome').value = e.nome || '';
+    document.querySelector('#empresa-endereco').value = e.endereco || '';
     document.querySelector('#empresa-cnpj').value = e.cnpj || '';
     document.querySelector('#modal-titulo').textContent = 'Editar Empresa';
 
-    const listaTipos = document.querySelector('#lista-tipos');
-    listaTipos.innerHTML = '';
-    (e.tipos || []).forEach(t => addTipoRow(t.nome, t.valor));
-    if (!e.tipos?.length) addTipoRow();
+    // Reset all first
+    document.querySelectorAll('.tipo-check').forEach(cb => {
+        cb.checked = false;
+        cb.closest('.tipo-item').querySelector('.valor-field').classList.add('hidden');
+        cb.closest('.tipo-item').classList.remove('ring-2', 'ring-primary');
+    });
+
+    // Apply saved tipos
+    (e.tipos || []).forEach(t => {
+        const cb = document.querySelector(`.tipo-check[data-tipo="${t.nome}"]`);
+        if (cb) {
+            cb.checked = true;
+            const item = cb.closest('.tipo-item');
+            item.querySelector('.valor-field').classList.remove('hidden');
+            item.querySelector('.tipo-valor').value = t.valor || '';
+            item.classList.add('ring-2', 'ring-primary');
+            const hint = cb.closest('label').querySelector('.text-xs.text-slate-400');
+            if (hint) hint.textContent = 'Ativo';
+        }
+    });
 
     document.querySelector('#modal-empresa').classList.remove('hidden');
 };
@@ -158,24 +197,6 @@ window.excluirEmpresa = async (id) => {
     await deleteDoc(doc(db, 'empresas', id));
     loadEmpresas(auth.currentUser?.uid);
 };
-
-function addTipoRow(nome = '', valor = '') {
-    const listaTipos = document.querySelector('#lista-tipos');
-    const div = document.createElement('div');
-    div.className = 'tipo-row flex gap-2 items-center';
-    div.innerHTML = `
-        <input type="text" class="tipo-nome flex-1 bg-slate-50 dark:bg-slate-800 border-none ring-1 ring-slate-200 dark:ring-slate-700 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary outline-none" placeholder="Nome (ex: Entrega Normal)" value="${nome}" />
-        <div class="relative">
-            <span class="absolute left-2 top-2.5 text-slate-400 text-xs font-bold">R$</span>
-            <input type="number" class="tipo-valor w-24 bg-slate-50 dark:bg-slate-800 border-none ring-1 ring-slate-200 dark:ring-slate-700 rounded-lg pl-6 pr-2 py-2 text-sm focus:ring-2 focus:ring-primary outline-none" placeholder="0,00" step="0.01" value="${valor}" />
-        </div>
-        <button type="button" class="btn-rm-tipo p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors">
-            <span class="material-symbols-outlined text-lg">remove_circle</span>
-        </button>
-    `;
-    div.querySelector('.btn-rm-tipo').addEventListener('click', () => div.remove());
-    listaTipos.appendChild(div);
-}
 
 function setupLogout() {
     document.querySelector('.logout-btn')?.addEventListener('click', async () => {

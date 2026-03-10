@@ -1,6 +1,6 @@
 import { auth, db } from './firebase.js';
-import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js";
-import { doc, getDoc } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
+import { onAuthStateChanged } from 'firebase/auth';
+import { doc, getDoc } from 'firebase/firestore';
 
 /**
  * Role-based paths for redirecting after login.
@@ -18,7 +18,7 @@ const LOGIN_PATH = '/app-foods/pages/login.html';
  * Auth Guard - protects pages and enforces role-based access.
  * @param {string[]} allowedRoles - Roles permitted on this page. Empty = all authenticated users.
  */
-export async function initGuard(allowedRoles = []) {
+export async function initGuard(allowedRoles = [], onReady = null) {
     onAuthStateChanged(auth, async (user) => {
         if (!user) {
             if (!window.location.pathname.includes('login.html')) {
@@ -42,6 +42,9 @@ export async function initGuard(allowedRoles = []) {
         window.currentUser = user;
         window.currentRole = role;
         window.currentUserData = userDoc.exists() ? userDoc.data() : {};
+
+        // Call the page controller initializer now that auth is ready
+        if (onReady) onReady(user);
     });
 }
 
