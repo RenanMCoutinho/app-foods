@@ -65,6 +65,18 @@ export async function initAdminMotoristas() {
     });
 }
 
+function escapeHtml(text) {
+    if (text === null || text === undefined) {
+        return '';
+    }
+    return String(text)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
 async function loadMotoristas(supervisorId = '') {
     const tbody = document.querySelector('#lista-motoristas');
     tbody.innerHTML = '<tr><td colspan="4" class="text-center p-10 text-slate-400">Carregando...</td></tr>';
@@ -90,7 +102,8 @@ async function loadMotoristas(supervisorId = '') {
             </tr>`;
         }).join('');
     } catch (err) {
-        tbody.innerHTML = `<tr><td colspan="4" class="text-center p-10 text-red-400">Erro: ${err.message}</td></tr>`;
+        const safeMessage = escapeHtml(err && err.message ? err.message : 'Erro inesperado');
+        tbody.innerHTML = `<tr><td colspan="4" class="text-center p-10 text-red-400">Erro: ${safeMessage}</td></tr>`;
     }
 }
 
