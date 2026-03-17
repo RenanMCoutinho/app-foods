@@ -75,6 +75,9 @@ export function initCadastro() {
         if (!email) return showError('Informe um e-mail válido.');
         if (senha.length < 6) return showError('A senha deve ter no mínimo 6 caracteres.');
         if (senha !== confirmar) return showError('As senhas não coincidem.');
+        if (role === 'supervisor') {
+            return showError('Cadastro de supervisor foi desativado no app público. Esse perfil precisa ser criado por um fluxo administrativo seguro.');
+        }
 
         const btn = document.querySelector('#btn-cadastrar');
         btn.disabled = true;

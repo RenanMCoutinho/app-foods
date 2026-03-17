@@ -3,6 +3,7 @@ import {
     collection, getDocs, addDoc, doc, updateDoc, deleteDoc, serverTimestamp
 } from 'firebase/firestore';
 import { signOut } from 'firebase/auth';
+import { escapeAttribute, escapeHtml, escapeJsString } from '../../utils/sanitize.js';
 
 export async function initEmpresas() {
     setupLogout();
@@ -63,14 +64,14 @@ async function loadEmpresas() {
         }
         tbody.innerHTML = snapshot.docs.map(d => {
             const e = d.data();
-            return `<tr data-nome="${e.nome?.toLowerCase() || ''}">
-                <td class="px-6 py-4 font-semibold">${e.nome || '—'}</td>
-                <td class="px-6 py-4 text-slate-500 hidden md:table-cell">${e.cnpj || '—'}</td>
+            return `<tr data-nome="${escapeAttribute(e.nome?.toLowerCase() || '')}">
+                <td class="px-6 py-4 font-semibold">${escapeHtml(e.nome || '—')}</td>
+                <td class="px-6 py-4 text-slate-500 hidden md:table-cell">${escapeHtml(e.cnpj || '—')}</td>
                 <td class="px-6 py-4 hidden md:table-cell text-primary font-bold">R$ ${(e.freteValorPadrao || 0).toFixed(2).replace('.', ',')}</td>
                 <td class="px-6 py-4">
                     <div class="flex gap-2">
-                        <button onclick="editarEmpresa('${d.id}')" class="p-1.5 text-slate-400 hover:text-primary hover:bg-primary/10 rounded-lg transition-colors"><span class="material-symbols-outlined text-lg">edit</span></button>
-                        <button onclick="excluirEmpresa('${d.id}')" class="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"><span class="material-symbols-outlined text-lg">delete</span></button>
+                        <button onclick="editarEmpresa('${escapeJsString(d.id)}')" class="p-1.5 text-slate-400 hover:text-primary hover:bg-primary/10 rounded-lg transition-colors"><span class="material-symbols-outlined text-lg">edit</span></button>
+                        <button onclick="excluirEmpresa('${escapeJsString(d.id)}')" class="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"><span class="material-symbols-outlined text-lg">delete</span></button>
                     </div>
                 </td>
             </tr>`;

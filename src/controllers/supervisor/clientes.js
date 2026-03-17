@@ -4,6 +4,7 @@ import {
     query, where, serverTimestamp
 } from 'firebase/firestore';
 import { signOut } from 'firebase/auth';
+import { escapeHtml, escapeJsString } from '../../utils/sanitize.js';
 
 export async function initSupervisorClientes() {
     const user = auth.currentUser;
@@ -162,7 +163,7 @@ async function loadEmpresas(supervisorId) {
                         <span class="${icon.color} p-1.5 rounded-lg">
                             <span class="material-symbols-outlined text-base">${icon.icon}</span>
                         </span>
-                        <span class="text-sm font-semibold">${t.nome}</span>
+                        <span class="text-sm font-semibold">${escapeHtml(t.nome)}</span>
                     </div>
                     <span class="font-black text-primary text-sm">R$ ${(t.valor || 0).toFixed(2).replace('.', ',')}</span>
                 </div>`;
@@ -171,15 +172,15 @@ async function loadEmpresas(supervisorId) {
             return `<div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
                 <div class="flex items-start justify-between mb-4">
                     <div>
-                        <h3 class="font-black text-lg leading-tight">${e.nome || '—'}</h3>
-                        ${e.endereco ? `<p class="text-sm text-slate-500 flex items-center gap-1 mt-0.5"><span class="material-symbols-outlined text-sm">pin_drop</span>${e.endereco}</p>` : ''}
-                        ${e.cnpj ? `<p class="text-xs text-slate-400 mt-0.5">${e.cnpj}</p>` : ''}
+                        <h3 class="font-black text-lg leading-tight">${escapeHtml(e.nome || '—')}</h3>
+                        ${e.endereco ? `<p class="text-sm text-slate-500 flex items-center gap-1 mt-0.5"><span class="material-symbols-outlined text-sm">pin_drop</span>${escapeHtml(e.endereco)}</p>` : ''}
+                        ${e.cnpj ? `<p class="text-xs text-slate-400 mt-0.5">${escapeHtml(e.cnpj)}</p>` : ''}
                     </div>
                     <div class="flex gap-2 shrink-0 ml-4">
-                        <button onclick="editarEmpresa('${d.id}')" class="p-2 text-slate-400 hover:text-primary hover:bg-primary/10 rounded-lg transition-colors">
+                        <button onclick="editarEmpresa('${escapeJsString(d.id)}')" class="p-2 text-slate-400 hover:text-primary hover:bg-primary/10 rounded-lg transition-colors">
                             <span class="material-symbols-outlined text-lg">edit</span>
                         </button>
-                        <button onclick="excluirEmpresa('${d.id}')" class="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors">
+                        <button onclick="excluirEmpresa('${escapeJsString(d.id)}')" class="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors">
                             <span class="material-symbols-outlined text-lg">delete</span>
                         </button>
                     </div>

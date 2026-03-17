@@ -1,10 +1,11 @@
 import { db, auth } from '../../services/firebase.js';
 import {
-    collection, getDocs, doc, deleteDoc, query, where, serverTimestamp, setDoc, updateDoc
+    collection, getDocs, doc, deleteDoc, query, where, serverTimestamp, setDoc
 } from 'firebase/firestore';
 import {
     createUserWithEmailAndPassword, signOut
 } from 'firebase/auth';
+import { escapeAttribute, escapeHtml, escapeJsString } from '../../utils/sanitize.js';
 
 let allSupervisores = [];
 
@@ -17,14 +18,14 @@ export async function initAdminMotoristas() {
     // Populate filter select
     const filtroSelect = document.querySelector('#filtro-supervisor');
     allSupervisores.forEach(s => {
-        filtroSelect.innerHTML += `<option value="${s.id}">${s.nome}</option>`;
+        filtroSelect.innerHTML += `<option value="${escapeAttribute(s.id)}">${escapeHtml(s.nome)}</option>`;
     });
     filtroSelect?.addEventListener('change', () => loadMotoristas(filtroSelect.value));
 
     // Populate modal select
     const modalSelect = document.querySelector('#motorista-supervisor');
     allSupervisores.forEach(s => {
-        modalSelect.innerHTML += `<option value="${s.id}">${s.nome}</option>`;
+        modalSelect.innerHTML += `<option value="${escapeAttribute(s.id)}">${escapeHtml(s.nome)}</option>`;
     });
 
     loadMotoristas();
@@ -65,18 +66,6 @@ export async function initAdminMotoristas() {
     });
 }
 
-function escapeHtml(text) {
-    if (text === null || text === undefined) {
-        return '';
-    }
-    return String(text)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#39;');
-}
-
 async function loadMotoristas(supervisorId = '') {
     const tbody = document.querySelector('#lista-motoristas');
     tbody.innerHTML = '<tr><td colspan="4" class="text-center p-10 text-slate-400">Carregando...</td></tr>';
@@ -93,11 +82,11 @@ async function loadMotoristas(supervisorId = '') {
             const m = d.data();
             const supervisor = allSupervisores.find(s => s.id === m.supervisorId);
             return `<tr>
-                <td class="px-6 py-4 font-semibold">${m.nome || '—'}</td>
-                <td class="px-6 py-4 text-slate-500 hidden md:table-cell">${m.email || '—'}</td>
-                <td class="px-6 py-4 hidden md:table-cell"><span class="bg-blue-50 text-blue-700 text-xs font-bold px-2 py-1 rounded-full">${supervisor?.nome || 'Sem supervisor'}</span></td>
+                <td class="px-6 py-4 font-semibold">${escapeHtml(m.nome || '—')}</td>
+                <td class="px-6 py-4 text-slate-500 hidden md:table-cell">${escapeHtml(m.email || '—')}</td>
+                <td class="px-6 py-4 hidden md:table-cell"><span class="bg-blue-50 text-blue-700 text-xs font-bold px-2 py-1 rounded-full">${escapeHtml(supervisor?.nome || 'Sem supervisor')}</span></td>
                 <td class="px-6 py-4">
-                    <button onclick="excluirMotorista('${d.id}')" class="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg"><span class="material-symbols-outlined text-lg">delete</span></button>
+                    <button onclick="excluirMotorista('${escapeJsString(d.id)}')" class="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg"><span class="material-symbols-outlined text-lg">delete</span></button>
                 </td>
             </tr>`;
         }).join('');

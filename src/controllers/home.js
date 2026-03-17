@@ -3,6 +3,7 @@ import {
     collection, getDocs, addDoc, deleteDoc, doc, query, where, orderBy, serverTimestamp, Timestamp
 } from 'firebase/firestore';
 import { signOut } from 'firebase/auth';
+import { escapeAttribute, escapeHtml, escapeJsString } from '../utils/sanitize.js';
 
 let empresas = [];
 let entregasDia = [];
@@ -84,7 +85,7 @@ async function loadEmpresas() {
         } else {
             select.innerHTML = '<option value="" disabled selected>Escolha uma empresa</option>';
             empresas.forEach(e => {
-                select.innerHTML += `<option value="${e.id}">${e.nome}</option>`;
+                select.innerHTML += `<option value="${escapeAttribute(e.id)}">${escapeHtml(e.nome)}</option>`;
             });
         }
     } catch (err) {
@@ -108,9 +109,9 @@ function renderTipos(empresaId) {
 
     listaTipos.innerHTML = empresa.tipos.map((t, idx) => `
         <button class="btn-add-entrega w-full flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800 hover:bg-primary/10 hover:border-primary/30 border border-slate-200 dark:border-slate-700 rounded-xl transition-all group"
-            data-empresa-id="${empresa.id}" data-empresa-nome="${empresa.nome}" data-tipo-nome="${t.nome}" data-valor="${t.valor}">
+            data-empresa-id="${escapeAttribute(empresa.id)}" data-empresa-nome="${escapeAttribute(empresa.nome)}" data-tipo-nome="${escapeAttribute(t.nome)}" data-valor="${t.valor}">
             <div class="text-left">
-                <p class="font-bold text-sm group-hover:text-primary">${t.nome}</p>
+                <p class="font-bold text-sm group-hover:text-primary">${escapeHtml(t.nome)}</p>
                 <p class="text-xs text-slate-500">Toque para registrar</p>
             </div>
             <div class="flex items-center gap-2">
@@ -211,12 +212,12 @@ function renderEntregasDia() {
     container.innerHTML = entregasDia.map(e => `
         <div class="flex items-center justify-between px-5 py-4" id="entrega-item-${e.id}">
             <div>
-                <p class="font-bold text-sm">${e.tipoNome}</p>
-                <p class="text-xs text-slate-500">${e.empresaNome}</p>
+                <p class="font-bold text-sm">${escapeHtml(e.tipoNome)}</p>
+                <p class="text-xs text-slate-500">${escapeHtml(e.empresaNome)}</p>
             </div>
             <div class="flex items-center gap-3">
                 <span class="font-black text-primary">R$ ${(e.valor || 0).toFixed(2).replace('.', ',')}</span>
-                <button onclick="removerEntrega('${e.id}')" class="p-1.5 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors">
+                <button onclick="removerEntrega('${escapeJsString(e.id)}')" class="p-1.5 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors">
                     <span class="material-symbols-outlined text-base">remove_circle</span>
                 </button>
             </div>

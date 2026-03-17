@@ -38,6 +38,7 @@ export function initCadastroEmpresa() {
         if (!email) return showError('Informe um e-mail válido.');
         if (senha.length < 6) return showError('A senha deve ter no mínimo 6 caracteres.');
         if (senha !== confirmar) return showError('As senhas não coincidem.');
+        return showError('Cadastro público de empresa/supervisor foi desativado. Esse perfil precisa ser criado por um fluxo administrativo seguro.');
 
         const btn = document.querySelector('#btn-cadastrar');
         btn.disabled = true;

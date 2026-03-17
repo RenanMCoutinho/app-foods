@@ -6,43 +6,110 @@ service cloud.firestore {
     function isAuth() { return request.auth != null; }
     function getUser() { return get(/databases/$(database)/documents/usuarios/$(request.auth.uid)); }
     function role() { return getUser().data.role; }
+    function isSelf(uid) { return isAuth() && request.auth.uid == uid; }
     function isAdmin() { return isAuth() && role() == 'admin'; }
     function isSupervisor() { return isAuth() && role() == 'supervisor'; }
     function isMotorista() { return isAuth() && role() == 'motorista'; }
-
-    // Usuarios: cada um lê o próprio. Admin lê tudo. Supervisor lê seus motoristas.
-    match /usuarios/{uid} {
-      allow read: if isAuth() && (request.auth.uid == uid || isAdmin() || isSupervisor());
-      allow create: if true; // criação pública no cadastro
-      allow update: if isAdmin() || request.auth.uid == uid || (isSupervisor() && resource.data.role == 'motorista');
-      allow delete: if isAdmin() || request.auth.uid == uid;
-    }
-
-    // Empresas: supervisor cria e gerencia as suas. Motoristas leem.
-    match /empresas/{id} {
-      allow read: if isAuth();
-      allow create: if isSupervisor() || isAdmin();
-      allow update, delete: if isAdmin() || (isSupervisor() && resource.data.supervisorId == request.auth.uid);
-    }
-
-    // Locais: supervisor gerencia os seus. Motoristas leem.
-    match /locais/{id} {
-      allow read: if isAuth();
-      allow create: if isSupervisor() || isAdmin();
-      allow update, delete: if isAdmin() || (isSupervisor() && resource.data.supervisorId == request.auth.uid);
-    }
-
-    // Entregas: motorista cria as próprias. Supervisor lê/gerencia as do seu grupo. Admin lê tudo.
-    match /entregas/{id} {
-      allow read: if isAuth() && (
-        isAdmin() ||
-        resource.data.motoristaId == request.auth.uid ||
-        resource.data.supervisorId == request.auth.uid
+    function motoristaCanAccessSupervisor(supervisorId) {
+      return isMotorista() && (
+        getUser().data.supervisorId == supervisorId ||
+        (getUser().data.matrizesVinculadas != null && supervisorId in getUser().data.matrizesVinculadas)
       );
-      allow create: if isAuth() && (isMotorista() || isSupervisor() || isAdmin());
-      allow update, delete: if isAdmin() ||
-        resource.data.motoristaId == request.auth.uid ||
-        resource.data.supervisorId == request.auth.uid;
+    }
+    function isManagedMotorista(uid) {
+      return isSupervisor() &&
+        exists(/databases/$(database)/documents/usuarios/$(uid)) &&
+        get(/databases/$(database)/documents/usuarios/$(uid)).data.role == 'motorista' &&
+        get(/databases/$(database)/documents/usuarios/$(uid)).data.supervisorId == request.auth.uid;
+    }
+
+    // Usuarios: cada um lê o próprio. Admin lê tudo. Supervisor lê apenas motoristas vinculados.
+    match /usuarios/{uid} {
+      allow read: if isSelf(uid) || isAdmin() || isManagedMotorista(uid);
+      allow create: if isSelf(uid) &&
+        request.resource.data.role == 'motorista' &&
+        request.resource.data.keys().hasOnly([
+          'nome', 'email', 'role', 'createdAt', 'supervisorId', 'matrizesVinculadas'
+        ]);
+      allow update: if isAdmin() ||
+        (
+          isSelf(uid) &&
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+            'nome', 'email', 'empresaNome', 'empresaCnpj', 'updatedAt'
+          ])
+        ) ||
+        (
+          isManagedMotorista(uid) &&
+          request.resource.data.role == resource.data.role &&
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+            'supervisorId', 'matrizesVinculadas', 'updatedAt'
+          ])
+        );
+      allow delete: if isAdmin() || isSelf(uid);
+    }
+
+    // Empresas: admin lê tudo. Supervisor gerencia as suas. Motorista lê apenas as vinculadas.
+    match /empresas/{id} {
+      allow read: if isAdmin() ||
+        (isSupervisor() && resource.data.supervisorId == request.auth.uid) ||
+        motoristaCanAccessSupervisor(resource.data.supervisorId);
+      allow create: if isAdmin() ||
+        (isSupervisor() && request.resource.data.supervisorId == request.auth.uid);
+      allow update: if isAdmin() ||
+        (
+          isSupervisor() &&
+          resource.data.supervisorId == request.auth.uid &&
+          request.resource.data.supervisorId == resource.data.supervisorId
+        );
+      allow delete: if isAdmin() || (isSupervisor() && resource.data.supervisorId == request.auth.uid);
+    }
+
+    // Locais: admin lê tudo. Supervisor gerencia os seus. Motorista lê apenas os vinculados.
+    match /locais/{id} {
+      allow read: if isAdmin() ||
+        (isSupervisor() && resource.data.supervisorId == request.auth.uid) ||
+        motoristaCanAccessSupervisor(resource.data.supervisorId);
+      allow create: if isAdmin() ||
+        (isSupervisor() && request.resource.data.supervisorId == request.auth.uid);
+      allow update: if isAdmin() ||
+        (
+          isSupervisor() &&
+          resource.data.supervisorId == request.auth.uid &&
+          request.resource.data.supervisorId == resource.data.supervisorId
+        );
+      allow delete: if isAdmin() || (isSupervisor() && resource.data.supervisorId == request.auth.uid);
+    }
+
+    // Entregas: motorista vê/cria as próprias. Supervisor vê/gerencia só o seu grupo. Admin lê tudo.
+    match /entregas/{id} {
+      allow read: if isAdmin() ||
+        (isSupervisor() && resource.data.supervisorId == request.auth.uid) ||
+        (isMotorista() && resource.data.motoristaId == request.auth.uid);
+      allow create: if isAdmin() ||
+        (
+          isSupervisor() &&
+          request.resource.data.supervisorId == request.auth.uid
+        ) ||
+        (
+          isMotorista() &&
+          request.resource.data.motoristaId == request.auth.uid &&
+          motoristaCanAccessSupervisor(request.resource.data.supervisorId)
+        );
+      allow update: if isAdmin() ||
+        (
+          isSupervisor() &&
+          resource.data.supervisorId == request.auth.uid &&
+          request.resource.data.supervisorId == resource.data.supervisorId
+        ) ||
+        (
+          isMotorista() &&
+          resource.data.motoristaId == request.auth.uid &&
+          request.resource.data.motoristaId == resource.data.motoristaId &&
+          request.resource.data.supervisorId == resource.data.supervisorId
+        );
+      allow delete: if isAdmin() ||
+        (isSupervisor() && resource.data.supervisorId == request.auth.uid) ||
+        (isMotorista() && resource.data.motoristaId == request.auth.uid);
     }
   }
 }

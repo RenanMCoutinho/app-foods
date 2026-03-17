@@ -1,8 +1,10 @@
 import { db, auth } from '../../services/firebase.js';
 import { collection, getDocs, doc, updateDoc, getDoc, query, where, limit } from 'firebase/firestore';
 import { signOut } from 'firebase/auth';
+import { escapeAttribute, escapeHtml, escapeJsString } from '../../utils/sanitize.js';
 
 let minhaMatriz = null;
+let motoristasRenderizados = [];
 
 export async function initSupervisorMotoristas() {
     setupLogout();
@@ -63,6 +65,7 @@ async function loadMotoristas(termoBusca = '') {
             ).slice(0, 30);
         }
 
+        motoristasRenderizados = list;
         renderMotoristasGrid(list, container);
 
     } catch (err) {
@@ -87,13 +90,13 @@ function renderMotoristasGrid(lista, container) {
                     <span class="material-symbols-outlined ${isVinculado ? 'text-primary' : 'text-slate-400'} text-2xl">person</span>
                 </div>
                 <div>
-                    <p class="font-black text-slate-900 dark:text-white truncate max-w-[150px]" title="${m.nome || '—'}">${m.nome || '—'}</p>
-                    <p class="text-[11px] text-slate-500 truncate max-w-[150px]" title="${m.email || ''}">${m.email || ''}</p>
+                    <p class="font-black text-slate-900 dark:text-white truncate max-w-[150px]" title="${escapeAttribute(m.nome || '—')}">${escapeHtml(m.nome || '—')}</p>
+                    <p class="text-[11px] text-slate-500 truncate max-w-[150px]" title="${escapeAttribute(m.email || '')}">${escapeHtml(m.email || '')}</p>
                 </div>
             </div>
             <div class="flex items-center justify-between mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
                 <p class="text-[11px] leading-tight text-slate-500">Matriz Vinculada:<br><strong class="${isVinculado ? 'text-primary' : 'text-slate-400'} text-sm">${isVinculado ? 'Sim' : 'Não'}</strong></p>
-                <button onclick="abrirModalVincular('${m.id}', '${m.nome}', ${isVinculado})" 
+                <button onclick="abrirModalVincular('${escapeJsString(m.id)}', ${isVinculado})" 
                     class="flex items-center justify-center gap-1.5 text-xs text-white ${isVinculado ? 'bg-red-500 hover:bg-red-600' : 'bg-primary hover:bg-primary/90'} font-bold px-3 py-2 rounded-lg transition-colors shadow-sm">
                     <span class="material-symbols-outlined text-[16px]">${isVinculado ? 'link_off' : 'link'}</span> ${isVinculado ? 'Desvincular' : 'Vincular'}
                 </button>
@@ -153,8 +156,9 @@ function setupModal() {
         }
     });
 
-    window.abrirModalVincular = (id, nome, isVinculado) => {
-        document.querySelector('#nome-motorista-modal').textContent = nome;
+    window.abrirModalVincular = (id, isVinculado) => {
+        const motorista = motoristasRenderizados.find((item) => item.id === id);
+        document.querySelector('#nome-motorista-modal').textContent = motorista?.nome || 'Motorista';
         document.querySelector('#modal-motorista-id').value = id;
         document.querySelector('#nome-matriz-modal').textContent = (minhaMatriz && minhaMatriz.empresaNome) ? minhaMatriz.empresaNome : 'Sua Matriz (Não configurada)';
 

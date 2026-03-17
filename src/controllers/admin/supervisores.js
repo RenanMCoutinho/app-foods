@@ -1,10 +1,11 @@
 import { db, auth } from '../../services/firebase.js';
 import {
-    collection, getDocs, doc, deleteDoc, query, where, getCountFromServer, serverTimestamp, setDoc
+    collection, getDocs, doc, deleteDoc, query, where, getCountFromServer
 } from 'firebase/firestore';
 import {
-    createUserWithEmailAndPassword, signOut
+    signOut
 } from 'firebase/auth';
+import { escapeHtml, escapeJsString } from '../../utils/sanitize.js';
 
 export async function initSupervisores() {
     setupLogout();
@@ -22,27 +23,7 @@ export async function initSupervisores() {
 
     form?.addEventListener('submit', async (e) => {
         e.preventDefault();
-        const nome = document.querySelector('#supervisor-nome').value.trim();
-        const email = document.querySelector('#supervisor-email').value.trim();
-        const senha = document.querySelector('#supervisor-senha').value;
-        const btn = form.querySelector('button[type="submit"]');
-        btn.disabled = true;
-        btn.textContent = 'Criando...';
-        try {
-            // Create auth user — note: this logs out current user temporarily
-            const credential = await createUserWithEmailAndPassword(auth, email, senha);
-            await setDoc(doc(db, 'usuarios', credential.user.uid), {
-                nome, email, role: 'supervisor', createdAt: serverTimestamp()
-            });
-            modal.classList.add('hidden');
-            alert(`Supervisor "${nome}" criado com sucesso!`);
-            loadSupervisores();
-        } catch (err) {
-            alert('Erro: ' + err.message);
-        } finally {
-            btn.disabled = false;
-            btn.textContent = 'Criar Supervisor';
-        }
+        alert('Criação de supervisor pelo frontend foi bloqueada por segurança. Para esse perfil, use um backend com Admin SDK ou Cloud Functions.');
     });
 }
 
@@ -63,11 +44,11 @@ async function loadSupervisores() {
                 query(collection(db, 'usuarios'), where('role', '==', 'motorista'), where('supervisorId', '==', d.id))
             );
             return `<tr>
-                <td class="px-6 py-4 font-semibold">${s.nome || '—'}</td>
-                <td class="px-6 py-4 text-slate-500 hidden md:table-cell">${s.email || '—'}</td>
+                <td class="px-6 py-4 font-semibold">${escapeHtml(s.nome || '—')}</td>
+                <td class="px-6 py-4 text-slate-500 hidden md:table-cell">${escapeHtml(s.email || '—')}</td>
                 <td class="px-6 py-4"><span class="bg-blue-50 text-blue-700 font-bold text-xs px-2 py-1 rounded-full">${motoristaCount.data().count} motoristas</span></td>
                 <td class="px-6 py-4">
-                    <button onclick="excluirSupervisor('${d.id}')" class="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"><span class="material-symbols-outlined text-lg">delete</span></button>
+                    <button onclick="excluirSupervisor('${escapeJsString(d.id)}')" class="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"><span class="material-symbols-outlined text-lg">delete</span></button>
                 </td>
             </tr>`;
         }));

@@ -38,8 +38,12 @@ export function initLogin() {
             let msg = 'Erro ao fazer login.';
             if (['auth/invalid-credential', 'auth/user-not-found', 'auth/wrong-password'].includes(error.code)) {
                 msg = 'E-mail ou senha incorretos.';
+            } else if (error.code === 'auth/unauthorized-domain') {
+                msg = 'Domínio não autorizado no Firebase. Adicione o domínio publicado nas configurações de Authentication.';
             } else if (error.code === 'auth/invalid-email') {
                 msg = 'Formato de e-mail inválido.';
+            } else if (error.code === 'auth/invalid-api-key' || error.code === 'auth/api-key-not-valid.-please-pass-a-valid-api-key.') {
+                msg = 'A configuração do Firebase da versão publicada está inválida ou bloqueada para este domínio.';
             } else if (error.code === 'auth/network-request-failed') {
                 msg = 'Sem conexão com a internet.';
             }

@@ -29,6 +29,7 @@ dist-ssr/
 # Firebase
 .firebase/
 firebase-debug.log*
+login_url.txt
 
 # Environment Variables (Segurança)
 .env

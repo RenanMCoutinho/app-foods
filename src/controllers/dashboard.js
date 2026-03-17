@@ -3,6 +3,7 @@ import {
     collection, getDocs, query, where, orderBy
 } from 'firebase/firestore';
 import { signOut } from 'firebase/auth';
+import { escapeHtml } from '../utils/sanitize.js';
 
 let currentYear, currentMonth;
 
@@ -105,8 +106,8 @@ async function loadMonth(motoristaId) {
             const rows = items.map(e => `
                 <div class="flex items-center justify-between px-5 py-3 border-b border-slate-100 dark:border-slate-800 last:border-0">
                     <div>
-                        <p class="text-sm font-semibold">${e.tipoNome || '—'}</p>
-                        <p class="text-xs text-slate-400">${e.empresaNome || '—'}</p>
+                        <p class="text-sm font-semibold">${escapeHtml(e.tipoNome || '—')}</p>
+                        <p class="text-xs text-slate-400">${escapeHtml(e.empresaNome || '—')}</p>
                     </div>
                     <span class="font-bold text-primary text-sm">R$ ${(e.valor || 0).toFixed(2).replace('.', ',')}</span>
                 </div>

@@ -1,6 +1,7 @@
 import { collection, query, where, getDocs, Timestamp, getDoc, doc } from 'firebase/firestore';
 import { db, auth } from "../services/firebase.js";
 import { formatarData, criarInicioDoDiaLocal, criarFimDoDiaLocal, nomeDiaSemana } from "../utils/date.js";
+import { escapeHtml } from "../utils/sanitize.js";
 
 export function initRelatorio() {
     const relatorioDias = document.querySelector("#relatorioDias");
@@ -84,8 +85,8 @@ export function initRelatorio() {
                 rowsHtml += `
                     <tr class="border-b border-slate-50 dark:border-slate-800/50">
                         <td class="px-6 py-4 text-sm">
-                            <div class="font-bold text-slate-900 dark:text-white">${e.nomeEmpresa}</div>
-                            <div class="text-[10px] text-slate-500 uppercase font-black">${e.tipoEntrega}</div>
+                            <div class="font-bold text-slate-900 dark:text-white">${escapeHtml(e.nomeEmpresa)}</div>
+                            <div class="text-[10px] text-slate-500 uppercase font-black">${escapeHtml(e.tipoEntrega)}</div>
                         </td>
                         <td class="px-6 py-4 text-sm text-right font-black text-primary">
                             R$ ${e.valorFrete.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}

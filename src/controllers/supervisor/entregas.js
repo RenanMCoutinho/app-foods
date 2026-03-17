@@ -4,6 +4,7 @@ import {
     query, where, orderBy, serverTimestamp
 } from 'firebase/firestore';
 import { signOut } from 'firebase/auth';
+import { escapeAttribute, escapeHtml, escapeJsString } from '../../utils/sanitize.js';
 
 let allMotoristas = [];
 let allEmpresas = [];
@@ -28,7 +29,7 @@ export async function initSupervisorEntregas() {
     const filtroMot = document.querySelector('#filtro-motorista');
     const modalMot = document.querySelector('#entrega-motorista');
     allMotoristas.forEach(m => {
-        const opt = `<option value="${m.id}">${m.nome}</option>`;
+        const opt = `<option value="${escapeAttribute(m.id)}">${escapeHtml(m.nome)}</option>`;
         if (filtroMot) filtroMot.innerHTML += opt;
         if (modalMot) modalMot.innerHTML += opt;
     });
@@ -36,7 +37,7 @@ export async function initSupervisorEntregas() {
     // Populate empresa modal
     const modalEmp = document.querySelector('#entrega-empresa');
     allEmpresas.forEach(e => {
-        if (modalEmp) modalEmp.innerHTML += `<option value="${e.id}" data-valor="${e.freteValorPadrao || 0}">${e.nome}</option>`;
+        if (modalEmp) modalEmp.innerHTML += `<option value="${escapeAttribute(e.id)}" data-valor="${e.freteValorPadrao || 0}">${escapeHtml(e.nome)}</option>`;
     });
 
     // Auto-fill valor from empresa
@@ -49,7 +50,7 @@ export async function initSupervisorEntregas() {
     // Populate local modal
     const modalLoc = document.querySelector('#entrega-local');
     allLocais.forEach(l => {
-        if (modalLoc) modalLoc.innerHTML += `<option value="${l.id}">${l.nome}</option>`;
+        if (modalLoc) modalLoc.innerHTML += `<option value="${escapeAttribute(l.id)}">${escapeHtml(l.nome)}</option>`;
     });
 
     // Filters
@@ -132,15 +133,15 @@ async function loadEntregas(supervisorId) {
             const cc = statusColors[e.status] || 'bg-slate-100 text-slate-700';
             const lbl = statusLabels[e.status] || e.status;
             return `<tr>
-                <td class="px-6 py-4 font-semibold">${motorista?.nome || '—'}</td>
-                <td class="px-6 py-4 text-slate-500 hidden md:table-cell">${empresa?.nome || '—'}</td>
-                <td class="px-6 py-4 text-slate-500 hidden lg:table-cell">${e.localNome || '—'}</td>
+                <td class="px-6 py-4 font-semibold">${escapeHtml(motorista?.nome || '—')}</td>
+                <td class="px-6 py-4 text-slate-500 hidden md:table-cell">${escapeHtml(empresa?.nome || '—')}</td>
+                <td class="px-6 py-4 text-slate-500 hidden lg:table-cell">${escapeHtml(e.localNome || '—')}</td>
                 <td class="px-6 py-4"><span class="px-2 py-1 rounded-full text-xs font-bold ${cc}">${lbl}</span></td>
                 <td class="px-6 py-4 font-bold text-primary">R$ ${(e.valor || 0).toFixed(2).replace('.', ',')}</td>
                 <td class="px-6 py-4">
                     <div class="flex gap-2">
-                        <button onclick="editarEntrega('${d.id}')" class="p-1.5 text-slate-400 hover:text-primary hover:bg-primary/10 rounded-lg"><span class="material-symbols-outlined text-lg">edit</span></button>
-                        <button onclick="excluirEntrega('${d.id}')" class="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg"><span class="material-symbols-outlined text-lg">delete</span></button>
+                        <button onclick="editarEntrega('${escapeJsString(d.id)}')" class="p-1.5 text-slate-400 hover:text-primary hover:bg-primary/10 rounded-lg"><span class="material-symbols-outlined text-lg">edit</span></button>
+                        <button onclick="excluirEntrega('${escapeJsString(d.id)}')" class="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg"><span class="material-symbols-outlined text-lg">delete</span></button>
                     </div>
                 </td>
             </tr>`;

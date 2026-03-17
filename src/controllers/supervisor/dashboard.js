@@ -3,6 +3,7 @@ import {
     collection, getDocs, query, where, getCountFromServer, orderBy, limit, Timestamp
 } from 'firebase/firestore';
 import { signOut } from 'firebase/auth';
+import { escapeHtml } from '../../utils/sanitize.js';
 
 export async function initSupervisorDashboard() {
     const user = auth.currentUser;
@@ -68,8 +69,8 @@ export async function initSupervisorDashboard() {
             const colorClass = statusColors[e.status] || 'bg-slate-100 text-slate-700';
             const label = statusLabels[e.status] || e.status;
             return `<tr>
-                <td class="px-6 py-4 font-semibold">${motoristasMap[e.motoristaId] || 'Motorista'}</td>
-                <td class="px-6 py-4 text-slate-500 hidden md:table-cell">${e.localNome || '—'}</td>
+                <td class="px-6 py-4 font-semibold">${escapeHtml(motoristasMap[e.motoristaId] || 'Motorista')}</td>
+                <td class="px-6 py-4 text-slate-500 hidden md:table-cell">${escapeHtml(e.localNome || '—')}</td>
                 <td class="px-6 py-4"><span class="px-2 py-1 rounded-full text-xs font-bold ${colorClass}">${label}</span></td>
                 <td class="px-6 py-4 font-bold text-primary">R$ ${(e.valor || 0).toFixed(2).replace('.', ',')}</td>
             </tr>`;
