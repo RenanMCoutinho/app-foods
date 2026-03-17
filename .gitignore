@@ -30,6 +30,7 @@ dist-ssr/
 .firebase/
 firebase-debug.log*
 login_url.txt
+.firebase-config/
 
 # Environment Variables (Segurança)
 .env

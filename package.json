@@ -21,6 +21,9 @@
     "url": "https://github.com/RenanMCoutinho/app-foods/issues"
   },
   "homepage": "https://github.com/RenanMCoutinho/app-foods#readme",
+  "overrides": {
+    "serialize-javascript": "7.0.3"
+  },
   "dependencies": {
     "firebase": "^12.10.0"
   },

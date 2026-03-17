@@ -16,16 +16,21 @@ service cloud.firestore {
         (getUser().data.matrizesVinculadas != null && supervisorId in getUser().data.matrizesVinculadas)
       );
     }
-    function isManagedMotorista(uid) {
+    function canReadManagedMotorista() {
       return isSupervisor() &&
-        exists(/databases/$(database)/documents/usuarios/$(uid)) &&
-        get(/databases/$(database)/documents/usuarios/$(uid)).data.role == 'motorista' &&
-        get(/databases/$(database)/documents/usuarios/$(uid)).data.supervisorId == request.auth.uid;
+        resource.data.role == 'motorista' &&
+        resource.data.supervisorId == request.auth.uid;
+    }
+    function canManageManagedMotorista() {
+      return isSupervisor() &&
+        resource.data.role == 'motorista' &&
+        resource.data.supervisorId == request.auth.uid &&
+        request.resource.data.role == resource.data.role;
     }
 
     // Usuarios: cada um lê o próprio. Admin lê tudo. Supervisor lê apenas motoristas vinculados.
     match /usuarios/{uid} {
-      allow read: if isSelf(uid) || isAdmin() || isManagedMotorista(uid);
+      allow read: if isSelf(uid) || isAdmin() || canReadManagedMotorista();
       allow create: if isSelf(uid) &&
         request.resource.data.role == 'motorista' &&
         request.resource.data.keys().hasOnly([
@@ -39,8 +44,7 @@ service cloud.firestore {
           ])
         ) ||
         (
-          isManagedMotorista(uid) &&
-          request.resource.data.role == resource.data.role &&
+          canManageManagedMotorista() &&
           request.resource.data.diff(resource.data).affectedKeys().hasOnly([
             'supervisorId', 'matrizesVinculadas', 'updatedAt'
           ])
